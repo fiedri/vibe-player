@@ -32,7 +32,8 @@
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <div class="h-dvh flex flex-col justify-between border-r-0">
   <Hero />
-  <div class="flex-1 overflow-y-auto">
+  <!-- Aseguramos flex flex-col min-h-0 para que los hijos sepan exactamente cuánto espacio vertical tienen -->
+  <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
     {@render children()}
   </div>
   <footer>

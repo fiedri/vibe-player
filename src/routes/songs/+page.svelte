@@ -1,39 +1,48 @@
 <script>
   import SongCard from "$lib/components/ui/Cards/SongCard.svelte";
   import { biblioteca } from "$lib/stores/biblioteca.svelte";
-  // Si quieres un estado local de búsqueda (también con runes)
+  import VirtualList from "$lib/components/ui/virtualList.svelte";
   //let searchQuery = $state('');
   
-  let filteredSongs = biblioteca.songs
+ let searchQuery = $state('');
 
-</script>
+  // Usamos $derived para que reaccione automáticamente 
+  // cuando biblioteca.songs cambie de tamaño o el usuario busque algo
+  let filteredSongs = $derived(
+    searchQuery
+      ? biblioteca.search(searchQuery)
+      : biblioteca.songs
+  );</script>
 
-<div class="biblioteca">
-  {#if biblioteca.loading}
-    <div class="loading">
+<div class="biblioteca h-full w-full">
+  {#if biblioteca.loading && biblioteca.songs.length === 0}
+    <div class="loading p-4 text-center">
       <p>Escaneando MediaStore...</p>
-      <!-- Podrías poner un spinner aquí -->
     </div>
 
-  {:else if biblioteca.error}
-    <div class="error">
+  {:else if biblioteca.error && biblioteca.songs.length === 0}
+    <div class="error p-4 text-center">
       <p>❌ {biblioteca.error}</p>
-      <button onclick={() => biblioteca.refresh()}>
+      <button onclick={() => biblioteca.refresh()} class="mt-2 text-primary font-medium">
         Reintentar
       </button>
     </div>
 
-  {:else}
-    <div class="song-list" id="song-list">
-      {#each filteredSongs as song, idx (song.id)}
-        <SongCard {song} {idx} />
+  {:else if filteredSongs.length === 0}
+    <div class="p-4 text-center text-zinc-400">
+      {#if searchQuery}
+        <p>No se encontraron resultados para "{searchQuery}"</p>
       {:else}
-        {#if searchQuery}
-          <p>No se encontraron resultados para "{searchQuery}"</p>
-        {:else}
-          <p>No hay canciones en el dispositivo</p>
-        {/if}
-      {/each}
+        <p>No hay canciones en el dispositivo</p>
+      {/if}
     </div>
+
+  {:else}
+<VirtualList items={filteredSongs} itemHeight={52}>
+      {#snippet children(song, idx)}
+        <SongCard {song} {idx} />
+      {/snippet}
+    </VirtualList>
+  
   {/if}
 </div>

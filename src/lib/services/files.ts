@@ -43,7 +43,7 @@ export async function cargarBiblioteca(limit = 100, offset = 0): Promise<MediaFi
   return resultado.medias || resultado.media || [];
 }
 
-function formatearMS(ms: number): string {
+export function formatearMS(ms: number): string {
   const segundosTotales = Math.floor(ms / 1000);
   const minutos = Math.floor(segundosTotales / 60);
   const segundos = segundosTotales % 60;

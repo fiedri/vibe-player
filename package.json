@@ -47,6 +47,7 @@
 		"@capacitor/core": "^8.4.2",
 		"@capacitor/filesystem": "^8.1.2",
 		"@capacitor/preferences": "^8.0.1",
-		"@odion-cloud/capacitor-mediastore": "^1.0.21"
+		"@odion-cloud/capacitor-mediastore": "^1.0.21",
+		"carbon-icons-svelte": "^13.13.0"
 	}
 }

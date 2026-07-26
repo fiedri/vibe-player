@@ -29,6 +29,9 @@ importers:
       '@odion-cloud/capacitor-mediastore':
         specifier: ^1.0.21
         version: 1.0.21(@capacitor/core@8.4.2)
+      carbon-icons-svelte:
+        specifier: ^13.13.0
+        version: 13.13.0
     devDependencies:
       '@fontsource-variable/inter':
         specifier: ^5.3.0
@@ -1238,6 +1241,9 @@ packages:
 
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
+
+  carbon-icons-svelte@13.13.0:
+    resolution: {integrity: sha512-9oBq+RjpCR8Zv5X4yFfPl7zWJb+4/qHTSuhCw8r7SfhC3PBBJiiHgZ5Dn73AjkR88CaOCNTmtSFVEyXplluhEQ==}
 
   chokidar@4.0.3:
     resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
@@ -2955,6 +2961,8 @@ snapshots:
   buffer-crc32@0.2.13: {}
 
   buffer-from@1.1.2: {}
+
+  carbon-icons-svelte@13.13.0: {}
 
   chokidar@4.0.3:
     dependencies:
