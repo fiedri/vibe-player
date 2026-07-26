@@ -45,7 +45,7 @@
 .dark {
   --background: #000000;
   --foreground: oklch(0.987 0.002 197.1);
-  --card: #1E1E1E;
+  --card: #1a1c1c;
   --card-foreground: oklch(0.987 0.002 197.1);
   --popover: oklch(0.218 0.008 223.9);
   --popover-foreground: oklch(0.987 0.002 197.1);
@@ -119,7 +119,6 @@
 }
 
 @layer base {
-
   body {
     @apply bg-background text-foreground;
   }
@@ -127,7 +126,6 @@
     @apply font-sans;
   }
 }
-
 
 ::-webkit-scrollbar {
   width: 4px;
@@ -146,3 +144,8 @@
 ::-webkit-scrollbar-track {
   background: transparent; /* En lugar de #000000 */
 }
+svg.lucide {
+  stroke-linecap: square !important;
+  stroke-linejoin: miter !important;
+}
+
