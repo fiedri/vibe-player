@@ -24,9 +24,16 @@ interface MediaFile {
   isExternal?: boolean;
 }
 
+export async function solicitarPermisosAudio() {
+  try {
+    return await CapacitorMediaStore.requestPermissions({ types: ["audio"] });
+  } catch (e) {
+    console.warn("Error al pedir permisos:", e);
+  }
+}
+
 // files.ts
 export async function cargarBiblioteca(limit = 100, offset = 0): Promise<MediaFile[]> {
-  const perm = await CapacitorMediaStore.requestPermissions({ types: ["audio"] });
 
 
   const opciones: any = {

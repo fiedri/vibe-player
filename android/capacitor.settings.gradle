@@ -5,11 +5,20 @@ project(':capacitor-android').projectDir = new File('../node_modules/.pnpm/@capa
 include ':capacitor-community-media'
 project(':capacitor-community-media').projectDir = new File('../node_modules/.pnpm/@capacitor-community+media@9.1.0_@capacitor+core@8.4.2/node_modules/@capacitor-community/media/android')
 
+include ':capacitor-app'
+project(':capacitor-app').projectDir = new File('../node_modules/.pnpm/@capacitor+app@8.1.1_@capacitor+core@8.4.2/node_modules/@capacitor/app/android')
+
 include ':capacitor-filesystem'
 project(':capacitor-filesystem').projectDir = new File('../node_modules/.pnpm/@capacitor+filesystem@8.1.2_@capacitor+core@8.4.2/node_modules/@capacitor/filesystem/android')
 
+include ':capacitor-local-notifications'
+project(':capacitor-local-notifications').projectDir = new File('../node_modules/.pnpm/@capacitor+local-notifications@8.2.1_@capacitor+core@8.4.2/node_modules/@capacitor/local-notifications/android')
+
 include ':capacitor-preferences'
 project(':capacitor-preferences').projectDir = new File('../node_modules/.pnpm/@capacitor+preferences@8.0.1_@capacitor+core@8.4.2/node_modules/@capacitor/preferences/android')
+
+include ':capgo-capacitor-media-session'
+project(':capgo-capacitor-media-session').projectDir = new File('../node_modules/.pnpm/@capgo+capacitor-media-session@8.0.29_@capacitor+core@8.4.2/node_modules/@capgo/capacitor-media-session/android')
 
 include ':odion-cloud-capacitor-mediastore'
 project(':odion-cloud-capacitor-mediastore').projectDir = new File('../node_modules/.pnpm/@odion-cloud+capacitor-mediastore@1.0.21_@capacitor+core@8.4.2/node_modules/@odion-cloud/capacitor-mediastore/android')

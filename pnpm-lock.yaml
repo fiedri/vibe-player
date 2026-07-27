@@ -14,6 +14,9 @@ importers:
       '@capacitor/android':
         specifier: ^8.4.2
         version: 8.4.2(@capacitor/core@8.4.2)
+      '@capacitor/app':
+        specifier: ^8.1.1
+        version: 8.1.1(@capacitor/core@8.4.2)
       '@capacitor/cli':
         specifier: ^8.4.2
         version: 8.4.2
@@ -23,9 +26,15 @@ importers:
       '@capacitor/filesystem':
         specifier: ^8.1.2
         version: 8.1.2(@capacitor/core@8.4.2)
+      '@capacitor/local-notifications':
+        specifier: ^8.2.1
+        version: 8.2.1(@capacitor/core@8.4.2)
       '@capacitor/preferences':
         specifier: ^8.0.1
         version: 8.0.1(@capacitor/core@8.4.2)
+      '@capgo/capacitor-media-session':
+        specifier: ^8.0.29
+        version: 8.0.29(@capacitor/core@8.4.2)
       '@odion-cloud/capacitor-mediastore':
         specifier: ^1.0.21
         version: 1.0.21(@capacitor/core@8.4.2)
@@ -115,6 +124,11 @@ packages:
     peerDependencies:
       '@capacitor/core': ^8.4.0
 
+  '@capacitor/app@8.1.1':
+    resolution: {integrity: sha512-xM2ZTX5jK60tFtmjsmJv+Cdj1Qsb6NcavkqmdEnCPQBeya9oKhamZJxYOnQNj1ZvcJM7sWfG6BEtSLx42pisbA==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
+
   '@capacitor/cli@7.6.8':
     resolution: {integrity: sha512-sJYLoSS1wVHjDPwRc0grtNZcQZnkQc7TJKoVZdHL2HI5TPCq+27WBrMAo0mXvQQSH2axPYCz5cyRrcqqakOvxQ==}
     engines: {node: '>=20.0.0'}
@@ -133,6 +147,11 @@ packages:
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
 
+  '@capacitor/local-notifications@8.2.1':
+    resolution: {integrity: sha512-Bkim+MGl7UrDTjDferV4ECq0aWciTsa0k15+MX2jnx2PeWgEPvlBy5yrqzBlwEZPrtHFUvPVxPi5V66MPGHkAw==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
+
   '@capacitor/preferences@8.0.1':
     resolution: {integrity: sha512-T6no3ebi79XJCk91U3Jp/liJUwgBdvHR+s6vhvPkPxSuch7z3zx5Rv1bdWM6sWruNx+pViuEGqZvbfCdyBvcHQ==}
     peerDependencies:
@@ -140,6 +159,11 @@ packages:
 
   '@capacitor/synapse@1.0.4':
     resolution: {integrity: sha512-/C1FUo8/OkKuAT4nCIu/34ny9siNHr9qtFezu4kxm6GY1wNFxrCFWjfYx5C1tUhVGz3fxBABegupkpjXvjCHrw==}
+
+  '@capgo/capacitor-media-session@8.0.29':
+    resolution: {integrity: sha512-6oOarjYS79iBdpPqa/48h77y8PfGXJJMyGC+898FUKW2l5wQoO0LPz0ZaC5FWDqDl7IbZSYF1uH6Z4aNQV7qKw==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
 
   '@drizzle-team/brocli@0.10.2':
     resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
@@ -2123,6 +2147,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 8.4.2
 
+  '@capacitor/app@8.1.1(@capacitor/core@8.4.2)':
+    dependencies:
+      '@capacitor/core': 8.4.2
+
   '@capacitor/cli@7.6.8':
     dependencies:
       '@ionic/cli-framework-output': 2.2.8
@@ -2176,11 +2204,19 @@ snapshots:
       '@capacitor/core': 8.4.2
       '@capacitor/synapse': 1.0.4
 
+  '@capacitor/local-notifications@8.2.1(@capacitor/core@8.4.2)':
+    dependencies:
+      '@capacitor/core': 8.4.2
+
   '@capacitor/preferences@8.0.1(@capacitor/core@8.4.2)':
     dependencies:
       '@capacitor/core': 8.4.2
 
   '@capacitor/synapse@1.0.4': {}
+
+  '@capgo/capacitor-media-session@8.0.29(@capacitor/core@8.4.2)':
+    dependencies:
+      '@capacitor/core': 8.4.2
 
   '@drizzle-team/brocli@0.10.2': {}
 
