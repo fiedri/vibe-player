@@ -3,10 +3,21 @@
   import VirtualGrid from "$lib/components/ui/VirtualGrid.svelte";
   import { albumes } from "$lib/stores/albumes.svelte";
   import { Capacitor } from "@capacitor/core";
+    import { ui } from "$lib/stores/ui.svelte";
+    import { onMount } from "svelte";
+
+  onMount(()=>{
+ui.query = ""
+  })
+  let searchQuery = $derived(ui.query);
+
+  let filteredAlbums = $derived(
+    searchQuery ? albumes.search(searchQuery) : albumes.albums,
+  );
 </script>
 
 <div class="h-full w-full p-1">
-  <VirtualGrid items={albumes.albums} columns={3} rowHeight={170} gap={3} overscan={3}>
+  <VirtualGrid items={filteredAlbums} columns={3} rowHeight={170} gap={3} overscan={3}>
     {#snippet children(album)}
     <a href="/albums/[{album.name}]/">
 
