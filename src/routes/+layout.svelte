@@ -26,10 +26,13 @@
     setTimeout(async () => {
       if (!biblioteca.loaded && !biblioteca.loading) {
         console.log("📀 Iniciando carga de biblioteca...");
-        await biblioteca.load();
+        const escaneoCompleto = await biblioteca.load();
         console.log(`📀 Biblioteca cargada: ${biblioteca.songs.length} canciones`);
 
-        if (biblioteca.songs && biblioteca.songs.length > 0) {
+        // Renovar la caché (y su timestamp) SOLO cuando hubo un escaneo
+        // real. Si load() usó la caché fresca no se toca el timestamp:
+        // así la frescura vence a las 24h y aparecen canciones nuevas.
+        if (escaneoCompleto) {
           await guardarCache(biblioteca.songs);
           console.log("✅ Caché local guardado");
         }

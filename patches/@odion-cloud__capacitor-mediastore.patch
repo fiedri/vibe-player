@@ -1,0 +1,312 @@
+diff --git a/android/src/main/java/com/capacitor/mediastore/MediaStoreHelper.kt b/android/src/main/java/com/capacitor/mediastore/MediaStoreHelper.kt
+index 3bdf02e91ff6c5bb141157558bf5d0b2ff811963..74c9f93beaf6fffc3b57b83d394f6b45ea98d8df 100644
+--- a/android/src/main/java/com/capacitor/mediastore/MediaStoreHelper.kt
++++ b/android/src/main/java/com/capacitor/mediastore/MediaStoreHelper.kt
+@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory
+ import android.media.MediaMetadataRetriever
+ import android.net.Uri
+ import android.os.Build
++import android.os.Bundle
+ import android.os.Environment
+ import android.provider.MediaStore
+ import android.util.Base64
+@@ -43,10 +44,12 @@ class MediaStoreHelper(private val context: Context) {
+ 
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+             // Android 13+ (API 33+) - Use specific content URIs for each media type
+-            val imageFiles = queryMediaStore(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image", options)
+-            val audioFiles = queryMediaStore(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, "audio", options)
+-            val videoFiles = queryMediaStore(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "video", options)
+-            val documentFiles = queryMediaStore(MediaStore.Files.getContentUri("external"), "document", options)
++            // Pagination must NOT be applied per-URI here: getMedias merges and sorts
++            // across all media types before slicing the combined result.
++            val imageFiles = queryMediaStore(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image", options, paginate = false)
++            val audioFiles = queryMediaStore(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, "audio", options, paginate = false)
++            val videoFiles = queryMediaStore(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "video", options, paginate = false)
++            val documentFiles = queryMediaStore(MediaStore.Files.getContentUri("external"), "document", options, paginate = false)
+ 
+             allFiles.addAll(imageFiles)
+             allFiles.addAll(audioFiles)
+@@ -54,7 +57,7 @@ class MediaStoreHelper(private val context: Context) {
+             allFiles.addAll(documentFiles)
+         } else {
+             // Android 12 and below (API 32 and below) - Use Files content URI for broader access
+-            val allMediaFiles = queryMediaStore(MediaStore.Files.getContentUri("external"), "all", options)
++            val allMediaFiles = queryMediaStore(MediaStore.Files.getContentUri("external"), "all", options, paginate = false)
+             allFiles.addAll(allMediaFiles)
+         }
+ 
+@@ -90,7 +93,11 @@ class MediaStoreHelper(private val context: Context) {
+         val result = JSObject()
+         val mediaArray = JSArray()
+ 
+-        val files = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
++        val files: List<JSObject>
++        // Whether queryMediaStore already applied limit/offset (SQL pagination or post-hoc slice)
++        val alreadyPaginated: Boolean
++
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+             // Android 13+ (API 33+) - Use specific content URIs
+             val contentUri = when (mediaType.lowercase()) {
+                 "image" -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+@@ -99,22 +106,24 @@ class MediaStoreHelper(private val context: Context) {
+                 "document" -> MediaStore.Files.getContentUri("external")
+                 else -> MediaStore.Files.getContentUri("external")
+             }
+-            queryMediaStore(contentUri, mediaType, options)
++            files = queryMediaStore(contentUri, mediaType, options, paginate = true)
++            alreadyPaginated = true
+         } else {
+             // Android 12 and below (API 32 and below) - Use appropriate strategy
+             when (mediaType.lowercase()) {
+                 "audio" -> {
+-                    // For audio files on older Android, use Audio content URI directly for better compatibility
++                    // For audio files on older Android, use Audio content URI directly for better compatibility.
++                    // Multiple URIs are merged here, so pagination is applied post-hoc below (NOT per-URI).
+                     val audioFiles = mutableListOf<JSObject>()
+-                    
++
+                     // Query primary external storage
+                     try {
+-                        audioFiles.addAll(queryMediaStore(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaType, options))
++                        audioFiles.addAll(queryMediaStore(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaType, options, paginate = false))
+                     } catch (e: Exception) {
+                         // If Audio URI fails, fallback to Files URI with compatible projection
+-                        audioFiles.addAll(queryMediaStore(MediaStore.Files.getContentUri("external"), mediaType, options))
++                        audioFiles.addAll(queryMediaStore(MediaStore.Files.getContentUri("external"), mediaType, options, paginate = false))
+                     }
+-                    
++
+                     // For Android 9 and below, try to access external SD card manually
+                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && options.includeExternal) {
+                         try {
+@@ -123,10 +132,10 @@ class MediaStoreHelper(private val context: Context) {
+                                 MediaStore.Files.getContentUri("external_primary"),
+                                 MediaStore.Audio.Media.getContentUri("external_primary")
+                             )
+-                            
++
+                             alternativeUris.forEach { uri ->
+                                 try {
+-                                    audioFiles.addAll(queryMediaStore(uri, mediaType, options))
++                                    audioFiles.addAll(queryMediaStore(uri, mediaType, options, paginate = false))
+                                 } catch (e: Exception) {
+                                     // Continue if this URI fails
+                                 }
+@@ -135,31 +144,45 @@ class MediaStoreHelper(private val context: Context) {
+                             // Continue if external SD card access fails
+                         }
+                     }
+-                    
+-                    audioFiles
++
++                    files = audioFiles
++                    alreadyPaginated = false
+                 }
+                 else -> {
+                     // For other media types, use Files content URI
+-                    queryMediaStore(MediaStore.Files.getContentUri("external"), mediaType, options)
++                    files = queryMediaStore(MediaStore.Files.getContentUri("external"), mediaType, options, paginate = true)
++                    alreadyPaginated = true
+                 }
+             }
+         }
+-        
+-        // Apply pagination
+-        val startIndex = options.offset
+-        val endIndex = if (options.limit != null) {
+-            minOf(startIndex + options.limit, files.size)
++
++        if (alreadyPaginated) {
++            // limit/offset already applied inside queryMediaStore (SQL LIMIT/OFFSET on API 26+,
++            // or post-hoc slice when the query spans multiple volumes / pre-O).
++            // hasMore is a heuristic: a full page means there may be more rows beyond it.
++            for (i in files.indices) {
++                mediaArray.put(files[i])
++            }
++            result.put("media", mediaArray)
++            result.put("totalCount", files.size)
++            result.put("hasMore", if (options.limit != null) files.size >= options.limit else false)
+         } else {
+-            files.size
+-        }
++            // Legacy aggregation path (audio on API 32 and below): slice the merged result post-hoc.
++            val startIndex = options.offset
++            val endIndex = if (options.limit != null) {
++                minOf(startIndex + options.limit, files.size)
++            } else {
++                files.size
++            }
+ 
+-        for (i in startIndex until endIndex) {
+-            mediaArray.put(files[i])
+-        }
++            for (i in startIndex until endIndex) {
++                mediaArray.put(files[i])
++            }
+ 
+-        result.put("media", mediaArray)
+-        result.put("totalCount", files.size)
+-        result.put("hasMore", endIndex < files.size)
++            result.put("media", mediaArray)
++            result.put("totalCount", files.size)
++            result.put("hasMore", endIndex < files.size)
++        }
+ 
+         return result
+     }
+@@ -381,7 +404,12 @@ class MediaStoreHelper(private val context: Context) {
+         return result
+     }
+ 
+-    private fun queryMediaStore(contentUri: Uri, mediaType: String, options: MediaQueryOptions): List<JSObject> {
++    private fun queryMediaStore(
++        contentUri: Uri,
++        mediaType: String,
++        options: MediaQueryOptions,
++        paginate: Boolean
++    ): List<JSObject> {
+         val files = mutableListOf<JSObject>()
+         
+         val projection = getProjectionForMediaType(mediaType)
+@@ -419,6 +447,12 @@ class MediaStoreHelper(private val context: Context) {
+             }
+         }
+ 
++        // SQL-level pagination (Bundle query with LIMIT/OFFSET) is only applied when a single URI
++        // is queried: merging multiple volumes/types with per-URI LIMIT/OFFSET would produce the
++        // wrong page. Multi-URI queries keep the original full fetch + post-hoc slice below.
++        val canPaginateSql = paginate && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
++            options.limit != null && urisToQuery.size <= 1
++
+         urisToQuery.forEach { uri ->
+             try {
+                 // Recalculate selection for each URI since Files vs Audio URIs need different selection
+@@ -431,13 +465,24 @@ class MediaStoreHelper(private val context: Context) {
+                     android.util.Log.d("MediaStoreHelper", "Projection count: ${projection.size}")
+                 }
+                 
+-                val cursor = context.contentResolver.query(
+-                    uri,
+-                    projection,
+-                    uriSpecificSelection,
+-                    selectionArgs,
+-                    sortOrder
+-                )
++                val cursor = if (canPaginateSql) {
++                    val queryArgs = Bundle().apply {
++                        uriSpecificSelection?.let { putString(ContentResolver.QUERY_ARG_SQL_SELECTION, it) }
++                        selectionArgs?.let { putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, it) }
++                        putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, sortOrder)
++                        putInt(ContentResolver.QUERY_ARG_LIMIT, options.limit!!)
++                        putInt(ContentResolver.QUERY_ARG_OFFSET, options.offset)
++                    }
++                    context.contentResolver.query(uri, projection, queryArgs, null)
++                } else {
++                    context.contentResolver.query(
++                        uri,
++                        projection,
++                        uriSpecificSelection,
++                        selectionArgs,
++                        sortOrder
++                    )
++                }
+ 
+                 cursor?.use {
+                     var count = 0
+@@ -461,7 +506,15 @@ class MediaStoreHelper(private val context: Context) {
+             }
+         }
+ 
+-        return files
++        return when {
++            // The provider may have ignored the LIMIT/OFFSET query args; fall back to the
++            // post-hoc slice so the returned page is still correct.
++            canPaginateSql && options.limit != null && files.size > options.limit -> applyPostHocSlice(files, options)
++            canPaginateSql -> files
++            // Pagination requested but SQL not possible (multi-URI, pre-O or no limit) -> slice post-hoc.
++            paginate -> applyPostHocSlice(files, options)
++            else -> files
++        }
+     }
+ 
+     private fun getProjectionForMediaType(mediaType: String): Array<String> {
+@@ -489,6 +542,9 @@ class MediaStoreHelper(private val context: Context) {
+                         MediaStore.Audio.Media.TITLE,
+                         MediaStore.Audio.Media.ARTIST,
+                         MediaStore.Audio.Media.ALBUM,
++                        // ALBUM_ID is read directly from the cursor to build albumArtUri,
++                        // avoiding the previous per-row sub-query (N+1).
++                        MediaStore.Audio.Media.ALBUM_ID,
+                         MediaStore.Audio.Media.ALBUM_ARTIST,
+                         MediaStore.Audio.Media.COMPOSER,
+                         MediaStore.Audio.Media.GENRE,
+@@ -497,9 +553,10 @@ class MediaStoreHelper(private val context: Context) {
+                         MediaStore.Audio.Media.BOOKMARK
+                     )
+                 } else {
+-                    // Android 12 and below - use only universally available columns when querying Files URI
+-                    // Audio-specific columns will be handled in populateMediaObject by checking column existence
+-                    baseProjection
++                    // Android 12 and below - use only universally available columns when querying Files URI.
++                    // ALBUM_ID is exposed by both the Audio and the Files content URI (the files table
++                    // has an album_id column), so populateMediaObject can build albumArtUri without a sub-query.
++                    baseProjection + arrayOf(MediaStore.Audio.Media.ALBUM_ID)
+                 }
+             }
+             "video" -> baseProjection + arrayOf(
+@@ -552,6 +609,7 @@ class MediaStoreHelper(private val context: Context) {
+                 val genreColumn = cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
+                 val trackColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TRACK)
+                 val yearColumn = cursor.getColumnIndex(MediaStore.Audio.Media.YEAR)
++                val albumIdColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
+ 
+                 if (durationColumn >= 0) mediaObject.put("duration", cursor.getLong(durationColumn))
+                 if (titleColumn >= 0) mediaObject.put("title", cursor.getString(titleColumn) ?: "Unknown")
+@@ -585,8 +643,9 @@ class MediaStoreHelper(private val context: Context) {
+                     }
+                 }
+ 
+-                // Get album art URI
+-                val albumId = getAlbumId(cursor.getString(idColumn))
++                // Get album art URI — ALBUM_ID comes straight from this cursor's projection,
++                // no per-row sub-query (that previous N+1 saturated the plugin thread).
++                val albumId = if (albumIdColumn >= 0) cursor.getLong(albumIdColumn) else null
+                 if (albumId != null) {
+                     val albumArtUri = ContentUris.withAppendedId(
+                         Uri.parse("content://media/external/audio/albumart"),
+@@ -688,27 +747,14 @@ class MediaStoreHelper(private val context: Context) {
+         return "$sortColumn $order"
+     }
+ 
+-    private fun getAlbumId(mediaId: String?): Long? {
+-        if (mediaId == null) return null
+-        
+-        val cursor = context.contentResolver.query(
+-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+-            arrayOf(MediaStore.Audio.Media.ALBUM_ID),
+-            "${MediaStore.Audio.Media._ID} = ?",
+-            arrayOf(mediaId),
+-            null
+-        )
+-
+-        cursor?.use {
+-            if (it.moveToFirst()) {
+-                val albumIdColumn = it.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
+-                if (albumIdColumn >= 0) {
+-                    return it.getLong(albumIdColumn)
+-                }
+-            }
++    private fun applyPostHocSlice(files: List<JSObject>, options: MediaQueryOptions): List<JSObject> {
++        val startIndex = minOf(options.offset, files.size)
++        val endIndex = if (options.limit != null) {
++            minOf(startIndex + options.limit, files.size)
++        } else {
++            files.size
+         }
+-
+-        return null
++        return files.subList(startIndex, endIndex).toList()
+     }
+ 
+     private fun getMimeType(mediaType: String, fileName: String): String {

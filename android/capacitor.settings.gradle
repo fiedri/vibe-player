@@ -21,7 +21,7 @@ include ':capacitor-preferences'
 project(':capacitor-preferences').projectDir = new File('../node_modules/.pnpm/@capacitor+preferences@8.0.1_@capacitor+core@8.4.2/node_modules/@capacitor/preferences/android')
 
 include ':capgo-capacitor-media-session'
-project(':capgo-capacitor-media-session').projectDir = new File('../node_modules/.pnpm/@capgo+capacitor-media-session@8.0.29_@capacitor+core@8.4.2/node_modules/@capgo/capacitor-media-session/android')
+project(':capgo-capacitor-media-session').projectDir = new File('../node_modules/.pnpm/@capgo+capacitor-media-session@8.0.29_patch_hash=acc8ce61e1996852f5c321da42d19a96a8d157_600b3fb5322940fa29d49bab362a846c/node_modules/@capgo/capacitor-media-session/android')
 
 include ':odion-cloud-capacitor-mediastore'
-project(':odion-cloud-capacitor-mediastore').projectDir = new File('../node_modules/.pnpm/@odion-cloud+capacitor-mediastore@1.0.21_@capacitor+core@8.4.2/node_modules/@odion-cloud/capacitor-mediastore/android')
+project(':odion-cloud-capacitor-mediastore').projectDir = new File('../node_modules/.pnpm/@odion-cloud+capacitor-mediastore@1.0.21_patch_hash=c39358cf50a69fbdd9843bf2c83d4766499_57a373b278762b50bc420aa2d8356a52/node_modules/@odion-cloud/capacitor-mediastore/android')

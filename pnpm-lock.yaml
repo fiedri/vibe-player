@@ -7,6 +7,14 @@ settings:
 overrides:
   sharp: ^0.33.5
 
+patchedDependencies:
+  '@capgo/capacitor-media-session':
+    hash: acc8ce61e1996852f5c321da42d19a96a8d1574edf6ec6e35efb63c322049a16
+    path: patches/@capgo__capacitor-media-session.patch
+  '@odion-cloud/capacitor-mediastore':
+    hash: c39358cf50a69fbdd9843bf2c83d47664992596bf3bc31a971844175334c7a2b
+    path: patches/@odion-cloud__capacitor-mediastore.patch
+
 importers:
 
   .:
@@ -40,10 +48,10 @@ importers:
         version: 8.0.1(@capacitor/core@8.4.2)
       '@capgo/capacitor-media-session':
         specifier: ^8.0.29
-        version: 8.0.29(@capacitor/core@8.4.2)
+        version: 8.0.29(patch_hash=acc8ce61e1996852f5c321da42d19a96a8d1574edf6ec6e35efb63c322049a16)(@capacitor/core@8.4.2)
       '@odion-cloud/capacitor-mediastore':
         specifier: ^1.0.21
-        version: 1.0.21(@capacitor/core@8.4.2)
+        version: 1.0.21(patch_hash=c39358cf50a69fbdd9843bf2c83d47664992596bf3bc31a971844175334c7a2b)(@capacitor/core@8.4.2)
       carbon-icons-svelte:
         specifier: ^13.13.0
         version: 13.13.0
@@ -3328,7 +3336,7 @@ snapshots:
 
   '@capacitor/synapse@1.0.4': {}
 
-  '@capgo/capacitor-media-session@8.0.29(@capacitor/core@8.4.2)':
+  '@capgo/capacitor-media-session@8.0.29(patch_hash=acc8ce61e1996852f5c321da42d19a96a8d1574edf6ec6e35efb63c322049a16)(@capacitor/core@8.4.2)':
     dependencies:
       '@capacitor/core': 8.4.2
 
@@ -3818,7 +3826,7 @@ snapshots:
 
   '@neon-rs/load@0.0.4': {}
 
-  '@odion-cloud/capacitor-mediastore@1.0.21(@capacitor/core@8.4.2)':
+  '@odion-cloud/capacitor-mediastore@1.0.21(patch_hash=c39358cf50a69fbdd9843bf2c83d47664992596bf3bc31a971844175334c7a2b)(@capacitor/core@8.4.2)':
     dependencies:
       '@capacitor/cli': 7.6.8
       '@capacitor/core': 8.4.2

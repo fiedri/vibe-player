@@ -56,12 +56,16 @@
 		"@odion-cloud/capacitor-mediastore": "^1.0.21",
 		"carbon-icons-svelte": "^13.13.0"
 	},
-  "pnpm": {
-    "overrides": {
-      "sharp": "^0.33.5"
-    },
-    "onlyBuiltDependencies": [
-      "sharp"
-    ]
-  }
+	"pnpm": {
+		"overrides": {
+			"sharp": "^0.33.5"
+		},
+		"onlyBuiltDependencies": [
+			"sharp"
+		],
+		"patchedDependencies": {
+			"@capgo/capacitor-media-session": "patches/@capgo__capacitor-media-session.patch",
+			"@odion-cloud/capacitor-mediastore": "patches/@odion-cloud__capacitor-mediastore.patch"
+		}
+	}
 }
