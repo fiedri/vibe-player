@@ -2,8 +2,14 @@ import type { Song } from "$lib/types/songs";
 import { biblioteca } from "$lib/stores/biblioteca.svelte";
 import { MediaSession } from "@capgo/capacitor-media-session";
 import { Capacitor } from "@capacitor/core";
+import {
+  DEFAULT_COVER_DATA_URL,
+  ensureThumbnail,
+} from "$lib/services/artworks";
 import { cargarEstadoReproductor } from "$lib/services/stores";
-import { truncate } from "fs";
+
+const artworkCache = new Map<string, string>();
+
 class PlayerStore {
   queue = $derived([...biblioteca.songs]);
   currentSong = $state<Song | null>(null);
@@ -28,6 +34,27 @@ class PlayerStore {
   public onSeekRequest?: (time: number) => void;
   private handlersInitialized = false;
   private lastPositionSync = 0;
+  private pendingArtwork = new Map<string, Promise<string>>();
+
+  public init() {
+    if (Capacitor.isNativePlatform()) {
+      if (!this.handlersInitialized) {
+        this.handlersInitialized = true;
+        this.initMediaSessionHandlers();
+      }
+      // Metadata inicial mínima: la notificación arranca intencional en vez de
+      // mostrar datos vacíos/stale mientras el servicio foreground ya corre.
+      void this.setMetadata({
+        id: "default",
+        title: "Vibe",
+        artists: "",
+        album: "",
+        image: "/default-cover.png",
+        audioUrl: "",
+      });
+      void this.getArtworkSrc("/default-cover.png");
+    }
+  }
 
   public initMediaSessionHandlers() {
     if (Capacitor.isNativePlatform()) {
@@ -66,9 +93,33 @@ class PlayerStore {
       (el) => el.id == lastState.trackId,
     );
     if (lastSong === -1) return;
+    const restoredSong = biblioteca.songs[lastSong];
     this.currentTime = lastState.position;
-    this.currentSong = biblioteca.songs[lastSong];
+    this.currentSong = restoredSong;
     this.mode = lastState.mode ? lastState.mode : 'off';
+    void this.getArtworkSrc(restoredSong.image);
+
+    // Sincroniza MediaSession nativo: la notificación debe reflejar la canción
+    // restaurada en vez del placeholder "Vibe" que pusheó init().
+    if (Capacitor.isNativePlatform()) {
+      // PlayerState no persiste isPlaying y el <audio> arranca pausado tras el
+      // restore, así que la notificación queda en "paused", igual que el estado
+      // real del reproductor (syncNativePlaybackState(this.isPlaying) daría el
+      // mismo resultado pero explícito queda documentado).
+      this.syncNativePlaybackState(false);
+      void this.setMetadata(restoredSong);
+
+      // Convierte "M:SS"/"MM:SS" (Song.duration) a segundos para setPositionState.
+      const durationParts = restoredSong.duration?.split(":").map(Number);
+      const restoredDuration = durationParts?.length
+        ? durationParts.reduce((acc, part) => acc * 60 + part, 0)
+        : 0;
+      if (restoredDuration > 0) {
+        // force=true: restauración al arrancar, no debe respetar el throttle
+        // de 2s. updatePositionState descarta internamente posiciones inválidas.
+        this.updatePositionState(lastState.position, restoredDuration, true);
+      }
+    }
   }
   public async setMetadata(song: Song) {
     if (!song) return;
@@ -76,25 +127,66 @@ class PlayerStore {
       void this.initMediaSessionHandlers();
     }
 
-    if (Capacitor.isNativePlatform()) {
-      try {
-        MediaSession.setMetadata({
-          title: song.title || "Sin título",
-          artist: Array.isArray(song.artists)
-            ? song.artists.join(", ")
-            : song.artists || "Artista desconocido",
-          album: song.album || "Música",
-          artwork: [
-            {
-              src: `${window.location.origin}/default-cover.png`,
-              sizes: "512x512",
-            },
-          ],
-        });
-      } catch (e) {
-        console.warn("Error metadata nativo:", e);
+    if (!Capacitor.isNativePlatform()) return;
+
+    const title = song.title || "Sin título";
+    const artist = Array.isArray(song.artists)
+      ? song.artists.join(", ")
+      : song.artists || "Artista desconocido";
+    const album = song.album || "Música";
+
+    const cached = song.image ? artworkCache.get(song.image) : undefined;
+
+    try {
+      MediaSession.setMetadata({
+        title,
+        artist,
+        album,
+        artwork: cached
+          ? [{ src: cached, sizes: "512x512" }]
+          : [{ src: "", sizes: "512x512" }],
+      });
+
+      if (!cached && song.image) {
+        const src = await this.getArtworkSrc(song.image);
+        if (src && src !== "") {
+          MediaSession.setMetadata({
+            title,
+            artist,
+            album,
+            artwork: [{ src, sizes: "512x512" }],
+          });
+        }
       }
+    } catch (e) {
+      console.warn("Error metadata nativo:", e);
     }
+  }
+
+  private async getArtworkSrc(image?: string): Promise<string> {
+    if (!image) return DEFAULT_COVER_DATA_URL;
+
+    const cached = artworkCache.get(image);
+    if (cached) return cached;
+
+    const pending = this.pendingArtwork.get(image);
+    if (pending) return pending;
+
+    const task = ensureThumbnail(image)
+      .then((base64) => {
+        if (base64) {
+          artworkCache.set(image, base64);
+          return base64;
+        }
+        // NUNCA devolver una URL http(s):// aquí: el plugin la fetchea con
+        // HttpURLConnection síncrono sin timeout en el hilo serializado de
+        // Capacitor, congelando todos los setMetadata/setPositionState.
+        return DEFAULT_COVER_DATA_URL;
+      })
+      .finally(() => this.pendingArtwork.delete(image));
+
+    this.pendingArtwork.set(image, task);
+    return task;
   }
 
   syncNativePlaybackState(isPlaying: boolean = this.isPlaying) {
@@ -133,16 +225,18 @@ class PlayerStore {
     this.currentSong = song;
     this.isPlaying = true;
     this.currentTime = 0;
+    this.duration = 0;
+    this.playTrigger++;
     console.log(song.image);
-    if (Capacitor.isNativePlatform() && !this.handlersInitialized) {
-      this.handlersInitialized = true;
-      this.initMediaSessionHandlers();
-    }
-
-    this.setMetadata(song).then(() => {
+    if (Capacitor.isNativePlatform()) {
+      if (!this.handlersInitialized) {
+        this.handlersInitialized = true;
+        this.initMediaSessionHandlers();
+      }
       this.syncNativePlaybackState(true);
       this.updatePositionState(0, this.duration, true);
-    });
+      void this.setMetadata(song);
+    }
   }
   shuffle(array) {
     const shuffled = [...array];

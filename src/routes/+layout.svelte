@@ -19,6 +19,7 @@
   let pauseListener: any = null;
 
   onMount(async () => {
+    player.init();
     await player.loadLastSavedState();
 
     await solicitarPermisosAudio();

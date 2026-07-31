@@ -78,6 +78,10 @@
   function handleLoadedMetadata() {
     if (!audioElement || !player.currentSong) return;
     player.duration = audioElement.duration;
+    if (player.currentTime > 0 && player.currentTime < audioElement.duration) {
+      audioElement.currentTime = player.currentTime;
+    }
+    player.updatePositionState(player.currentTime, player.duration, true);
   }
 
   function handleSeekChange(e: Event) {
