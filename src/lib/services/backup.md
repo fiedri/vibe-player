@@ -251,3 +251,12 @@ Cargar 2000 imágenes a la vez en memoria colapsará la app.
 ```
 
 Implementando la **caché en JSON/Storage** junto con **Virtual Scroll**, tu reproductor abrirá al instante sin importar si el usuario tiene 2,000 o 50,000 canciones en la tarjeta SD.
+
+
+npm run build && npx cap copy android && npx cap run android
+
+
+npm run dev
+adb reverse tcp:5173 tcp:5173
+npx cap run android
+npx cap copy android && npx cap run android

@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { Pause, Play, ArrowLeft, EllipsisVertical } from "@lucide/svelte";
+  import { Pause, Play, ArrowLeft } from "@lucide/svelte";
   import { fly } from "svelte/transition";
   import { cubicOut } from "svelte/easing";
   import {
@@ -9,13 +8,13 @@
     SkipForward,
     Shuffle,
     Repeat,
+    OverflowMenuVertical as EllipsisVertical,
     RepeatOne,
     PauseFilled,
     Favorite,
     FavoriteFilled,
   } from "carbon-icons-svelte";
   import { player } from "./playerStore.svelte";
-  import defaulcover from "./default-cover.png";
   import { Capacitor } from "@capacitor/core";
   import Button from "../button/button.svelte";
   import MarqueeText from "../wrapper/marqueeText.svelte";
@@ -23,10 +22,6 @@
   let audioElement = $state<HTMLAudioElement | null>(null);
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
-
-  onMount(() => {
-    player.initMediaSessionHandlers();
-  });
 
   function formatTime(seconds: number) {
     if (isNaN(seconds)) return "0:00";
@@ -36,6 +31,7 @@
   }
 
   $effect(() => {
+    player.playTrigger;
     const song = player.currentSong;
     const isPlaying = player.isPlaying;
     if (!audioElement || !song) return;
@@ -82,12 +78,6 @@
   function handleLoadedMetadata() {
     if (!audioElement || !player.currentSong) return;
     player.duration = audioElement.duration;
-
-    // AHORA el audio es real, lanzamos la notificación al sistema
-    player.setMetadata(player.currentSong).then(() => {
-      player.syncNativePlaybackState(true);
-      player.updatePositionState(player.currentTime, player.duration, true);
-    });
   }
 
   function handleSeekChange(e: Event) {
@@ -97,7 +87,6 @@
       audioElement.currentTime = newTime;
     }
     player.currentTime = newTime;
-    player.updatePositionState(newTime, player.duration, true);
     isSeeking = false;
   }
 
@@ -146,6 +135,35 @@
     if (e) e.stopPropagation();
     player.previous();
   }
+  function handleShuffle() {
+    player.toggleShuffle();
+    if (player.isShuffle) {
+      showNotificacion("Modo Aleatorio (activo)");
+    } else {
+      showNotificacion("Modo Aleatorio (desactivado)");
+    }
+  }
+  const REPEAT_TRANSITIONS = {
+    off: { next: "one", msg: "Repetir una" },
+    one: { next: "all", msg: "Repetir todas" },
+    all: { next: "off", msg: "Repetición desactivada" },
+  };
+
+  function handleChangeRepeatMode() {
+    const { next, msg } = REPEAT_TRANSITIONS[player.mode];
+    player.mode = next;
+    showNotificacion(msg);
+  }
+
+  let needNotify = $state(false);
+  let notification = $state("");
+  function showNotificacion(Message) {
+    notification = Message;
+    needNotify = true;
+    setTimeout(() => {
+      needNotify = false;
+    }, 1000);
+  }
 </script>
 
 {#if player.currentSong}
@@ -167,7 +185,7 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="bg-card w-full z-10 overflow-hidden md:hidden"
+    class="bg-card w-full z-100 overflow-hidden md:hidden"
     onclick={handleOpenAndClosePlayer}
   >
     <div class="flex items-center gap-2 w-full text-xs text-zinc-400">
@@ -188,12 +206,19 @@
       <div class="flex items-center gap-3 w-[50%]">
         {#if player.currentSong}
           <img
-            src={player.currentSong.image
-              ? Capacitor.convertFileSrc(player.currentSong.image)
-              : defaulcover}
+            src={Capacitor.convertFileSrc(player.currentSong.image)}
             loading="lazy"
             alt={player.currentSong.title}
             class="w-14 h-14 border border-border object-cover"
+            onerror={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (
+                target.src !==
+                window.location.origin + "/default-cover.png"
+              ) {
+                target.src = "/default-cover.png";
+              }
+            }}
           />
           <div class="flex flex-col overflow-hidden">
             <MarqueeText
@@ -216,9 +241,9 @@
           <SkipBack size={18} />
         </button>
         <button
-          onclick={async (e) => {
+          onclick={(e) => {
             e.stopPropagation();
-            await player.togglePlay();
+            player.togglePlay();
           }}
           disabled={!player.currentSong}
           class="p-2 hover:scale-105 transition disabled:opacity-50 border border-white p-2"
@@ -239,6 +264,13 @@
     </div>
   </div>
 {:else}
+  {#if needNotify}
+    <div
+      class="fixed bg-card/70 text-muted-foreground z-30 text-base rounded px-5 bottom-8 left-[50%] translate-x-[-50%] animate_slideUp text-center"
+    >
+      {notification}
+    </div>
+  {/if}
   <div
     class="min-h-full flex flex-col w-full bg-background fixed top-0 right-0"
     transition:fly={{ y: 200, duration: 400, easing: cubicOut }}
@@ -259,12 +291,16 @@
     <div class="aspect-square h-auto p-5">
       <figure class="shadow-lg overflow-hidden">
         <img
-          src={player.currentSong?.image
-            ? Capacitor.convertFileSrc(player.currentSong.image)
-            : defaulcover}
+          src={Capacitor.convertFileSrc(player.currentSong.image)}
           loading="lazy"
           alt={player.currentSong?.title}
           class="w-full h-80 border-3 border-border object-cover"
+          onerror={(e) => {
+            const target = e.target as HTMLImageElement;
+            if (target.src !== window.location.origin + "/default-cover.png") {
+              target.src = "/default-cover.png";
+            }
+          }}
         />
         <figcaption class="mt-5 flex flex-col gap-3">
           <h3 class=" text-xl font-extrabold">
@@ -325,7 +361,10 @@
       class="flex flex-row justify-between w-full items-center px-5 flex-1"
       id="controles"
     >
-      <button>
+      <button
+        onclick={handleShuffle}
+        class={player.isShuffle ? "" : "text-muted-foreground"}
+      >
         <!--PONER EN BLANCO CUANDO ESTE ACTIVADOJK-->
         <Shuffle size={20} />
       </button>
@@ -337,8 +376,8 @@
       </button>
       <Button
         class="bg-white aspect-square h-28 w-28"
-        onclick={async (e) => {
-          await player.togglePlay();
+        onclick={(e) => {
+          player.togglePlay();
         }}
       >
         {#if !player.isPlaying}
@@ -352,8 +391,18 @@
         onclick={handleNextSong}
       >
         <SkipForward size={20} />
-      </button><button>
-        <Repeat size={20} />
+      </button>
+      <button
+        onclick={handleChangeRepeatMode}
+        class={player.mode !== 'off'
+          ? ""
+          : "text-muted-foreground"}
+      >
+        {#if player.mode == 'one'}
+          <RepeatOne size={20} />
+        {:else}
+          <Repeat size={20} />
+        {/if}
       </button>
     </div>
   </div>

@@ -149,3 +149,17 @@ svg.lucide {
   stroke-linejoin: miter !important;
 }
 
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%); /* Empieza 100% más abajo de su posición */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0); /* Termina en su posición natural */
+  }
+}
+  .animate_slideUp{
+  animation: slideUp 0.5s ease-out forwards;
+  }

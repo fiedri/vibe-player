@@ -17,13 +17,11 @@ class BibliotecaStore {
 
     try {
       // 1. Cargar el primer lote inicial desde el dispositivo
-      const rawInitial = await cargarBiblioteca(100, 0);
+      const rawInitial = await cargarBiblioteca(500, 0);
       const iniciales = formatbiblioteca(rawInitial);
 
-      // Solo si la caché estaba completamente vacía mostramos estas 100 de golpe
-      if (this.songs.length === 0) {
-        this.songs = iniciales;
-      }
+      // Mergear con lo que ya haya (caché) sin duplicar por audioUrl
+      this.#mergeSongs(iniciales);
 
       this.loaded = true;
       this.loading = false;
@@ -38,10 +36,18 @@ class BibliotecaStore {
     }
   }
 
+  /** Mergea canciones nuevas evitando duplicados por audioUrl */
+  #mergeSongs(nuevas: Song[]) {
+    const existentes = new Set(this.songs.map((s) => s.audioUrl));
+    const aAgregar = nuevas.filter((s) => !existentes.has(s.audioUrl));
+    if (aAgregar.length > 0) {
+      this.songs = [...this.songs, ...aAgregar];
+    }
+  }
+
   private async loadRestInBackground() {
-    let currentOffset = 100;
+    let currentOffset = 500;
     let hasMore = true;
-    let todasLasNuevas: Song[] = [];
 
     while (hasMore) {
       try {
@@ -53,26 +59,14 @@ class BibliotecaStore {
         }
 
         const formateadas = formatbiblioteca(batch);
-        todasLasNuevas.push(...formateadas);
+        this.#mergeSongs(formateadas);
         currentOffset += batch.length;
 
-        // PAUSA TÁCTICA: Dejamos respirar al Event Loop 50ms entre lotes 
-        // para que la interfaz mantenga 60fps
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
       } catch (e) {
         console.error("Error en carga en segundo plano:", e);
         hasMore = false;
-      }
-    }
-
-    // 3. Si el escaneo encontró más canciones de las que teníamos en caché, actualizamos
-    if (todasLasNuevas.length > 0) {
-      const totalEscaneado = [...this.songs.slice(0, 100), ...todasLasNuevas];
-      
-      // Solo actualizamos si la cantidad es distinta para evitar re-renders innecesarios
-      if (totalEscaneado.length !== this.songs.length) {
-        this.songs = totalEscaneado;
       }
     }
   }

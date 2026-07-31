@@ -1,13 +1,13 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: 'com.rootwave.app',
-  appName: 'RootWave',
-  webDir: 'build',
-  server: {
-    url: 'http://192.168.0.103:5173',
-    cleartext: true
-  }
+  appId: "com.vibe.app",
+  appName: "Vibe",
+  webDir: "build",
+  /*server: {
+    url: "http://192.168.0.103:5173/",
+    cleartext: true,
+  },*/
 };
 
 export default config;
