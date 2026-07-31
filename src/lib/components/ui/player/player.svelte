@@ -47,9 +47,12 @@
           }
         });
       }
-    } else {
-      audioElement.pause();
     }
+    // Este $effect NUNCA pausa. El `pause` transitorio que dispara el browser
+    // al cambiar de src no debe competir con el play() ya encolado (de
+    // hacerlo, isPlaying flipea a false y re-ejecutaríamos pause() → ping-pong
+    // play/pause infinito). Las pausas intencionales (botón, notificación
+    // MediaSession, error) van por onPauseRequest → audioElement.pause().
   });
 
   $effect(() => {
@@ -59,6 +62,7 @@
           audioElement.currentTime = time;
         }
       };
+      player.onPauseRequest = () => audioElement?.pause();
     }
   });
 
@@ -77,6 +81,8 @@
 
   function handleLoadedMetadata() {
     if (!audioElement || !player.currentSong) return;
+    // El nuevo src ya cargó: la transición terminó, se levanta la supresión.
+    player.endNativePauseSuppression();
     player.duration = audioElement.duration;
     if (player.currentTime > 0 && player.currentTime < audioElement.duration) {
       audioElement.currentTime = player.currentTime;
@@ -96,11 +102,26 @@
 
   function handlePlay() {
     player.isPlaying = true;
+    // La reproducción realmente arrancó: la transición terminó, el próximo
+    // `pause` (si ocurre) vuelve a ser un pause real y debe llegar al nativo.
+    player.endNativePauseSuppression();
     player.syncNativePlaybackState(true);
   }
 
   function handlePause() {
+    // Durante un cambio de src el browser dispara un `pause` transitorio que
+    // NO debe tocar el estado JS: si isPlaying flipea a false, el $effect se
+    // re-ejecuta y llama audioElement.pause() compitiendo con el play() ya
+    // encolado → ping-pong pause/play que nunca se asienta. El early return
+    // deja isPlaying y el push intactos; el flag solo se levanta con el play
+    // real (handlePlay) o cuando el nuevo src cargó (handleLoadedMetadata/
+    // handleError). Un pause intencional (botón, notificación, pérdida de
+    // focus) llega acá con el flag inactivo y sigue su camino normal.
+    if (player.isSuppressingNativePause) {
+      return;
+    }
     player.isPlaying = false;
+    // La UI (isPlaying) se actualiza y el estado se pushea al nativo.
     player.syncNativePlaybackState(false);
   }
 
@@ -111,6 +132,9 @@
   function handleError(e: Event) {
     console.error("Error en elemento audio:", e);
     player.isPlaying = false;
+    // El src falló: no habrá play/loadeddata, se levanta la supresión para que
+    // la próxima transición no arrastre un flag stale.
+    player.endNativePauseSuppression();
   }
 
   function handleSeekStart(e: Event) {

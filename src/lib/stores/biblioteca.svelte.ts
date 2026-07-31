@@ -1,7 +1,13 @@
 import { cargarBiblioteca, formatbiblioteca } from "$lib/services/files";
 import { ensureThumbnail } from "$lib/services/artworks";
+import {
+  esCacheBibliotecaFresco,
+  obtenerCache,
+} from "$lib/services/stores";
 import { Capacitor } from "@capacitor/core";
 import type { Song } from "$lib/types/songs";
+
+const LOTE_INICIAL = 1500;
 
 class BibliotecaStore {
   songs = $state<Song[]>([]);
@@ -11,15 +17,34 @@ class BibliotecaStore {
 
   songCount = $derived(this.songs.length);
 
-  async load() {
-    if (this.loaded || this.loading) return;
+  /**
+   * Carga la biblioteca. Devuelve true si escaneó el device completo,
+   * false si usó la caché fresca (o no hizo nada).
+   *
+   * Si la caché local sigue fresca (< 24h) NO re-escaneamos: el scan nativo
+   * satura el hilo único de Capacitor durante minutos y congela el
+   * MediaSession. La caché ya viene poblada en +layout.ts vía obtenerCache().
+   * Tradeoff: las canciones nuevas aparecen recién en el próximo refresh()
+   * manual o pasadas las 24h de frescura.
+   */
+  async load(forceScan = false): Promise<boolean> {
+    if (this.loaded || this.loading) return false;
 
     this.loading = true;
     this.error = null;
 
     try {
+      if (!forceScan && (await esCacheBibliotecaFresco())) {
+        // Caché fresca: usar lo que ya haya en memoria (poblado por el
+        // layout) o volver a leerla por si acaso, sin tocar el device.
+        if (this.songs.length === 0) this.songs = await obtenerCache();
+        this.loaded = true;
+        this.loading = false;
+        return false;
+      }
+
       // 1. Cargar el primer lote inicial desde el dispositivo
-      const rawInitial = await cargarBiblioteca(500, 0);
+      const rawInitial = await cargarBiblioteca(LOTE_INICIAL, 0);
       const iniciales = formatbiblioteca(rawInitial);
 
       // Mergear con lo que ya haya (caché) sin duplicar por audioUrl
@@ -28,35 +53,44 @@ class BibliotecaStore {
       this.loaded = true;
       this.loading = false;
 
+      // Thumbnails del lote inicial en segundo plano, una sola pasada:
+      // reprocesarlos al terminar el resto satura el hilo nativo sin
+      // ganancia (el guard thumbnailsRunning ya los saltea mientras corren).
       void this.procesarThumbnails();
 
       // 2. Escanear el resto sin bloquear
       await this.loadRestInBackground();
-      void this.procesarThumbnails();
+
+      return true;
 
     } catch (e) {
       this.error = e instanceof Error ? e.message : "Error cargando biblioteca";
       console.error("BibliotecaStore:", e);
       this.loading = false;
+      return false;
     }
   }
 
-  /** Mergea canciones nuevas evitando duplicados por audioUrl */
-  #mergeSongs(nuevas: Song[]) {
+  /**
+   * Mergea canciones nuevas evitando duplicados por audioUrl.
+   * Devuelve cuántas canciones nuevas se agregaron.
+   */
+  #mergeSongs(nuevas: Song[]): number {
     const existentes = new Set(this.songs.map((s) => s.audioUrl));
     const aAgregar = nuevas.filter((s) => !existentes.has(s.audioUrl));
     if (aAgregar.length > 0) {
       this.songs = [...this.songs, ...aAgregar];
     }
+    return aAgregar.length;
   }
 
   private async loadRestInBackground() {
-    let currentOffset = 500;
+    let currentOffset = LOTE_INICIAL;
     let hasMore = true;
 
     while (hasMore) {
       try {
-        const batch = await cargarBiblioteca(500, currentOffset);
+        const batch = await cargarBiblioteca(LOTE_INICIAL, currentOffset);
 
         if (batch.length === 0) {
           hasMore = false;
@@ -64,10 +98,21 @@ class BibliotecaStore {
         }
 
         const formateadas = formatbiblioteca(batch);
-        this.#mergeSongs(formateadas);
+        const agregadas = this.#mergeSongs(formateadas);
         currentOffset += batch.length;
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // Batch sin NINGÚN id nuevo: ya vimos todo el resto en una pasada
+        // previa (la paginación "fake" del plugin devuelve siempre el mismo
+        // conjunto). Cortar acá deja de saturar el hilo nativo sin ganancia.
+        if (agregadas === 0) {
+          hasMore = false;
+          break;
+        }
+
+        // Pausa generosa: deja ventanas en el hilo único de Capacitor para
+        // que el MediaSession (setMetadata/setPositionState) avance entre
+        // batchs.
+        await new Promise((resolve) => setTimeout(resolve, 1200));
 
       } catch (e) {
         console.error("Error en carga en segundo plano:", e);
@@ -77,9 +122,10 @@ class BibliotecaStore {
   }
 
   async refresh() {
+    // Re-escaneo forzado: ignora la frescura de la caché.
     this.loaded = false;
     this.songs = [];
-    await this.load();
+    await this.load(true);
   }
 
   private thumbnailsRunning = false;
