@@ -45,8 +45,7 @@ class ArtistStore{
     return this.artists
     .filter(
       (a) =>
-        a.name.toLowerCase().includes(q) ||
-        a.artist.toLowerCase().includes(q),
+        a.name.toLowerCase().includes(q)
     );
   }
 }

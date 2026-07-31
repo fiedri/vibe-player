@@ -29,7 +29,7 @@
         </provider>
     </application>
 
-  <!-- Permisos que ya tenías -->
+    <!-- Permisos que ya tenías -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -39,9 +39,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
     <!-- 2. Para leer música en Android 12 o inferior (API 32 o menor) -->
-    <uses-permission 
-        android:name="android.permission.READ_EXTERNAL_STORAGE" 
-        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 
     <!-- 3. Para mostrar el reproductor en la barra de notificaciones (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />

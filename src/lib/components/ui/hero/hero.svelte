@@ -5,7 +5,7 @@
   import { OverflowMenuVertical } from "carbon-icons-svelte";
   import { crossfade } from "svelte/transition";
   import { cubicInOut } from "svelte/easing";
-
+import { ui } from "$lib/stores/ui.svelte";
   let tabs = [
     { href: "/", tab: "Inicios" },
     { href: "/songs", tab: "Canciones" },
@@ -90,6 +90,7 @@
       id="username"
       type="text"
       placeholder="Search..."
+      bind:value={ui.query}
     />
 
     <div class="absolute right-0 inset-y-0 flex mr-4 items-center">
