@@ -1,5 +1,5 @@
-<script>
-  import { Menu } from "@lucide/svelte";
+<script lang="ts">
+  import { Info, Menu } from "@lucide/svelte";
   import Button from "../button/button.svelte";
   import { page } from "$app/stores";
   import { OverflowMenuVertical } from "carbon-icons-svelte";
@@ -21,13 +21,63 @@
     duration: 300,
     easing: cubicInOut,
   });
+
+  // Menú de hamburguesa
+  let menuOpen = $state(false);
+
+  function closeMenu() {
+    menuOpen = false;
+  }
+
+  // Cierra el menú al tocar fuera del wrapper (botón + panel)
+  function clickOutside(node: Element) {
+    function onPointerDown(e: PointerEvent) {
+      if (menuOpen && !node.contains(e.target as Node)) closeMenu();
+    }
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+    };
+  }
 </script>
+
+<!-- Cerrar con Escape (útil en desktop/dev) -->
+<svelte:window
+  onkeydown={(e) => {
+    if (e.key === "Escape") closeMenu();
+  }}
+/>
 
 <section id="hero" class="pt-5 px-2 border-b-4 border-border">
  <div class="flex flex-row justify-between items-center w-full mb-5">
-<Button variant="ghost" >
-    <Menu class="size-6" />
-  </Button>
+  <div class="relative" {@attach clickOutside}>
+    <Button
+      variant="ghost"
+      aria-haspopup="menu"
+      aria-expanded={menuOpen}
+      aria-label="Abrir menú"
+      onclick={() => (menuOpen = !menuOpen)}
+    >
+      <Menu class="size-6" />
+    </Button>
+
+    {#if menuOpen}
+      <div
+        class="absolute top-full left-0 mt-2 z-50 min-w-44 bg-card border border-border shadow-lg"
+        role="menu"
+      >
+        <a
+          href="/info"
+          role="menuitem"
+          onclick={closeMenu}
+          class="flex items-center gap-2 p-3 text-sm text-muted-foreground hover:text-white hover:bg-zinc-800/50"
+        >
+          <Info class="size-4 shrink-0" />
+          <span>Instrucciones</span>
+        </a>
+      </div>
+    {/if}
+  </div>
 
   <h1 class="uppercase text-center text-2xl">Vibe</h1>
 <Button variant="ghost">
@@ -62,7 +112,7 @@
 
   <nav>
     <ul class="flex flex-row relative">
-      {#each tabs as tab}
+      {#each tabs as tab (tab.href)}
         {@const isActive = activeTab === tab.href}
         <li class="relative">
           <a

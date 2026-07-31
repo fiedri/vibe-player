@@ -1,4 +1,6 @@
 import { cargarBiblioteca, formatbiblioteca } from "$lib/services/files";
+import { ensureThumbnail } from "$lib/services/artworks";
+import { Capacitor } from "@capacitor/core";
 import type { Song } from "$lib/types/songs";
 
 class BibliotecaStore {
@@ -26,8 +28,11 @@ class BibliotecaStore {
       this.loaded = true;
       this.loading = false;
 
+      void this.procesarThumbnails();
+
       // 2. Escanear el resto sin bloquear
       await this.loadRestInBackground();
+      void this.procesarThumbnails();
 
     } catch (e) {
       this.error = e instanceof Error ? e.message : "Error cargando biblioteca";
@@ -75,6 +80,24 @@ class BibliotecaStore {
     this.loaded = false;
     this.songs = [];
     await this.load();
+  }
+
+  private thumbnailsRunning = false;
+  private async procesarThumbnails() {
+    if (!Capacitor.isNativePlatform()) return;
+    if (this.thumbnailsRunning) return;
+    this.thumbnailsRunning = true;
+    try {
+      const unique = [...new Set(this.songs.map((s) => s.image).filter(Boolean))];
+      for (let i = 0; i < unique.length; i++) {
+        await ensureThumbnail(unique[i]!);
+        if (i % 5 === 4) {
+          await new Promise((r) => setTimeout(r, 150));
+        }
+      }
+    } finally {
+      this.thumbnailsRunning = false;
+    }
   }
 
   search(query: string) {
