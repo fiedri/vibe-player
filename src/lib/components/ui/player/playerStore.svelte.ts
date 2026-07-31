@@ -2,29 +2,34 @@ import type { Song } from "$lib/types/songs";
 import { biblioteca } from "$lib/stores/biblioteca.svelte";
 import { MediaSession } from "@capgo/capacitor-media-session";
 import { Capacitor } from "@capacitor/core";
-import defaultCoverAsset from "./default-cover.png";
-
+import { cargarEstadoReproductor } from "$lib/services/stores";
+import { truncate } from "fs";
 class PlayerStore {
+  queue = $derived([...biblioteca.songs]);
   currentSong = $state<Song | null>(null);
   isPlaying = $state<boolean>(false);
-  volume = $state<number>(0.8);
+  isShuffle = $state<boolean>(false);
+  volume = $state<number>(1);
   currentTime = $state<number>(0);
   duration = $state<number>(0);
+
   currentSongIndex = $derived<number | null>(
-    biblioteca.songs.findIndex(
-      (el) =>
-        el.id === this.currentSong?.id || el.title === this.currentSong?.title,
-    ),
+    Array.isArray(this.queue) && this.currentSong
+      ? biblioteca.songs.findIndex(
+          (el) =>
+            el.id === this.currentSong?.id ||
+            el.title === this.currentSong?.title,
+        )
+      : null,
   );
   isOpened = $state<boolean>(false);
-
+  mode = $state<string>("off");
+  playTrigger = $state<number>(0);
+  public onSeekRequest?: (time: number) => void;
   private handlersInitialized = false;
-  // Añadimos esto para evitar saturar el bridge de Capacitor
   private lastPositionSync = 0;
 
-  public async initMediaSessionHandlers() {
-    // ... (Tu código actual de initMediaSessionHandlers se mantiene igual)
-    // Solo asegúrate de que el handler de 'seekto' pase force=true
+  public initMediaSessionHandlers() {
     if (Capacitor.isNativePlatform()) {
       try {
         MediaSession.setActionHandler({ action: "play" }, () => this.play());
@@ -38,7 +43,11 @@ class PlayerStore {
         MediaSession.setActionHandler({ action: "seekto" }, (details) => {
           if (details.seekTime !== undefined && details.seekTime !== null) {
             this.currentTime = details.seekTime;
-            // Forzamos la actualización al hacer seek manual
+
+            if (this.onSeekRequest) {
+              this.onSeekRequest(details.seekTime);
+            }
+
             this.updatePositionState(details.seekTime, this.duration, true);
           }
         });
@@ -46,31 +55,41 @@ class PlayerStore {
         console.warn("Error init handlers:", e);
       }
     }
-    // ... (Mantén tu código web igual)
   }
-
+  public async loadLastSavedState() {
+    const lastState = await cargarEstadoReproductor();
+    console.log("last-State", lastState);
+    if (!lastState) return;
+    //al ejecutarse este codigo, es posible que biblioteca aun no haya cargado la cancion por lo
+    // que se espera un error
+    const lastSong = biblioteca.songs.findIndex(
+      (el) => el.id == lastState.trackId,
+    );
+    if (lastSong === -1) return;
+    this.currentTime = lastState.position;
+    this.currentSong = biblioteca.songs[lastSong];
+    this.mode = lastState.mode ? lastState.mode : 'off';
+  }
   public async setMetadata(song: Song) {
     if (!song) return;
     if (!this.handlersInitialized) {
       void this.initMediaSessionHandlers();
     }
 
-    //let coverUrl = song.image
-    //? Capacitor.convertFileSrc(song.image)
-    //: window.location.origin + defaultCoverAsset;
-    // Simplifica el artwork list para no enviar tanta data redundante al plugin
-    //const artworkList = [
-    //{ src: coverUrl, sizes: '512x512' }
-    //];
-
     if (Capacitor.isNativePlatform()) {
       try {
-        await MediaSession.setMetadata({
+        MediaSession.setMetadata({
           title: song.title || "Sin título",
           artist: Array.isArray(song.artists)
             ? song.artists.join(", ")
             : song.artists || "Artista desconocido",
           album: song.album || "Música",
+          artwork: [
+            {
+              src: `${window.location.origin}/default-cover.png`,
+              sizes: "512x512",
+            },
+          ],
         });
       } catch (e) {
         console.warn("Error metadata nativo:", e);
@@ -78,18 +97,17 @@ class PlayerStore {
     }
   }
 
-  async syncNativePlaybackState(isPlaying: boolean = this.isPlaying) {
+  syncNativePlaybackState(isPlaying: boolean = this.isPlaying) {
     if (Capacitor.isNativePlatform()) {
       try {
-        await MediaSession.setPlaybackState({
+        MediaSession.setPlaybackState({
           playbackState: isPlaying ? "playing" : "paused",
         });
       } catch (e) {}
     }
   }
 
-  // Modificado: Agregamos "force" y un limitador (throttle)
-  async updatePositionState(
+  updatePositionState(
     position: number = this.currentTime,
     duration: number = this.duration,
     force: boolean = false,
@@ -97,14 +115,12 @@ class PlayerStore {
     if (duration <= 0 || position > duration || position < 0) return;
 
     const now = Date.now();
-    // Si no es forzado, limitamos la actualización a 1 vez cada 2 segundos.
-    // Android interpola el tiempo solo, no hace falta mandarle el segundo a segundo.
     if (!force && now - this.lastPositionSync < 2000) return;
     this.lastPositionSync = now;
 
     if (Capacitor.isNativePlatform()) {
       try {
-        await MediaSession.setPositionState({
+        MediaSession.setPositionState({
           position,
           duration,
           playbackRate: 1.0,
@@ -113,50 +129,98 @@ class PlayerStore {
     }
   }
 
-  // Modificado para esperar los metadatos antes de lanzar el play state
   setSong(song: Song) {
     this.currentSong = song;
     this.isPlaying = true;
     this.currentTime = 0;
+    console.log(song.image);
+    if (Capacitor.isNativePlatform() && !this.handlersInitialized) {
+      this.handlersInitialized = true;
+      this.initMediaSessionHandlers();
+    }
 
-    // Primero enviamos metadata, luego forzamos estado y posición inicial
-    //    this.setMetadata(song).then(() => {
-    //     this.syncNativePlaybackState(true);
-    //    this.updatePositionState(0, this.duration, true);
-    // });
+    this.setMetadata(song).then(() => {
+      this.syncNativePlaybackState(true);
+      this.updatePositionState(0, this.duration, true);
+    });
+  }
+  shuffle(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
   }
 
-  async togglePlay() {
+  togglePlay() {
     if (!this.currentSong) return;
     this.isPlaying = !this.isPlaying;
-    await this.syncNativePlaybackState();
-    // Forzar actualización de posición para que Android sepa exactamente dónde se pausó/reanudó
+    this.syncNativePlaybackState();
     this.updatePositionState(this.currentTime, this.duration, true);
   }
+  toggleShuffle() {
+    this.isShuffle = !this.isShuffle;
+    if (this.isShuffle) {
+      const currentSong = this.currentSong;
+      this.queue = this.shuffle(biblioteca?.songs);
+      if (currentSong) {
+        this.queue = this.queue.filter((song) => song.id !== currentSong.id);
+        this.queue.unshift(currentSong);
+      }
+    } else {
+      const currentSong = this.currentSong;
+      this.queue = [...biblioteca.songs];
+    }
+  }
 
-  async play() {
+  play() {
     if (this.currentSong) {
       this.isPlaying = true;
-      await this.syncNativePlaybackState();
+      this.syncNativePlaybackState();
       this.updatePositionState(this.currentTime, this.duration, true);
     }
   }
 
-  async pause() {
+  pause() {
     this.isPlaying = false;
-    await this.syncNativePlaybackState();
+    this.syncNativePlaybackState();
     this.updatePositionState(this.currentTime, this.duration, true);
   }
 
   next() {
+    if (this.mode == "one" && this.currentSong) {
+      this.currentTime = 0;
+      this.playTrigger++;
+      this.onSeekRequest?.(0);
+      this.syncNativePlaybackState(true);
+      this.updatePositionState(0, this.duration, true);
+      return;
+    } else if (this.mode == "all" && this.currentSong) {
+      if ((this.queue.length-1) <= this.currentSongIndex) {
+        this.setSong(this.queue[0]);
+        return
+      }
+
+
+    }
     if (this.currentSongIndex === null || this.currentSongIndex === -1) return;
-    const nextSong = biblioteca.songs[this.currentSongIndex + 1];
+    const nextSong = this.queue[this.currentSongIndex + 1];
     if (nextSong) this.setSong(nextSong);
   }
 
   previous() {
+    if (this.mode == "one" && this.currentSong) {
+      this.currentTime = 0;
+      this.playTrigger++;
+      this.onSeekRequest?.(0);
+      this.syncNativePlaybackState(true);
+      this.updatePositionState(0, this.duration, true);
+      return;
+    }
     if (this.currentSongIndex === null || this.currentSongIndex <= 0) return;
-    const previousSong = biblioteca.songs[this.currentSongIndex - 1];
+    const previousSong = this.queue[this.currentSongIndex - 1];
     if (previousSong) this.setSong(previousSong);
   }
 }

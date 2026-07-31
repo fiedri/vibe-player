@@ -1,5 +1,5 @@
 {
-	"name": "reproductor-mp3-movil",
+	"name": "Vibe",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -16,6 +16,7 @@
 		"db:studio": "drizzle-kit studio"
 	},
 	"devDependencies": {
+		"@capacitor/assets": "^3.0.5",
 		"@fontsource-variable/inter": "^5.3.0",
 		"@libsql/client": "latest",
 		"@lucide/svelte": "^1.26.0",
@@ -28,9 +29,10 @@
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/node": "^24",
 		"clsx": "^2.1.1",
-		"drizzle-kit": "^0.31.10",
-		"drizzle-orm": "^0.45.2",
+		"drizzle-kit": "1.0.0-rc.4",
+		"drizzle-orm": "1.0.0-rc.4",
 		"shadcn-svelte": "^1.4.2",
+		"sharp": "^0.35.3",
 		"svelte": "^5.56.1",
 		"svelte-check": "^4.6.0",
 		"tailwind-merge": "^3.6.0",
@@ -42,6 +44,7 @@
 	},
 	"dependencies": {
 		"@capacitor-community/media": "^9.1.0",
+		"@capacitor-community/sqlite": "^8.1.0",
 		"@capacitor/android": "^8.4.2",
 		"@capacitor/app": "^8.1.1",
 		"@capacitor/cli": "^8.4.2",
@@ -52,5 +55,13 @@
 		"@capgo/capacitor-media-session": "^8.0.29",
 		"@odion-cloud/capacitor-mediastore": "^1.0.21",
 		"carbon-icons-svelte": "^13.13.0"
-	}
+	},
+  "pnpm": {
+    "overrides": {
+      "sharp": "^0.33.5"
+    },
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
+  }
 }

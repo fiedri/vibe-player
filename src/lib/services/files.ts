@@ -33,12 +33,12 @@ export async function solicitarPermisosAudio() {
 }
 
 // files.ts
-export async function cargarBiblioteca(limit = 100, offset = 0): Promise<MediaFile[]> {
+export async function cargarBiblioteca(limit = 500, offset = 0): Promise<MediaFile[]> {
 
 
   const opciones: any = {
     mediaType: "audio",
-    sortBy: "TITLE",
+    sortBy: "DATE",
     includeExternal: true,
   };
 

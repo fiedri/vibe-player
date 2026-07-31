@@ -2,13 +2,14 @@
   import { Menu } from "@lucide/svelte";
   import Button from "../button/button.svelte";
   import { page } from "$app/stores";
+  import { OverflowMenuVertical } from "carbon-icons-svelte";
   import { crossfade } from "svelte/transition";
   import { cubicInOut } from "svelte/easing";
 
   let tabs = [
     { href: "/", tab: "Inicios" },
     { href: "/songs", tab: "Canciones" },
-    { href: "/albums", tab: "Albumes" },
+    { href: "/albums", tab: "Álbumes" },
     { href: "/artist", tab: "Artistas" },
     { href: "/playlist", tab: "Playlist" },
   ];
@@ -23,12 +24,16 @@
 </script>
 
 <section id="hero" class="pt-5 px-2 border-b-4 border-border">
-  <Button variant="ghost" class="absolute">
+ <div class="flex flex-row justify-between items-center w-full mb-5">
+<Button variant="ghost" >
     <Menu class="size-6" />
   </Button>
 
-  <h1 class="uppercase text-center text-2xl mb-5">Music</h1>
-
+  <h1 class="uppercase text-center text-2xl">Vibe</h1>
+<Button variant="ghost">
+    <OverflowMenuVertical class="size-5" />
+  </Button>
+ </div> 
   <div class="relative w-[95%] mx-auto mb-4">
     <input
       class="appearance-none border-2 bg-input hover:border-border/70 transition-colors w-full py-3 px-3 leading-tight focus:outline-none focus:ring-ring focus:border-border focus:shadow-outline border-border"

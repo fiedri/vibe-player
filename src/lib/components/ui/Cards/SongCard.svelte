@@ -1,6 +1,6 @@
 <script lang="ts">
   import { player} from "../player/playerStore.svelte";
-  import { Play, Pause, EllipsisVertical } from "@lucide/svelte";
+  import { OverflowMenuVertical as EllipsisVertical, PlayFilledAlt as Play, PauseFilled as Pause } from "carbon-icons-svelte";
 import type { Song } from "$lib/data";
   interface Props {
     song: Song;

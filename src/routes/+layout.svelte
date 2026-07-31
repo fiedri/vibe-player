@@ -1,37 +1,36 @@
 <script lang="ts">
   import "./layout.css";
   import favicon from "$lib/assets/favicon.svg";
-  import Hero from "$lib/components/ui/hero/hero.svelte";
   import Player from "$lib/components/ui/player/player.svelte";
   import { biblioteca } from "$lib/stores/biblioteca.svelte";
   import { solicitarPermisosAudio } from "$lib/services/files";
-  import { obtenerCache, guardarCache } from "$lib/services/stores";
+  import {
+    guardarCache,
+    guardarEstadoReproductor,
+    obtenerCache,
+  } from "$lib/services/stores";
   import { onMount, onDestroy } from "svelte";
   import { App } from "@capacitor/app";
   import { player } from "$lib/components/ui/player/playerStore.svelte";
   import { Capacitor } from "@capacitor/core";
-  import { LocalNotifications } from "@capacitor/local-notifications"; // 👈 Importa esto
-
+  import { LocalNotifications } from "@capacitor/local-notifications";
   let { children } = $props();
   let backListener: any = null;
+  let pauseListener: any = null;
 
   onMount(async () => {
-   
-    requestAnimationFrame(async () => {
-      const cache = await obtenerCache();
-      if (cache && cache.length > 0) {
-        biblioteca.songs = cache;
-      }
-    });
+    await player.loadLastSavedState();
 
+    await solicitarPermisosAudio();
     setTimeout(async () => {
       if (!biblioteca.loaded && !biblioteca.loading) {
-        console.log("Iniciando verificación en segundo plano...");
-        await solicitarPermisosAudio();
+        console.log("📀 Iniciando carga de biblioteca...");
         await biblioteca.load();
+        console.log(`📀 Biblioteca cargada: ${biblioteca.songs.length} canciones`);
 
         if (biblioteca.songs && biblioteca.songs.length > 0) {
           await guardarCache(biblioteca.songs);
+          console.log("✅ Caché local guardado");
         }
       }
     }, 2000);
@@ -59,24 +58,30 @@
           App.exitApp();
         }
       });
+      pauseListener = await App.addListener("pause", () => {
+        // guardarEstado reproductor
+        if (player.currentSong) {
+          guardarEstadoReproductor(player.currentSong?.id, player.currentTime, player.mode);
+        }
+      });
     }
   });
 
   onDestroy(async () => {
     if (backListener) {
-      const handler = await backListener;
+      const handler = backListener;
+      handler.remove();
+    }
+    if (pauseListener) {
+      const handler = pauseListener;
       handler.remove();
     }
   });
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
-<div class="h-dvh flex flex-col justify-between border-r-0">
-  <Hero />
-
-  <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
-    {@render children()}
-  </div>
+<div class="h-dvh flex flex-col justify-between border-r-0 overflow-hidden">
+  {@render children()}
   <footer>
     <Player />
   </footer>

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">RootWave</string>
-    <string name="title_activity_main">RootWave</string>
-    <string name="package_name">com.rootwave.app</string>
-    <string name="custom_url_scheme">com.rootwave.app</string>
+    <string name="app_name">Vibe</string>
+    <string name="title_activity_main">Vibe</string>
+    <string name="package_name">com.vibe.app</string>
+    <string name="custom_url_scheme">com.vibe.app</string>
 </resources>
