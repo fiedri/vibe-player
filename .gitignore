@@ -19,13 +19,10 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
-/.node_modules
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 # SQLite
 *.db
 
-
-#android
-./gradle
+capacitor.config.dev.ts

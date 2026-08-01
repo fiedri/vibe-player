@@ -13,7 +13,7 @@ Reproductor MP3 local para Android construido con Svelte 5 + Capacitor 8. Reprod
 - Implementación de filtro de búsqueda para cada sección
 - Renderizado virtual de canciones y carga en cache
 - Reproductor funcional con estado persistente, botones play, next y pause, y modos de reproducción aleatorio, repeatone y repeatall
-- Vistas de inicio, playlist, álbumes y artistas, conexión a sqlite para guardado de las playlist
+- Vistas de inicio (ejemplo), playlist (ejemplo), álbumes, canciones y artistas.
 
 ## [0.1.1] - 2026-07-31
 
