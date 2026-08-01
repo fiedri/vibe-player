@@ -1,6 +1,7 @@
 # ROADMAP
 
 # Proxima version (0.2.0)
+- boton para cerrar la notificacion
 - Subvista para ver metadatas de album/artista/playlist y las canciones relacionadas
 - Creacion de playlist y manejo de canciones en playlist (eliminar, agregar, mover)
 - Manejo de lista de reproduccion a partir de playlist
