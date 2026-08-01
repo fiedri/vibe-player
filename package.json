@@ -13,7 +13,9 @@
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+    "dev:android": "npx cap sync android --config=capacitor.config.dev.ts",
+    "build:android": "pnpm build && npx cap sync android"
 	},
 	"devDependencies": {
 		"@capacitor/assets": "^3.0.5",
