@@ -14,10 +14,11 @@
     Favorite,
     FavoriteFilled,
   } from "carbon-icons-svelte";
-  import { player } from "./playerStore.svelte";
-  import { Capacitor } from "@capacitor/core";
-  import Button from "../button/button.svelte";
-  import MarqueeText from "../wrapper/marqueeText.svelte";
+import { player } from "./playerStore.svelte";
+import { Capacitor } from "@capacitor/core";
+import Button from "../button/button.svelte";
+import MarqueeText from "../wrapper/marqueeText.svelte";
+import { ui } from "$lib/stores/ui.svelte";
 
   let audioElement = $state<HTMLAudioElement | null>(null);
   let isSeeking = $state<boolean>(false);
@@ -310,10 +311,10 @@
         ><ArrowLeft class="size-6" /></Button
       >
       <div class="flex flex-row w-auto items-center justify-center *:m-0 *:p-2">
-        <Button variant="ghost">
+        <Button variant="ghost" onclick={() => ui.handleDialog()}>
           <Favorite class="size-6" />
         </Button>
-        <Button variant="ghost"><EllipsisVertical class="size-6" /></Button>
+        <Button variant="ghost" onclick={() => ui.handleDialog()}><EllipsisVertical class="size-6" /></Button>
       </div>
     </div>
     <div class="aspect-square h-auto p-5">

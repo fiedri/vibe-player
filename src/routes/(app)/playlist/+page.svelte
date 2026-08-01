@@ -5,6 +5,7 @@
     OverflowMenuVertical,
   } from "carbon-icons-svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import { ui } from "$lib/stores/ui.svelte";
   let mockAlbums = Array.from({ length: 100 }, (_, i) => ({
     title: "Ejemplo",
     portada: "/default-cover.png",
@@ -17,7 +18,7 @@
 >
   <div>
    <div class="animate_slideUp absolute bottom-25 right-3  z-0">
-<Button class="rounded-full size-15 "
+<Button class="rounded-full size-15 " onclick={() => ui.handleDialog()}
       ><AddLarge /></Button
     >
    </div> 

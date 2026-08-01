@@ -2,6 +2,7 @@
   import { player} from "../player/playerStore.svelte";
   import { OverflowMenuVertical as EllipsisVertical, PlayFilledAlt as Play, PauseFilled as Pause } from "carbon-icons-svelte";
 import type { Song } from "$lib/data";
+import { ui } from "$lib/stores/ui.svelte";
   interface Props {
     song: Song;
     idx: number;
@@ -22,6 +23,7 @@ import type { Song } from "$lib/data";
       player.setSong(song);
     }
   }
+
 </script>
 
 <div
@@ -62,11 +64,11 @@ import type { Song } from "$lib/data";
   <div class="flex gap-2 items-center justify-center shrink-0">
     <span class="text-muted-foreground">{song.duration}</span>
     <button
-      onclick={(e) => e.stopPropagation()}
+      onclick={(e) => {e.stopPropagation(); ui.handleDialog()}}
       aria-label="Opciones de canción"
       class="p-1 hover:text-white"
     >
-      <EllipsisVertical class="size-4" />
+      <EllipsisVertical class="size-6" />
     </button>
   </div>
 </div>

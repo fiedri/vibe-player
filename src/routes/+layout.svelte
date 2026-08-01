@@ -14,6 +14,7 @@
   import { player } from "$lib/components/ui/player/playerStore.svelte";
   import { Capacitor } from "@capacitor/core";
   import { LocalNotifications } from "@capacitor/local-notifications";
+    import Dialog from "$lib/components/ui/dialog.svelte";
   let { children } = $props();
   let backListener: any = null;
   let pauseListener: any = null;
@@ -90,3 +91,4 @@
     <Player />
   </footer>
 </div>
+<Dialog/>
