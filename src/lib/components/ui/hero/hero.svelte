@@ -80,7 +80,7 @@ import { ui } from "$lib/stores/ui.svelte";
   </div>
 
   <h1 class="uppercase text-center text-2xl">Vibe</h1>
-<Button variant="ghost">
+<Button variant="ghost" onclick={() => ui.handleDialog()}>
     <OverflowMenuVertical class="size-5" />
   </Button>
  </div> 

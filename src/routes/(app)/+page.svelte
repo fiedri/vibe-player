@@ -2,6 +2,7 @@
   import SongCard from "$lib/components/ui/Cards/SongCard.svelte";
   import ThumbnailCard from "$lib/components/ui/Cards/thumbnailCard.svelte";
   import HorizontalContainer from "$lib/components/ui/wrapper/horizontalContainer.svelte";
+  import { ui } from "$lib/stores/ui.svelte";
   // Generamos 2.000 canciones de prueba
   const mockSongs = Array.from({ length: 2000 }, (_, i) => ({
     id: `${i}`,
@@ -45,6 +46,7 @@
     <div class="flex flex-row justify-between items-center">
       <h2>Tus Playlists</h2>
       <a href="" class="mb-3 underline text-muted-foreground text-sm"
+        onclick={(e) => { e.preventDefault(); ui.handleDialog(); }}
         >Ver todas</a
       >
     </div>
@@ -95,7 +97,8 @@
       {#each mockSongs.slice(0, 5) as song, idx}
         <SongCard {song} {idx} />
       {/each}
-      <a href="" class="ml-2 underline text-muted-foreground text-sm">Ver Mas</a
+      <a href="" class="ml-2 underline text-muted-foreground text-sm" onclick={(e) => { e.preventDefault(); ui.handleDialog(); }}
+        >Ver Mas</a
       >
     </div>
   </div>
