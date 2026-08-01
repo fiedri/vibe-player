@@ -4,7 +4,7 @@
 	"version": "0.1.2",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
@@ -14,7 +14,8 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
-    "dev:android": "npx cap sync android --config=capacitor.config.dev.ts",
+    "dev:android": "CAP_ENV=dev npx cap run android",
+  "sync:dev": "CAP_ENV=dev npx cap sync android",
     "build:android": "pnpm build && npx cap sync android"
 	},
 	"devDependencies": {

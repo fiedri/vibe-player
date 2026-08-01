@@ -1,15 +1,6 @@
 <script lang="ts">
 import { ui } from "$lib/stores/ui.svelte";
-function portal(node: HTMLElement) {
-  document.body.appendChild(node);
-  return {
-    destroy() {
-      if (node.parentNode) {
-        node.parentNode.removeChild(node);
-      }
-    }
-  };
-}
+import { portal } from "$lib/uiUtils"; 
 let open = $derived(ui.isOpenDialog)
 </script>
 {#if open}

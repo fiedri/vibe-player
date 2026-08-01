@@ -2,6 +2,7 @@ import { cargarBiblioteca, formatbiblioteca } from "$lib/services/files";
 import { ensureThumbnail } from "$lib/services/artworks";
 import {
   esCacheBibliotecaFresco,
+  guardarCache,
   obtenerCache,
 } from "$lib/services/stores";
 import { Capacitor } from "@capacitor/core";
@@ -30,6 +31,7 @@ class BibliotecaStore {
   async load(forceScan = false): Promise<boolean> {
     if (this.loaded || this.loading) return false;
 
+    console.log('cargar biblioteca')
     this.loading = true;
     this.error = null;
 
@@ -125,7 +127,11 @@ class BibliotecaStore {
     // Re-escaneo forzado: ignora la frescura de la caché.
     this.loaded = false;
     this.songs = [];
+    const oldSongCount = this.songCount
     await this.load(true);
+    if(oldSongCount < this.songCount){
+      guardarCache(this.songs);
+    }
   }
 
   private thumbnailsRunning = false;

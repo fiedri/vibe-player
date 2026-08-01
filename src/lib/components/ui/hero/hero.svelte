@@ -1,17 +1,31 @@
 <script lang="ts">
-  import { Info, Menu } from "@lucide/svelte";
   import Button from "../button/button.svelte";
   import { page } from "$app/stores";
-  import { OverflowMenuVertical } from "carbon-icons-svelte";
+  import {
+    OverflowMenuVertical,
+    Renew,
+    Information as Info,
+    Menu,
+  } from "carbon-icons-svelte";
   import { crossfade } from "svelte/transition";
   import { cubicInOut } from "svelte/easing";
-import { ui } from "$lib/stores/ui.svelte";
+  import { ui } from "$lib/stores/ui.svelte";
+  import { biblioteca } from "$lib/stores/biblioteca.svelte";
   let tabs = [
     { href: "/", tab: "Inicios" },
     { href: "/songs", tab: "Canciones" },
     { href: "/albums", tab: "Álbumes" },
     { href: "/artist", tab: "Artistas" },
     { href: "/playlist", tab: "Playlist" },
+  ];
+  let overflowMenu = [
+    {
+      title: "Actualizar Biblioteca",
+      icon: Renew,
+      action: () => {
+        biblioteca.refresh();
+      },
+    },
   ];
 
   let activeTab = $derived($page.url.pathname);
@@ -24,7 +38,7 @@ import { ui } from "$lib/stores/ui.svelte";
 
   // Menú de hamburguesa
   let menuOpen = $state(false);
-
+  let overflowMenuOpen = $state(false);
   function closeMenu() {
     menuOpen = false;
   }
@@ -49,41 +63,74 @@ import { ui } from "$lib/stores/ui.svelte";
 />
 
 <section id="hero" class="pt-5 px-2 border-b-4 border-border">
- <div class="flex flex-row justify-between items-center w-full mb-5">
-  <div class="relative" {@attach clickOutside}>
-    <Button
-      variant="ghost"
-      aria-haspopup="menu"
-      aria-expanded={menuOpen}
-      aria-label="Abrir menú"
-      onclick={() => (menuOpen = !menuOpen)}
-    >
-      <Menu class="size-6" />
-    </Button>
-
-    {#if menuOpen}
-      <div
-        class="absolute top-full left-0 mt-2 z-50 min-w-44 bg-card border border-border shadow-lg"
-        role="menu"
+  <div class="flex flex-row justify-between items-center w-full mb-5">
+    <div class="relative" {@attach clickOutside}>
+      <Button
+        variant="ghost"
+        aria-haspopup="menu"
+        aria-expanded={menuOpen}
+        aria-label="Abrir menú"
+        onclick={() => (menuOpen = !menuOpen)}
       >
-        <a
-          href="/info"
-          role="menuitem"
-          onclick={closeMenu}
-          class="flex items-center gap-2 p-3 text-sm text-muted-foreground hover:text-white hover:bg-zinc-800/50"
-        >
-          <Info class="size-4 shrink-0" />
-          <span>Instrucciones</span>
-        </a>
-      </div>
-    {/if}
-  </div>
+        <Menu class="size-6" />
+      </Button>
 
-  <h1 class="uppercase text-center text-2xl">Vibe</h1>
-<Button variant="ghost" onclick={() => ui.handleDialog()}>
-    <OverflowMenuVertical class="size-5" />
-  </Button>
- </div> 
+      {#if menuOpen}
+        <div
+          class="absolute top-full left-0 mt-2 z-50 min-w-44 bg-card border border-border shadow-lg"
+          role="menu"
+        >
+          <a
+            href="/info"
+            role="menuitem"
+            onclick={closeMenu}
+            class="flex items-center gap-2 p-3 text-sm text-muted-foreground hover:text-white hover:bg-zinc-800/50"
+          >
+            <Info class="size-4 shrink-0" />
+            <span>Instrucciones</span>
+          </a>
+        </div>
+      {/if}
+    </div>
+
+    <h1 class="uppercase text-center text-2xl">Vibe</h1>
+    <div>
+      <Button
+        variant="ghost"
+        onclick={() => {
+          overflowMenuOpen = !overflowMenuOpen;
+        }}
+      >
+        <OverflowMenuVertical class="size-5" />
+      </Button>
+      {#if overflowMenuOpen}
+        <button
+          class="fixed h-screen w-screen inset-0 z-[100] flex items-center justify-center"
+          
+          onclick={() => {
+            overflowMenuOpen = false;
+          }}
+          aria-label="Cerrar menú"
+        >
+        </button>
+        <div
+          class="absolute w-50 right-4 h-auto bg-background border border-border z-[9999]"
+        >
+          {#each overflowMenu as options}
+            <button
+              class="p-3"
+              onclick={() => {
+                options.action();
+                overflowMenuOpen = false;
+              }}
+            >
+              {options.title}
+            </button>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  </div>
   <div class="relative w-[95%] mx-auto mb-4">
     <input
       class="appearance-none border-2 bg-input hover:border-border/70 transition-colors w-full py-3 px-3 leading-tight focus:outline-none focus:ring-ring focus:border-border focus:shadow-outline border-border"
