@@ -20,7 +20,7 @@ class PlayerStore {
 
   currentSongIndex = $derived<number | null>(
     Array.isArray(this.queue) && this.currentSong
-      ? biblioteca.songs.findIndex(
+      ? this.queue.findIndex(
           (el) =>
             el.id === this.currentSong?.id ||
             el.title === this.currentSong?.title,
@@ -113,8 +113,7 @@ class PlayerStore {
     const lastState = await cargarEstadoReproductor();
     console.log("last-State", lastState);
     if (!lastState) return;
-    //al ejecutarse este codigo, es posible que biblioteca aun no haya cargado la cancion por lo
-    // que se espera un error
+
     const lastSong = biblioteca.songs.findIndex(
       (el) => el.id == lastState.trackId,
     );
@@ -126,8 +125,7 @@ class PlayerStore {
     this.mode = lastState.mode ? lastState.mode : 'off';
     void this.getArtworkSrc(restoredSong.image);
 
-    // Sincroniza MediaSession nativo: la notificación debe reflejar la canción
-    // restaurada en vez del placeholder "Vibe" que pusheó init().
+
     if (Capacitor.isNativePlatform()) {
       // PlayerState no persiste isPlaying y el <audio> arranca pausado tras el
       // restore, así que la notificación queda en "paused", igual que el estado
@@ -136,7 +134,6 @@ class PlayerStore {
       this.syncNativePlaybackState(false);
       void this.setMetadata(restoredSong);
 
-      // Convierte "M:SS"/"MM:SS" (Song.duration) a segundos para setPositionState.
       const durationParts = restoredSong.duration?.split(":").map(Number);
       const restoredDuration = durationParts?.length
         ? durationParts.reduce((acc, part) => acc * 60 + part, 0)

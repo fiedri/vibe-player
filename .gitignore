@@ -7,6 +7,8 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
+/dist
+/android/app/build/
 
 # OS
 .DS_Store
@@ -17,9 +19,13 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
-
+/.node_modules
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 # SQLite
 *.db
+
+
+#android
+./gradle
