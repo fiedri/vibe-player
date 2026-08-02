@@ -24,3 +24,8 @@ Reproductor MP3 local para Android construido con Svelte 5 + Capacitor 8. Reprod
 
 ### Fixed
 - navegación prev/next en modo aleatorio ignoraba el orden de la cola
+
+## [0.x.x] - 2026-08
+
+### Added
+- Opcion para actualizar la biblioteca manualmente

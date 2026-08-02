@@ -10,6 +10,7 @@
     obtenerCache,
   } from "$lib/services/stores";
   import { onMount, onDestroy } from "svelte";
+  import { getDb } from "$lib/db/db";
   import { App } from "@capacitor/app";
   import { player } from "$lib/components/ui/player/playerStore.svelte";
   import { Capacitor } from "@capacitor/core";
@@ -22,7 +23,7 @@
   onMount(async () => {
     player.init();
     await player.loadLastSavedState();
-
+getDb()
     await solicitarPermisosAudio();
     setTimeout(async () => {
       if (!biblioteca.loaded && !biblioteca.loading) {

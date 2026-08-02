@@ -9,3 +9,6 @@
 - Visualizar que numero de cancion se esta reproduciendo de la cola de reproduccion
 
 # Futuro
+- Ecualizador
+- Editar metadatos de un archivo
+- Obtener informacion de artistas/albumes mediante apis.

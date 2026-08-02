@@ -114,11 +114,11 @@
         >
         </button>
         <div
-          class="absolute w-50 right-4 h-auto bg-background border border-border z-[9999]"
+          class="absolute w-50 right-4 h-auto bg-popover border border-border z-[9999]"
         >
           {#each overflowMenu as options}
             <button
-              class="p-3"
+              class="p-2"
               onclick={() => {
                 options.action();
                 overflowMenuOpen = false;

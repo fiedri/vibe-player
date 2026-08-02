@@ -214,7 +214,7 @@ import { ui } from "$lib/stores/ui.svelte";
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="bg-card w-full z-100 overflow-hidden md:hidden"
+    class="bg-card w-full sticky z-100 overflow-hidden md:hidden"
     onclick={handleOpenAndClosePlayer}
   >
     <div class="flex items-center gap-2 w-full text-xs text-zinc-400">
