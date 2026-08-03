@@ -3,7 +3,6 @@
   import { page } from "$app/stores";
   import {
     OverflowMenuVertical,
-    Renew,
     Information as Info,
     Menu,
   } from "carbon-icons-svelte";
@@ -21,7 +20,6 @@
   let overflowMenu = [
     {
       title: "Actualizar Biblioteca",
-      icon: Renew,
       action: () => {
         biblioteca.refresh();
       },

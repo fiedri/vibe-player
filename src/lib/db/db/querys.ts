@@ -1,11 +1,19 @@
 import { getDb } from ".";
-import { eq } from "drizzle-orm";
+import { eq, count, sql } from "drizzle-orm";
 import { playlists, playlistsSongs } from "./schema";
 
 const db = await getDb();
 
 export async function getPlaylists() {
-  return await db.select().from(playlists);
+return await db
+    .select({
+      id: playlists.id,
+      name: playlists.name,
+      songsCount: sql<number>`count(${playlistsSongs.songId})`.as('songsCount'),
+    })
+    .from(playlists)
+    .leftJoin(playlistsSongs, eq(playlists.id, playlistsSongs.playlistId))
+    .groupBy(playlists.id);
 }
 
 export async function createPlaylist(name: string) {

@@ -14,7 +14,29 @@
     numbersSongs: 20,
   }));
   let openNewPlaylistInput = $state(false);
+  let playlistsName = $state("");
+  function handleCreatePlaylist(e: Event) {
+    e.preventDefault();
+    if (!playlistsName.trim()) return;
+    playlistStore.add(playlistsName);
+    playlistsName = "";
+    openNewPlaylistInput = false;
+  }
+  let activeMenuId = $state<number | null>(null);
+
+  function toggleMenu(id: number) {
+    activeMenuId = activeMenuId === id ? null : id;
+  }
 </script>
+
+{#if activeMenuId !== null}
+  <button
+    type="button"
+    class="fixed inset-0 z-10 h-full w-full border-none cursor-default"
+    onclick={() => (activeMenuId = null)}
+    aria-label="Cerrar menu"
+  ></button>
+{/if}
 
 <div
   class=" h-full w-full min-w-0 overflow-x-hidden flex flex-col gap-15 min-h-0 overflow-y-auto"
@@ -44,27 +66,42 @@
       </div>
       <span use:animateTyping={"Cargando playlists..."}></span>
     </div>
-  {:else if playlistStore.playlists.length === 0}
+  {:else if playlistStore.playlists.length === 0 && playlistStore.error}
     <div class="h-full w-full flex justify-center items-center">
-      <p class="text-muted-foreground text-lg">No se encontraron playlists</p>
+      <p class="text-muted-foreground text-lg">{playlistStore.error}</p>
     </div>
     {@render buttonToCreate()}
   {:else}
     <div>
       {@render buttonToCreate()}
-      {#each mockAlbums as playlists}
+      {#each playlistStore.playlists as playlists}
         <div class="h-14 p-2 flex flex-row justify-between items-center">
           <div class="flex flex-row gap-3 items-center w-[50%]">
             <Playlist size={40} />
             <h2 class="font-medium hover:underline text-white truncate">
-              {playlists.title}
+              {playlists.name}
             </h2>
           </div>
-          <div class="flex flex-row gap-3 items-center">
+          <div class="relative flex flex-row gap-3 items-center">
             <span class="text-xs text-muted-foreground hover:underline truncate"
-              >{playlists.numbersSongs} songs</span
+              >{playlists.songsCount} songs</span
             >
-            <OverflowMenuVertical size={28} />
+
+            <button
+              onclick={(e) => {
+                e.preventDefault();
+                toggleMenu(playlists.id);
+              }}
+            >
+              <OverflowMenuVertical size={28} />
+            </button>
+            {#if activeMenuId === playlists.id}
+              <div
+                class="absolute right-0 top-full mt-2 w-30 bg-popover border border-border shadow-lg z-50"
+              >
+                <button class="p-2" onclick={()=> playlistStore.delete(playlists.id)}>Eliminar</button>
+              </div>
+            {/if}
           </div>
         </div>
       {/each}
@@ -90,7 +127,7 @@
       <div
         class="relative z-10 w-[90%] p-6 bg-card border border-border shadow-lg"
       >
-        <form onsubmit={(e) => e.preventDefault()} class="flex flex-col gap-4">
+        <form onsubmit={handleCreatePlaylist} class="flex flex-col gap-4">
           <label
             for="playlist-name"
             class="font-medium text-foreground uppercase text-xl"
@@ -102,13 +139,17 @@
             type="text"
             placeholder="Nombre de la playlist..."
             class="w-full bg-background px-1 py-3 text-foreground border-0 border-b-2 border-primary outline-none focus:outline-none focus:ring-0 focus:border-primary"
+            bind:value={playlistsName}
           />
           <div class="flex justify-end gap-3">
             <Button
               variant="ghost"
-              onclick={() => (openNewPlaylistInput = false)}>cancelar</Button
+              onclick={() => (openNewPlaylistInput = false)}
+              type="button">cancelar</Button
             >
-            <Button>Crear</Button>
+            <Button type="submit" disabled={playlistsName.trim() === ""}
+              >Crear</Button
+            >
           </div>
         </form>
       </div>
