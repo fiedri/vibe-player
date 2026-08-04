@@ -26,3 +26,11 @@ vite.config.ts.timestamp-*
 *.db
 
 capacitor.config.dev.ts
+
+# AI Agent / Editor Configs
+.agents/
+.gemini/
+.opencode/
+.qwen/
+.roo/
+.vscode/
