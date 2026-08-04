@@ -7,6 +7,14 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 ---
 ## [Unreleased]
 
+## [0.2.2] - 2026-08-04
+
+### Fixed
+- Error al abrir Vibe tras una **instalación limpia** en algunos dispositivos Android (pantalla de error en lugar del reproductor). La causa era el auto-backup de Android: al reinstalar, restauraba el estado interno del almacenamiento local en una condición rota. Se desactiva el backup para evitarlo.
+
+### Added
+- **Backup y restauración de playlists**: exportá tus listas a un JSON (se copia al portapapeles) y volvé a importarlas pegándolo después. Útil al reinstalar la app o cambiar de dispositivo, ya que el auto-backup quedó desactivado.
+
 ## [0.2.0] - 2026-08-04
 
 ### Added
