@@ -17,6 +17,9 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
   - Crear y eliminar playlists.
   - Reproducción dedicada de playlists.
 
+### Changed
+- La cola de reproducción ahora restringe la navegación al contexto actual (playlist o biblioteca global).
+
 ## [0.1.2] - 2026-08-01
 
 ### Fixed
