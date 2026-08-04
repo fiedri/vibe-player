@@ -3,6 +3,7 @@
     Playlist,
     AddLarge,
     OverflowMenuVertical,
+    Download,
   } from "carbon-icons-svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { ui, DialogType } from "$lib/stores/ui.svelte";
@@ -61,7 +62,7 @@
   {:else}
     <div>
       {@render buttonToCreate()}
-      {#each playlistStore.playlists as playlists}
+      {#each playlistStore.playlists as playlists (playlists.id)}
         <a href="playlist/{playlists.id}" class="h-14 p-2 flex flex-row justify-between items-center">
           <div class="flex flex-row gap-3 items-center w-[50%]">
             <Playlist size={40} />
@@ -104,6 +105,15 @@
     <Button
       class="rounded-sm size-15 "
       onclick={() => (ui.openDialog(DialogType.CreatePlaylist))}><AddLarge /></Button
+    >
+  </div>
+  <div class="animate_slideUp absolute bottom-25 right-23 z-0">
+    <Button
+      class="rounded-sm size-15"
+      onclick={() => (ui.openDialog(DialogType.Backup))}
+      title="Backup / restaurar playlists"
+      aria-label="Backup de playlists"
+      ><Download /></Button
     >
   </div>
 

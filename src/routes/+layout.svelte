@@ -19,6 +19,7 @@
    import UnImplementedDialog from "$lib/components/ui/dialogs/unImplementedDialog.svelte";
     import CreatePlaylistsDialog from "$lib/components/ui/dialogs/createPlaylistsDialog.svelte";
     import PlaylistSelection from "$lib/components/ui/dialogs/playlistSelection.svelte";
+    import BackupPlaylistDialog from "$lib/components/ui/dialogs/backupPlaylistDialog.svelte";
   let { children } = $props();
   let backListener: any = null;
   let pauseListener: any = null;
@@ -106,6 +107,8 @@
       <UnImplementedDialog/>
     {:else if dialogType === DialogType.CreatePlaylist}
     <CreatePlaylistsDialog/>
+    {:else if dialogType === DialogType.Backup}
+      <BackupPlaylistDialog/>
     {/if}
   {/snippet}
 </Dialog>
