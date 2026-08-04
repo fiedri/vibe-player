@@ -9,8 +9,16 @@ import {
 } from "$lib/services/artworks";
 import { cargarEstadoReproductor } from "$lib/services/stores";
 
+export enum ContextType {
+InPlaylist = 'playlists',
+  InBiblioteca = 'biblioteca'
+
+  }
+
 class PlayerStore {
-  queue = $derived([...biblioteca.songs]);
+  queue = $state([...biblioteca.songs]);
+  allSongs = $derived([...biblioteca.songs]);
+  playlistSongs = $state<Song[]>([]);
   currentSong = $state<Song | null>(null);
   isPlaying = $state<boolean>(false);
   isShuffle = $state<boolean>(false);
@@ -30,22 +38,38 @@ class PlayerStore {
   isOpened = $state<boolean>(false);
   mode = $state<string>("off");
   playTrigger = $state<number>(0);
+  context = $state<ContextType | null>(null);
   public onSeekRequest?: (time: number) => void;
   public onPauseRequest?: () => void;
   private handlersInitialized = false;
   private lastPositionSync = 0;
   private pendingArtwork = new Map<string, Promise<string>>();
-  /**
-   * Supresión del push 'paused' al MediaSession nativo durante un cambio de
-   * src. Cuando el <audio> cambia de src el browser dispara un `pause`
-   * transitorio; si ese pause se pushea al nativo, la patch nativa ABANDONA el
-   * audio focus y el play() inmediato re-pide focus con el churn abandon→request
-   * que en Android devuelve FAILED → la patch pausa la canción recién cambiada.
-   * El flag se activa ANTES de tocar currentSong (setSong/loadLastSavedState) y
-   * solo bloquea el push de 'paused' proveniente del evento `pause` del <audio>
-   * (handlePause). Las pausas intencionales (togglePlay/pause/actionCallback)
-   * no pasan por ese camino para el push y quedan intactas.
-   */
+
+  public setContext(context: ContextType, songs?: Song[]) {
+    if (context === ContextType.InPlaylist && songs) {
+      this.playlistSongs = [...songs];
+      this.queue = [...songs];
+    } else {
+      this.playlistSongs = [];
+      this.queue = [...this.allSongs];
+    }
+    this.context = context;
+    if (this.isShuffle) this.aplicarShuffle();
+  }
+
+  private aplicarShuffle() {
+    const source =
+      this.context === ContextType.InPlaylist
+        ? this.playlistSongs
+        : this.allSongs;
+    const currentSong = this.currentSong;
+    this.queue = this.shuffle(source);
+    if (currentSong) {
+      this.queue = this.queue.filter((song) => song.id !== currentSong.id);
+      this.queue.unshift(currentSong);
+    }
+  }
+
   private suppressNativePausePush = false;
 
   public get isSuppressingNativePause(): boolean {
@@ -323,15 +347,12 @@ class PlayerStore {
   toggleShuffle() {
     this.isShuffle = !this.isShuffle;
     if (this.isShuffle) {
-      const currentSong = this.currentSong;
-      this.queue = this.shuffle(biblioteca?.songs);
-      if (currentSong) {
-        this.queue = this.queue.filter((song) => song.id !== currentSong.id);
-        this.queue.unshift(currentSong);
-      }
+      this.aplicarShuffle();
     } else {
-      const currentSong = this.currentSong;
-      this.queue = [...biblioteca.songs];
+      this.queue =
+        this.context === ContextType.InPlaylist
+          ? [...this.playlistSongs]
+          : [...this.allSongs];
     }
   }
 

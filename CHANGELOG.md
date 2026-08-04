@@ -1,31 +1,36 @@
-# CHANGELOG
+# Changelog
 
-## Vibe
+Todas las novedades y cambios notables de **Vibe** se documentarán en este archivo.
 
-Reproductor MP3 local para Android construido con Svelte 5 + Capacitor 8. Reproduce archivos MP3 almacenados en el dispositivo, permite crear playlists, buscar canciones y controlar la reproducción desde notificaciones y la sesión de medios del sistema.
+El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
+## [Unreleased]
 
-## [0.1.0] - 2026-07-31
-
-### Added
-
-- Implementación de filtro de búsqueda para cada sección
-- Renderizado virtual de canciones y carga en cache
-- Reproductor funcional con estado persistente, botones play, next y pause, y modos de reproducción aleatorio, repeatone y repeatall
-- Vistas de inicio (ejemplo), playlist (ejemplo), álbumes, canciones y artistas.
-
-## [0.1.1] - 2026-07-31
+## [0.2.0] - 2026-08-04
 
 ### Added
-- Notificación en botones de funcionalidades no disponibles en la versión actual
+- Opción para actualizar la biblioteca de medios manualmente.
+- Submenú de opciones por canción (para acciones rápidas como agregar a playlists).
+- Soporte completo para playlists:
+  - Agregar y quitar canciones.
+  - Crear y eliminar playlists.
+  - Reproducción dedicada de playlists.
 
 ## [0.1.2] - 2026-08-01
 
 ### Fixed
-- navegación prev/next en modo aleatorio ignoraba el orden de la cola
+- Navegación `prev` / `next` en modo aleatorio ignoraba el orden real de la cola.
 
-## [0.x.x] - 2026-08
+## [0.1.1] - 2026-07-31
 
 ### Added
-- Opcion para actualizar la biblioteca manualmente
+- Notificación al pulsar botones con funcionalidades aún no disponibles.
+
+## [0.1.0] - 2026-07-31
+
+### Added
+- Filtro de búsqueda individual para cada sección.
+- Renderizado virtual para listas largas de canciones y carga en caché.
+- Reproductor con estado persistente, controles (`play`, `pause`, `next`) y modos de reproducción (`shuffle`, `repeat-one`, `repeat-all`).
+- Vistas principales: Inicio, Playlists, Álbumes, Canciones y Artistas.

@@ -18,18 +18,11 @@ import { player } from "./playerStore.svelte";
 import { Capacitor } from "@capacitor/core";
 import Button from "../button/button.svelte";
 import MarqueeText from "../wrapper/marqueeText.svelte";
-import { ui } from "$lib/stores/ui.svelte";
-
+import { DialogType, ui } from "$lib/stores/ui.svelte";
+import { formatearMS } from "$lib/utils";
   let audioElement = $state<HTMLAudioElement | null>(null);
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
-
-  function formatTime(seconds: number) {
-    if (isNaN(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-  }
 
   $effect(() => {
     player.playTrigger;
@@ -43,17 +36,11 @@ import { ui } from "$lib/stores/ui.svelte";
         playPromise.catch((error) => {
           if (error.name !== "AbortError") {
             console.error("Error al reproducir audio:", error);
-            // Mutar estado dentro del catch es más seguro usando los métodos de la clase
             player.pause();
           }
         });
       }
     }
-    // Este $effect NUNCA pausa. El `pause` transitorio que dispara el browser
-    // al cambiar de src no debe competir con el play() ya encolado (de
-    // hacerlo, isPlaying flipea a false y re-ejecutaríamos pause() → ping-pong
-    // play/pause infinito). Las pausas intencionales (botón, notificación
-    // MediaSession, error) van por onPauseRequest → audioElement.pause().
   });
 
   $effect(() => {
@@ -103,26 +90,15 @@ import { ui } from "$lib/stores/ui.svelte";
 
   function handlePlay() {
     player.isPlaying = true;
-    // La reproducción realmente arrancó: la transición terminó, el próximo
-    // `pause` (si ocurre) vuelve a ser un pause real y debe llegar al nativo.
     player.endNativePauseSuppression();
     player.syncNativePlaybackState(true);
   }
 
   function handlePause() {
-    // Durante un cambio de src el browser dispara un `pause` transitorio que
-    // NO debe tocar el estado JS: si isPlaying flipea a false, el $effect se
-    // re-ejecuta y llama audioElement.pause() compitiendo con el play() ya
-    // encolado → ping-pong pause/play que nunca se asienta. El early return
-    // deja isPlaying y el push intactos; el flag solo se levanta con el play
-    // real (handlePlay) o cuando el nuevo src cargó (handleLoadedMetadata/
-    // handleError). Un pause intencional (botón, notificación, pérdida de
-    // focus) llega acá con el flag inactivo y sigue su camino normal.
     if (player.isSuppressingNativePause) {
       return;
     }
     player.isPlaying = false;
-    // La UI (isPlaying) se actualiza y el estado se pushea al nativo.
     player.syncNativePlaybackState(false);
   }
 
@@ -133,8 +109,6 @@ import { ui } from "$lib/stores/ui.svelte";
   function handleError(e: Event) {
     console.error("Error en elemento audio:", e);
     player.isPlaying = false;
-    // El src falló: no habrá play/loadeddata, se levanta la supresión para que
-    // la próxima transición no arrastre un flag stale.
     player.endNativePauseSuppression();
   }
 
@@ -301,20 +275,20 @@ import { ui } from "$lib/stores/ui.svelte";
     </div>
   {/if}
   <div
-    class="min-h-full flex flex-col w-full bg-background fixed top-0 right-0"
+    class="min-h-full flex flex-col w-full bg-background fixed top-0 right-0 z-10"
     transition:fly={{ y: 200, duration: 400, easing: cubicOut }}
   >
     <div
-      class="bg-card flex py-1 border-b-3 border-border flex-row justify-between px-5 items-center"
+      class="bg-background flex py-1 border-b-3 border-border flex-row justify-between px-5 items-center"
     >
       <Button onclick={handleOpenAndClosePlayer} variant="ghost" class="p-2"
         ><ArrowLeft class="size-6" /></Button
       >
       <div class="flex flex-row w-auto items-center justify-center *:m-0 *:p-2">
-        <Button variant="ghost" onclick={() => ui.handleDialog()}>
+        <Button variant="ghost" onclick={() => ui.openDialog(DialogType.Unimplemented)}>
           <Favorite class="size-6" />
         </Button>
-        <Button variant="ghost" onclick={() => ui.handleDialog()}><EllipsisVertical class="size-6" /></Button>
+        <Button variant="ghost" onclick={() => ui.openDialog(DialogType.Unimplemented)}><EllipsisVertical class="size-6" /></Button>
       </div>
     </div>
     <div class="aspect-square h-auto p-5">
@@ -379,10 +353,10 @@ import { ui } from "$lib/stores/ui.svelte";
       />
       <div class="flex flex-row justify-between items-center w-full">
         <span class="text-sm text-muted-foreground"
-          >{formatTime(displayTime)}</span
+          >{formatearMS(displayTime * 1000)}</span
         >
         <span class="text-sm text-muted-foreground"
-          >{formatTime(player.duration)}</span
+          >{formatearMS(player.duration * 1000)}</span
         >
       </div>
     </div>

@@ -9,12 +9,16 @@
     guardarEstadoReproductor,
     obtenerCache,
   } from "$lib/services/stores";
+  import { DialogType, ui } from "$lib/stores/ui.svelte";
   import { onMount, onDestroy } from "svelte";
   import { App } from "@capacitor/app";
   import { player } from "$lib/components/ui/player/playerStore.svelte";
   import { Capacitor } from "@capacitor/core";
   import { LocalNotifications } from "@capacitor/local-notifications";
-    import Dialog from "$lib/components/ui/dialog.svelte";
+   import Dialog from "$lib/components/ui/dialogs/dialog.svelte"; 
+   import UnImplementedDialog from "$lib/components/ui/dialogs/unImplementedDialog.svelte";
+    import CreatePlaylistsDialog from "$lib/components/ui/dialogs/createPlaylistsDialog.svelte";
+    import PlaylistSelection from "$lib/components/ui/dialogs/playlistSelection.svelte";
   let { children } = $props();
   let backListener: any = null;
   let pauseListener: any = null;
@@ -81,6 +85,9 @@
       handler.remove();
     }
   });
+  window.addEventListener("popstate", () => {
+  if (ui.activeDialog) ui.closeDialog();
+});
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -90,4 +97,16 @@
     <Player />
   </footer>
 </div>
-<Dialog/>
+
+<Dialog>
+  {#snippet children(dialogType)}
+    {#if dialogType === DialogType.Playlist}
+   <PlaylistSelection/> 
+    {:else if dialogType === DialogType.Unimplemented}
+      <UnImplementedDialog/>
+    {:else if dialogType === DialogType.CreatePlaylist}
+    <CreatePlaylistsDialog/>
+    {/if}
+  {/snippet}
+</Dialog>
+

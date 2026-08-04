@@ -1,14 +1,34 @@
 <script lang="ts">
-  import { player} from "../player/playerStore.svelte";
-  import { OverflowMenuVertical as EllipsisVertical, PlayFilledAlt as Play, PauseFilled as Pause } from "carbon-icons-svelte";
-import type { Song } from "$lib/data";
-import { ui } from "$lib/stores/ui.svelte";
+  import { portal } from "$lib/uiUtils";
+  import { ContextType, player } from "../player/playerStore.svelte";
+  import {
+    OverflowMenuVertical as EllipsisVertical,
+    PlayFilledAlt as Play,
+    PauseFilled as Pause,
+  } from "carbon-icons-svelte";
+  import type { Song } from "$lib/data";
+  import { ui, DialogType } from "$lib/stores/ui.svelte";
+  import { slide } from "svelte/transition";
+    import Button from "../button/button.svelte";
+import { formatearMS } from "$lib/utils";
+    import { playlistStore } from "$lib/stores/playlist.svelte";
   interface Props {
     song: Song;
     idx: number;
+    context?: ContextType;
+    contextSongs?: Song[];
+    playlistId: number | undefined;
+    onDelete?: (songId: string) => void;
   }
 
-  let { song, idx }: Props = $props();
+  let {
+    song,
+    idx,
+    context = ContextType.InBiblioteca,
+    contextSongs = [],
+    playlistId = undefined,
+    onDelete = ()=>{}
+  }: Props = $props();
 
   let isCurrent = $derived(
     player.currentSong?.id === song.id &&
@@ -17,13 +37,19 @@ import { ui } from "$lib/stores/ui.svelte";
   let isPlayingThis = $derived(isCurrent && player.isPlaying);
 
   function handlePlay() {
+    player.setContext(context, contextSongs);
     if (isCurrent) {
       player.togglePlay();
     } else {
+    
       player.setSong(song);
     }
   }
+  function handleRemove(playlistId, songid){
+  playlistStore.removeSong(playlistId, songid)
+  }
 
+  let openMenu = $state(false);
 </script>
 
 <div
@@ -61,14 +87,61 @@ import { ui } from "$lib/stores/ui.svelte";
     </div>
   </div>
 
-  <div class="flex gap-2 items-center justify-center shrink-0">
-    <span class="text-muted-foreground">{song.duration}</span>
+  <div class="relative flex gap-2 items-center justify-center shrink-0">
+    <span class="text-muted-foreground">{formatearMS(song.duration)}</span>
     <button
-      onclick={(e) => {e.stopPropagation(); ui.handleDialog()}}
+      onclick={(e) => {
+        e.stopPropagation();
+        openMenu = !openMenu;
+      }}
       aria-label="Opciones de canción"
-      class="p-1 hover:text-white"
+      class="p-1 hover:text-foreground"
     >
       <EllipsisVertical class="size-6" />
     </button>
   </div>
 </div>
+
+{#if openMenu}
+  <button
+    use:portal
+    type="button"
+    class="fixed inset-0 z-10 h-full w-full border-none cursor-default bg-black/20"
+    onclick={() => (openMenu = false)}
+    aria-label="Cerrar menu"
+  ></button>
+  <div
+    use:portal
+    transition:slide
+    class="fixed bottom-0 right-0 left-0 z-50 min-h-[30%] border-t border-border bg-popover text-popover-foreground pb-[env(safe-area-inset-bottom)] shadow-xl"
+  >
+  <Button
+      class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
+      onclick={(e) => {
+        e.stopPropagation();
+       ui.openDialog(DialogType.Playlist, song.id) 
+        openMenu = false;
+      }}
+      variant="ghost"
+    >
+      Agregar a playlists
+    </Button>
+   {#if context === ContextType.InPlaylist}
+    
+<Button
+      class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
+      onclick={(e) => {
+        e.stopPropagation();
+        openMenu = false;
+        handleRemove(playlistId, song.id);
+        onDelete(song.id)
+      }}
+      variant="ghost"
+    >
+      Quitar de playlists</Button>
+
+   {:else}
+
+   {/if}
+  </div>
+{/if}

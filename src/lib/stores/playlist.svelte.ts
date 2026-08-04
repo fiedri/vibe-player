@@ -1,6 +1,5 @@
 import * as db from "$lib/db/db/querys";
-import { playlists } from "$lib/db/db/schema";
-
+import { biblioteca } from "./biblioteca.svelte";
 interface Playlists {
   name: string;
   id: number;
@@ -12,7 +11,7 @@ class playlist {
   isLoaded = $state<boolean>(false);
   playlists = $state<Playlists[]>([]);
   error = $state<string | null>(null);
-
+ 
   public async loadPlaylist() {
     try {
       console.log("cargando playlist");
@@ -28,7 +27,7 @@ class playlist {
       this.error = e;
     }
   }
-  public async add(playlistsName: string) {
+  public async add(playlistsName: string, firstSong?: string) {
     try {
       const resultId = await db.createPlaylist(playlistsName.trim());
       this.playlists.unshift({
@@ -44,6 +43,32 @@ class playlist {
     try {
       this.playlists = this.playlists.filter((el) => el.id !== playlistsId);
       await db.deletePlaylist(playlistsId);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  public async addSong(playlistId: number, songId: string) {
+    try {
+      const playlistIdx = this.playlists.findIndex((e) => e.id == playlistId);
+      if (playlistIdx === -1) return;
+      this.playlists[playlistIdx].songsCount++;
+      await db.addSongToPlaylist(playlistId, songId);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  public getArraySong(playlistsSongArr: { songId: string }[] = []) {
+    const idsSongs = new Set(playlistsSongArr.map((item) => item.songId));
+    const result = biblioteca.songs.filter((el) => idsSongs.has(el.id));
+    return result;
+  }
+  public async removeSong(playlistId: number, songId: string) {
+    try {
+      const playlistIdx = this.playlists.findIndex((e) => e.id == playlistId);
+      if (playlistIdx === -1) return;
+      this.playlists[playlistIdx].songsCount--;
+
+      await db.removeSongFromPlaylist(playlistId, songId);
     } catch (e) {
       console.error(e);
     }

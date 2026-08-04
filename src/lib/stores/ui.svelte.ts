@@ -1,11 +1,30 @@
-class UiStore{
- query = $state<string>("");
- isOpenDialog = $state<boolean>(false);
+export enum DialogType {
+  Playlist = 'playlist',
+  CreatePlaylist = 'createPlaylist',
+  Unimplemented = 'unimplemented',
+}
 
- handleDialog(){
-  this.isOpenDialog = !this.isOpenDialog
+class UiStore {
+  query = $state<string>("");
+  
+  activeDialog = $state<DialogType | null>(null);
+  dialogPayload = $state<unknown>(null);
+
+  openDialog(type: DialogType, playload?) {
+    this.activeDialog = type;
+    this.dialogPayload = playload?? null;
+    window.history.pushState({ dialog: true }, "");
+
+  }
+
+  closeDialog() {
+    this.activeDialog = null;
+    this.dialogPayload = null
+  }
+
+  toggleDialog(type: DialogType) {
+    this.activeDialog = this.activeDialog === type ? null : type;
   }
 }
 
-
-export const ui = new UiStore()
+export const ui = new UiStore();

@@ -5,23 +5,10 @@
     OverflowMenuVertical,
   } from "carbon-icons-svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { ui } from "$lib/stores/ui.svelte";
+  import { ui, DialogType } from "$lib/stores/ui.svelte";
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { animateTyping } from "$lib/animations";
-  let mockAlbums = Array.from({ length: 100 }, (_, i) => ({
-    title: "Ejemplo",
-    portada: "/default-cover.png",
-    numbersSongs: 20,
-  }));
-  let openNewPlaylistInput = $state(false);
-  let playlistsName = $state("");
-  function handleCreatePlaylist(e: Event) {
-    e.preventDefault();
-    if (!playlistsName.trim()) return;
-    playlistStore.add(playlistsName);
-    playlistsName = "";
-    openNewPlaylistInput = false;
-  }
+
   let activeMenuId = $state<number | null>(null);
 
   function toggleMenu(id: number) {
@@ -75,7 +62,7 @@
     <div>
       {@render buttonToCreate()}
       {#each playlistStore.playlists as playlists}
-        <div class="h-14 p-2 flex flex-row justify-between items-center">
+        <a href="playlist/{playlists.id}" class="h-14 p-2 flex flex-row justify-between items-center">
           <div class="flex flex-row gap-3 items-center w-[50%]">
             <Playlist size={40} />
             <h2 class="font-medium hover:underline text-white truncate">
@@ -99,11 +86,15 @@
               <div
                 class="absolute right-0 top-full mt-2 w-30 bg-popover border border-border shadow-lg z-50"
               >
-                <button class="p-2" onclick={()=> playlistStore.delete(playlists.id)}>Eliminar</button>
+                <button
+                  class="p-2"
+                  onclick={(e) => {e.preventDefault();playlistStore.delete(playlists.id)}}
+                  >Eliminar</button
+                >
               </div>
             {/if}
           </div>
-        </div>
+        </a>
       {/each}
     </div>
   {/if}
@@ -112,47 +103,8 @@
   <div class="animate_slideUp absolute bottom-25 right-3 z-0">
     <Button
       class="rounded-sm size-15 "
-      onclick={() => (openNewPlaylistInput = true)}><AddLarge /></Button
+      onclick={() => (ui.openDialog(DialogType.CreatePlaylist))}><AddLarge /></Button
     >
   </div>
-  {#if openNewPlaylistInput}
-    <div class="fixed inset-0 z-[100] flex items-center justify-center">
-      <button
-        type="button"
-        class="absolute inset-0 h-full w-full bg-black/50 border-none cursor-default"
-        onclick={() => (openNewPlaylistInput = false)}
-        aria-label="Cerrar modal"
-      ></button>
 
-      <div
-        class="relative z-10 w-[90%] p-6 bg-card border border-border shadow-lg"
-      >
-        <form onsubmit={handleCreatePlaylist} class="flex flex-col gap-4">
-          <label
-            for="playlist-name"
-            class="font-medium text-foreground uppercase text-xl"
-          >
-            Nueva Playlist
-          </label>
-          <input
-            id="playlist-name"
-            type="text"
-            placeholder="Nombre de la playlist..."
-            class="w-full bg-background px-1 py-3 text-foreground border-0 border-b-2 border-primary outline-none focus:outline-none focus:ring-0 focus:border-primary"
-            bind:value={playlistsName}
-          />
-          <div class="flex justify-end gap-3">
-            <Button
-              variant="ghost"
-              onclick={() => (openNewPlaylistInput = false)}
-              type="button">cancelar</Button
-            >
-            <Button type="submit" disabled={playlistsName.trim() === ""}
-              >Crear</Button
-            >
-          </div>
-        </form>
-      </div>
-    </div>
-  {/if}
 {/snippet}

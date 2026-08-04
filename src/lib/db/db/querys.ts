@@ -29,11 +29,13 @@ export async function deletePlaylist(id: number) {
 }
 
 export async function getPlaylistSongs(playlistId: number) {
-  const result = await db
-    .select({ songId: playlistsSongs.songId })
-    .from(playlistsSongs)
-    .where(eq(playlistsSongs.playlistId, playlistId));
-  return result.map((r) => r.songId);
+const result = await db.query.playlists.findFirst({
+  where: {
+    id: { eq: playlistId}, 
+  },
+  with: { playlistsSongs: true }
+});
+return result
 }
 
 export async function addSongToPlaylist(playlistId: number, songId: string) {

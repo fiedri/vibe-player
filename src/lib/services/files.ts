@@ -50,12 +50,7 @@ export async function cargarBiblioteca(limit = 500, offset = 0): Promise<MediaFi
   return resultado.medias || resultado.media || [];
 }
 
-export function formatearMS(ms: number): string {
-  const segundosTotales = Math.floor(ms / 1000);
-  const minutos = Math.floor(segundosTotales / 60);
-  const segundos = segundosTotales % 60;
-  return `${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
-}
+
 
 export function formatbiblioteca(biblioteca: MediaFile[]): Song[] {
   return biblioteca.map((song): Song => {
@@ -73,7 +68,7 @@ export function formatbiblioteca(biblioteca: MediaFile[]): Song[] {
     const safeTitle = title || displayName || "Sin título";
     const safeArtist = artist || "Artista desconocido";
     const safeAlbum = album || "Álbum desconocido";
-    const safeDuration = duration ? formatearMS(duration) : "00:00";
+    const safeDuration = duration;
     const safeImage = albumArtUri || "/default-cover.png";
 
     return {
