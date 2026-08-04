@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Desactiva el Android Auto-Backup/Restore de los datos de la app.
+
+  Por qué: @capacitor-community/sqlite sufre un bug conocido
+  ("CapacitorSQLitePlugin: null" en instalación limpia) cuando Android
+  restaura datos viejos tras desinstalar/reinstalar la app. El estado
+  restaurado queda inconsistente y el plugin nativo no se instancia.
+
+  Ver: https://github.com/capacitor-community/sqlite/issues/603
+  La solución documentada es desactivar el backup (allowBackup=false)
+  y, en Android 12+ (API 31+), reforzarla con dataExtractionRules.
+-->
+<data-extraction-rules>
+  <cloud-backup>
+    <exclude domain="root" path="." />
+    <exclude domain="file" path="." />
+    <exclude domain="database" path="." />
+    <exclude domain="sharedpref" path="." />
+    <exclude domain="external" path="." />
+  </cloud-backup>
+  <device-transfer>
+    <exclude domain="root" path="." />
+    <exclude domain="file" path="." />
+    <exclude domain="database" path="." />
+    <exclude domain="sharedpref" path="." />
+    <exclude domain="external" path="." />
+  </device-transfer>
+</data-extraction-rules>
