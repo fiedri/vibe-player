@@ -12,8 +12,7 @@
 ### Contexto para devs
 
 - **Bug (raíz):** en instalación limpia la app crasheaba al abrir con `CapacitorSQLitePlugin: null`. El "500 Internal Error" era la **página de error de SvelteKit**: el `load` del `+layout` (que llama `getDb()` y `playlistStore.loadPlaylist()`) rechazaba.
-- Causa real: bug conocido de `@capacitor-community/sqlite` ([#494](https://github.com/capacitor-community/sqlite/issues/494), [#603](https://github.com/capacitor-community/sqlite/issues/603)). **Android Auto-Backup/Restore** restaura datos viejos del plugin tras desinstalar/reinstalar en estado inconsistente. Por eso update (0.1.2→0.2.0) funcionaba y reinstalación limpia no.
-- Pistas falsas descartadas: el cambio de tipo `duration: string → number` (es TS, se compila y desaparece) y las firmas de APK (darían `INSTALL_FAILED_UPDATE_INCOMPATIBLE`, no 500).
+- Causa real: bug conocido de `@capacitor-community/sqlite` ([#494](https://github.com/capacitor-community/sqlite/issues/494), [#603](https://github.com/capacitor-community/sqlite/issues/603)). **Android Auto-Backup/Restore** restaura datos viejos del plugin tras desinstalar/reinstalar en estado inconsistente. Por eso update (0.1.2→0.2.0) funcionaba y la reinstalación limpia no.
 - **Fix:** `android:allowBackup="false"` + `android:fullBackupContent="false"` + nuevo `dataExtractionRules.xml` (excluye todo). En Android 12+ (`targetSdk=36`, `minSdk=24`) `allowBackup=false` solo no alcanza.
 - **Consecuencia:** las playlists ya no se restauran solas. Se compensa con backup/restore manual en JSON (`src/lib/db/backup.ts`) usando el drizzle `db` (no el export/import del plugin, que recrea tablas). UI: `DialogType.Backup` + `backupPlaylistDialog.svelte` + botón `Download`.
 
