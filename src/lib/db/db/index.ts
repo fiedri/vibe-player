@@ -81,10 +81,31 @@ async function crearTablas(conn: any) {
     await conn.run(sql, []);
   }
 }
+const esperar = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function getDb() {
   if (!dbInitPromise) {
-    dbInitPromise = initDatabase();
+    dbInitPromise = (async () => {
+      const maxIntentos = 3;
+      let intentos = 0;
+
+      while (intentos < maxIntentos) {
+        try {
+          intentos++;
+          return await initDatabase();
+        } catch (e) {
+          console.warn(`Intento ${intentos} fallido al conectar a la BD:`, e);
+          if (intentos >= maxIntentos) {
+            dbInitPromise = null;
+            throw new Error(
+              `No se pudo inicializar la base de datos tras ${maxIntentos} intentos: ${e}`,
+            );
+          }
+          await esperar(500*intentos);
+        }
+      }
+      throw new Error('Error inesperado en el flujo de reintentos.');
+    })();
   }
   return dbInitPromise;
 }

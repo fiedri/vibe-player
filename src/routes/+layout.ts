@@ -9,7 +9,7 @@ import { getDb } from "$lib/db/db";
 import { playlistStore } from "$lib/stores/playlist.svelte";
 export const load: LayoutLoad = async () => {
   
-getDb()
+ await getDb()
   if(playlistStore.playlists.length === 0){
     playlistStore.loadPlaylist()
   }
