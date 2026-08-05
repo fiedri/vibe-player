@@ -331,7 +331,7 @@ class PlayerStore {
       setTimeout(precalentar, 250);
     }
   }
-  shuffle(array) {
+  shuffle(array: Song[]) {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -389,6 +389,7 @@ class PlayerStore {
       this.updatePositionState(0, this.duration, true);
       return;
     } else if (this.mode == "all" && this.currentSong) {
+      if(!this.currentSongIndex) return
       if ((this.queue.length-1) <= this.currentSongIndex) {
         this.setSong(this.queue[0]);
         return

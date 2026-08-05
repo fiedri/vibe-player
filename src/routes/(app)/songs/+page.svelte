@@ -41,7 +41,7 @@ ui.query = ""
   {:else}
     <VirtualList items={filteredSongs} itemHeight={52}>
       {#snippet children(song, idx)}
-        <SongCard {song} {idx} />
+        <SongCard {song} {idx} playlistId={undefined}/>
       {/snippet}
     </VirtualList>
   {/if}

@@ -10,7 +10,7 @@ class playlist {
   isLoading = $state<boolean>(false);
   isLoaded = $state<boolean>(false);
   playlists = $state<Playlists[]>([]);
-  error = $state<string | null>(null);
+  error = $state<string | null | unknown>(null);
  
   public async loadPlaylist() {
     try {

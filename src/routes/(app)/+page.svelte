@@ -45,9 +45,9 @@
   <div class="w-full mb-6">
     <div class="flex flex-row justify-between items-center">
       <h2>Tus Playlists</h2>
-      <a href="" class="mb-3 underline text-muted-foreground text-sm"
+      <button class="mb-3 underline text-muted-foreground text-sm"
         onclick={(e) => { e.preventDefault(); ui.openDialog(DialogType.Unimplemented); }}
-        >Ver todas</a
+        >Ver todas</button
       >
     </div>
 
@@ -95,10 +95,10 @@
     <!-- Tu contenido aquí -->
     <div>
       {#each mockSongs.slice(0, 5) as song, idx}
-        <SongCard {song} {idx} />
+        <SongCard {song} {idx} playlistId={undefined}/>
       {/each}
-      <a href="" class="ml-2 underline text-muted-foreground text-sm" onclick={(e) => { e.preventDefault(); ui.handleDialog(); }}
-        >Ver Mas</a
+      <button class="ml-2 underline text-muted-foreground text-sm" onclick={(e) => { e.preventDefault(); ui.openDialog(DialogType.Unimplemented); }}
+        >Ver Mas</button
       >
     </div>
   </div>

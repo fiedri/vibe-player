@@ -153,14 +153,14 @@ import { formatearMS } from "$lib/utils";
   };
 
   function handleChangeRepeatMode() {
-    const { next, msg } = REPEAT_TRANSITIONS[player.mode];
+    const { next, msg } = REPEAT_TRANSITIONS[player.mode as keyof typeof REPEAT_TRANSITIONS];
     player.mode = next;
     showNotificacion(msg);
   }
 
   let needNotify = $state(false);
   let notification = $state("");
-  function showNotificacion(Message) {
+  function showNotificacion(Message: string) {
     notification = Message;
     needNotify = true;
     setTimeout(() => {
@@ -209,6 +209,7 @@ import { formatearMS } from "$lib/utils";
       <div class="flex items-center gap-3 w-[50%]">
         {#if player.currentSong}
           <img
+          // @ts-ignore
             src={Capacitor.convertFileSrc(player.currentSong.image)}
             loading="lazy"
             alt={player.currentSong.title}
@@ -294,6 +295,7 @@ import { formatearMS } from "$lib/utils";
     <div class="aspect-square h-auto p-5">
       <figure class="shadow-lg overflow-hidden">
         <img
+        // @ts-ignore
           src={Capacitor.convertFileSrc(player.currentSong.image)}
           loading="lazy"
           alt={player.currentSong?.title}

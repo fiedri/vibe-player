@@ -168,9 +168,9 @@ class BibliotecaStore {
     const q = query.toLowerCase();
     return this.songs.filter(
       (s) =>
-        s.title.toLowerCase().includes(q) ||
-        s.artists.toLowerCase().includes(q) ||
-        s.album.toLowerCase().includes(q)
+        s.title?.toLowerCase().includes(q) ||
+        s.artists?.toLowerCase().includes(q) ||
+        s.album?.toLowerCase().includes(q)
     );
   }
 }

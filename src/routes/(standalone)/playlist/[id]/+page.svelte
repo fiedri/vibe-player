@@ -78,6 +78,15 @@
         alt="Playlists Img"
         class="h-36 w-full object-cover border-2 border-border"
         loading="lazy"
+        onerror={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (
+                target.src !==
+                window.location.origin + "/default-cover.png"
+              ) {
+                target.src = "/default-cover.png";
+              }
+            }}
       />
     </picture>
 

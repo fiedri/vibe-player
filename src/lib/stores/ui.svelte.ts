@@ -11,7 +11,7 @@ class UiStore {
   activeDialog = $state<DialogType | null>(null);
   dialogPayload = $state<unknown>(null);
 
-  openDialog(type: DialogType, playload?) {
+  openDialog(type: DialogType, playload?: any) {
     this.activeDialog = type;
     this.dialogPayload = playload?? null;
     window.history.pushState({ dialog: true }, "");
