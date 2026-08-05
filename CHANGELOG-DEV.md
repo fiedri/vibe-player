@@ -5,6 +5,29 @@
 
 ---
 
+## [0.2.3] - 2026-08-05
+
+**Commits:** `fix(playlist): dedupe por id evita each_key_duplicate (pantalla 400/404)`
+
+### Contexto para devs
+
+- **Bug (raíz):** al abrir una playlist que contenía canciones duplicadas, la app mostraba una pantalla de error que se percibía como "400/404 not found". No había ningún `error(400)` ni `fetch` en la app: era el **error de render de Svelte `each_key_duplicate`** ("Keyed each block has duplicate key `1000424350` at indexes 0 and 1"). SvelteKit lo muestra como página de error y en el WebView de Capacitor se ve como un "400 not found".
+- Causa real: `biblioteca.songs` podía contener **dos objetos con el mismo `id`** (`String(id)` del MediaStore). `#mergeSongs` y la carga de caché dedupeaban por `audioUrl`, NO por `id`, así que dos filas con el mismo id pero distinta URI sobrevivían. `getArraySong` filtraba `biblioteca.songs` por id y devolvía ambas → el `{#each songs as song, idx (song.id)}` explotaba.
+- **Fix (2 capas):** dedupe por `id` en `#mergeSongs` + carga de caché (helper `#dedupePorId`) como cura de raíz, y dedupe por `id` en `getArraySong` como defensa en el punto de consumo. Aunque el origen se cure, si la caché viejita ya tiene duplicados, `getArraySong` los filtra igual.
+- **Bug secundario real:** `loadLastSavedState` llamaba `restoredSong.duration?.split(":")` pero `Song.duration` es un **número de ms** del MediaStore (no string). Era un crash latente que explotaba al arrancar con estado guardado: `duration?.split is not a function`. `updatePositionState` espera **segundos** (verificado: `player.duration = audioElement.duration`, `formatearMS(player.duration * 1000)`), así que ahora se convierte `duration/1000`.
+- **Reproducción determinista (útil si vuelve):** inyectar un duplicado en `biblioteca.songs` (mismo id) y abrir la playlist que lo contenga. En la rama `repro/duplicate-playlist-400` quedó `injectDuplicateRepro()` + hooks `[REPRO400]`, descartados al mergear.
+
+### Archivos
+
+- **Modificados:** `src/lib/stores/biblioteca.svelte.ts` (`#mergeSongs`, `#dedupePorId`, carga de caché), `src/lib/stores/playlist.svelte.ts` (`getArraySong`), `src/lib/components/ui/player/playerStore.svelte.ts` (`loadLastSavedState`), `package.json`, `android/app/build.gradle` (0.2.3)
+
+### Verificar
+
+1. Reproducir el escenario: una playlist con la misma canción agregada dos veces (con duplicados previos en caché) debe abrirse normal, sin pantalla de error.
+2. Cerrar la app con una canción reproduciéndose y reabrir: no debe aparecer `duration?.split is not a function` al restaurar el estado.
+
+---
+
 ## [0.2.2] - 2026-08-04
 
 **Commits:** `chore: bump a versión 0.2.2 (versionCode 3)` · `feat(playlist): backup y restauración de playlists en JSON` · `fix: 500 en instalación limpia desactivando el auto-backup de SQLite`

@@ -7,6 +7,12 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 ---
 ## [Unreleased]
 
+## [0.2.3] - 2026-08-05
+
+### Fixed
+- Error al abrir algunas playlists que contenían la misma canción repetida (aparecía una pantalla de error al entrar). Las canciones repetidas ahora se filtran correctamente y la playlist abre normal.
+- Error al reabrir la app con una canción en reproducción: el estado del reproductor ya no falla al restaurarse.
+
 ## [0.2.2] - 2026-08-04
 
 ### Fixed
