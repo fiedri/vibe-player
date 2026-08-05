@@ -59,7 +59,15 @@ class playlist {
   }
   public getArraySong(playlistsSongArr: { songId: string }[] = []) {
     const idsSongs = new Set(playlistsSongArr.map((item) => item.songId));
-    const result = biblioteca.songs.filter((el) => idsSongs.has(el.id));
+    // Dedupe por id: si biblioteca.songs tiene dos objetos con el mismo id,
+    // devolver uno solo. Evita `each_key_duplicate` en los {#each (song.id)}.
+    const vistos = new Set<string>();
+    const result = biblioteca.songs.filter((el) => {
+      if (!idsSongs.has(el.id)) return false;
+      if (vistos.has(el.id)) return false;
+      vistos.add(el.id);
+      return true;
+    });
     return result;
   }
   public async removeSong(playlistId: number, songId: string) {

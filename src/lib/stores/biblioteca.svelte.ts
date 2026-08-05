@@ -39,7 +39,10 @@ class BibliotecaStore {
       if (!forceScan && (await esCacheBibliotecaFresco())) {
         // Caché fresca: usar lo que ya haya en memoria (poblado por el
         // layout) o volver a leerla por si acaso, sin tocar el device.
-        if (this.songs.length === 0) this.songs = await obtenerCache();
+        if (this.songs.length === 0) {
+          const cached = await obtenerCache();
+          this.songs = this.#dedupePorId(cached);
+        }
         this.loaded = true;
         this.loading = false;
         return false;
@@ -74,16 +77,25 @@ class BibliotecaStore {
   }
 
   /**
-   * Mergea canciones nuevas evitando duplicados por audioUrl.
+   * Mergea canciones nuevas evitando duplicados por id.
    * Devuelve cuántas canciones nuevas se agregaron.
    */
   #mergeSongs(nuevas: Song[]): number {
-    const existentes = new Set(this.songs.map((s) => s.audioUrl));
-    const aAgregar = nuevas.filter((s) => !existentes.has(s.audioUrl));
-    if (aAgregar.length > 0) {
-      this.songs = [...this.songs, ...aAgregar];
-    }
-    return aAgregar.length;
+    // Dedupe por id (raíz del each_key_duplicate en playlists). Dos objetos con
+    // el mismo id no deben coexistir nunca en biblioteca.songs.
+    const prevLen = this.songs.length;
+    this.songs = this.#dedupePorId([...this.songs, ...nuevas]);
+    return this.songs.length - prevLen;
+  }
+
+  /** Devuelve un array sin duplicados por `id` (mantiene el primero). */
+  #dedupePorId(lista: Song[]): Song[] {
+    const vistos = new Set<string>();
+    return lista.filter((s) => {
+      if (vistos.has(s.id)) return false;
+      vistos.add(s.id);
+      return true;
+    });
   }
 
   private async loadRestInBackground() {
