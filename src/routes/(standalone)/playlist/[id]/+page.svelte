@@ -16,6 +16,7 @@
 
   let { data } = $props();
   let playlists = $derived(data.name);
+
   let songs = $derived(data.songs);
   let totalDuration = $derived(formatearDuracionTotal(songs));
   let tight = $state(false);

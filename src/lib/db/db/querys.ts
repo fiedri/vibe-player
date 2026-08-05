@@ -2,14 +2,13 @@ import { getDb } from ".";
 import { eq, count, sql, and } from "drizzle-orm";
 import { playlists, playlistsSongs } from "./schema";
 
-const db = await getDb();
-
 export async function getPlaylists() {
-return await db
+  const db = await getDb();
+  return await db
     .select({
       id: playlists.id,
       name: playlists.name,
-      songsCount: sql<number>`count(${playlistsSongs.songId})`.as('songsCount'),
+      songsCount: sql<number>`count(${playlistsSongs.songId})`.as("songsCount"),
     })
     .from(playlists)
     .leftJoin(playlistsSongs, eq(playlists.id, playlistsSongs.playlistId))
@@ -17,6 +16,7 @@ return await db
 }
 
 export async function createPlaylist(name: string) {
+  const db = await getDb();
   const [result] = await db
     .insert(playlists)
     .values({ name })
@@ -25,25 +25,37 @@ export async function createPlaylist(name: string) {
 }
 
 export async function deletePlaylist(id: number) {
+  const db = await getDb();
   await db.delete(playlists).where(eq(playlists.id, id));
 }
 
 export async function getPlaylistSongs(playlistId: number) {
-const result = await db.query.playlists.findFirst({
-  where: {
-    id: { eq: playlistId}, 
-  },
-  with: { playlistsSongs: true }
-});
-return result
+  const db = await getDb();
+  const result = await db.query.playlists.findFirst({
+    where: {
+      id: { eq: playlistId },
+    },
+    with: { playlistsSongs: true },
+  });
+  return result;
 }
 
 export async function addSongToPlaylist(playlistId: number, songId: string) {
+  const db = await getDb();
   await db.insert(playlistsSongs).values({ playlistId, songId });
 }
 
-export async function removeSongFromPlaylist(playlistId: number, songId: string) {
+export async function removeSongFromPlaylist(
+  playlistId: number,
+  songId: string,
+) {
+  const db = await getDb();
   await db
     .delete(playlistsSongs)
-    .where(and(eq(playlistsSongs.playlistId, playlistId), eq(playlistsSongs.songId, songId)));
+    .where(
+      and(
+        eq(playlistsSongs.playlistId, playlistId),
+        eq(playlistsSongs.songId, songId),
+      ),
+    );
 }
