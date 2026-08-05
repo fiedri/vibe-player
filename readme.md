@@ -11,9 +11,8 @@ Local MP3 player for Android built with Svelte 5 and Capacitor 8. Plays MP3 file
 | Reproductor con estado persistente: play, pause, siguiente y anterior | Persistent player state: play, pause, next and previous |
 | Modos de reproducción: aleatorio, repetir uno y repetir todo | Playback modes: shuffle, repeat one and repeat all |
 | Vistas de inicio, playlists, álbumes y artistas | Home, playlists, albums and artists views |
-| Playlists persistentes en SQLite (creación y edición próximamente) | Persistent playlists in SQLite (creation and editing coming soon) |
+| Playlists persistentes en SQLite| Persistent playlists in SQLite|
 | Búsqueda y filtro en cada sección | Search and filter in every section |
-| Renderizado virtual y caché de canciones | Virtual rendering and song caching |
 | Notificación de medios nativa (MediaSession) con controles del sistema | Native media notification (MediaSession) with system controls |
 | Restauración del estado al reabrir la aplicación | State restoration when reopening the app |
 
@@ -21,9 +20,9 @@ Local MP3 player for Android built with Svelte 5 and Capacitor 8. Plays MP3 file
 
 ### Usuarios / Users
 
-Descargá el último APK desde la sección [Releases](https://github.com/fiedri/Vibe/releases) de GitHub.
+Descargá el último APK desde la sección [Releases](https://github.com/fiedri/vibe-player/releases) de GitHub.
 
-Download the latest APK from the [Releases](https://github.com/fiedri/Vibe/releases) section on GitHub.
+Download the latest APK from the [Releases](https://github.com/fiedri/vibe-player/releases) section on GitHub.
 
 ### Desarrollo / Development
 
