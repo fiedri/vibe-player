@@ -47,7 +47,7 @@ export async function cargarBiblioteca(limit = 500, offset = 0): Promise<MediaFi
   if (offset > 0) opciones.offset = offset;
 
   const resultado = await CapacitorMediaStore.getMediasByType(opciones);
-  return resultado.medias || resultado.media || [];
+  return resultado.media || [];
 }
 
 

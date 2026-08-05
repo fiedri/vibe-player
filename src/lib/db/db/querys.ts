@@ -1,5 +1,5 @@
 import { getDb } from ".";
-import { eq, count, sql } from "drizzle-orm";
+import { eq, count, sql, and } from "drizzle-orm";
 import { playlists, playlistsSongs } from "./schema";
 
 const db = await getDb();
@@ -45,6 +45,5 @@ export async function addSongToPlaylist(playlistId: number, songId: string) {
 export async function removeSongFromPlaylist(playlistId: number, songId: string) {
   await db
     .delete(playlistsSongs)
-    .where(eq(playlistsSongs.playlistId, playlistId))
-    .where(eq(playlistsSongs.songId, songId));
+    .where(and(eq(playlistsSongs.playlistId, playlistId), eq(playlistsSongs.songId, songId)));
 }

@@ -100,7 +100,7 @@
 </div>
 
 <Dialog>
-  {#snippet children(dialogType)}
+  {#snippet children(dialogType: DialogType)}
     {#if dialogType === DialogType.Playlist}
    <PlaylistSelection/> 
     {:else if dialogType === DialogType.Unimplemented}

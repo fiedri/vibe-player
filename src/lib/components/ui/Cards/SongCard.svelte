@@ -6,7 +6,7 @@
     PlayFilledAlt as Play,
     PauseFilled as Pause,
   } from "carbon-icons-svelte";
-  import type { Song } from "$lib/data";
+  import type { Song } from "$lib/types/songs";
   import { ui, DialogType } from "$lib/stores/ui.svelte";
   import { slide } from "svelte/transition";
     import Button from "../button/button.svelte";
@@ -32,7 +32,7 @@ import { formatearMS } from "$lib/utils";
 
   let isCurrent = $derived(
     player.currentSong?.id === song.id &&
-      player.currentSong?.albumId === song.albumId,
+      player.currentSong?.album === song.album,
   );
   let isPlayingThis = $derived(isCurrent && player.isPlaying);
 
@@ -45,7 +45,7 @@ import { formatearMS } from "$lib/utils";
       player.setSong(song);
     }
   }
-  function handleRemove(playlistId, songid){
+  function handleRemove(playlistId: number, songid: string){
   playlistStore.removeSong(playlistId, songid)
   }
 
@@ -88,7 +88,7 @@ import { formatearMS } from "$lib/utils";
   </div>
 
   <div class="relative flex gap-2 items-center justify-center shrink-0">
-    <span class="text-muted-foreground">{formatearMS(song.duration)}</span>
+    <span class="text-muted-foreground">{typeof song.duration == "number"? formatearMS(song.duration) : "00:00"}</span>
     <button
       onclick={(e) => {
         e.stopPropagation();
@@ -126,7 +126,7 @@ import { formatearMS } from "$lib/utils";
     >
       Agregar a playlists
     </Button>
-   {#if context === ContextType.InPlaylist}
+   {#if context === ContextType.InPlaylist && playlistId}
     
 <Button
       class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
@@ -140,7 +140,7 @@ import { formatearMS } from "$lib/utils";
     >
       Quitar de playlists</Button>
 
-   {:else}
+  <!-- {:else} se muestran el submenu en canciones-->
 
    {/if}
   </div>
