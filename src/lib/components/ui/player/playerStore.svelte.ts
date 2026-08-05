@@ -158,10 +158,18 @@ class PlayerStore {
       this.syncNativePlaybackState(false);
       void this.setMetadata(restoredSong);
 
-      const durationParts = restoredSong.duration?.split(":").map(Number);
-      const restoredDuration = durationParts?.length
-        ? durationParts.reduce((acc, part) => acc * 60 + part, 0)
-        : 0;
+      const duration = restoredSong.duration as number | string | undefined;
+      // duration es NÚMERO de ms del MediaStore (Song.duration = ms del
+      // MediaStore). updatePositionState espera SEGUNDOS, así que convertimos.
+      // Caches viejas podrían tener cadena "m:ss": también convertidas.
+      // Evita el crash `duration?.split is not a function` al arrancar.
+      let restoredDuration = 0;
+      if (typeof duration === "number" && Number.isFinite(duration)) {
+        restoredDuration = duration / 1000;
+      } else if (typeof duration === "string" && duration.includes(":")) {
+        const parts = duration.split(":").map(Number);
+        restoredDuration = parts.reduce((acc, part) => acc * 60 + part, 0);
+      }
       if (restoredDuration > 0) {
         // force=true: restauración al arrancar, no debe respetar el throttle
         // de 2s. updatePositionState descarta internamente posiciones inválidas.
