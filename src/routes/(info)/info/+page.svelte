@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TriangleAlert } from "@lucide/svelte";
+  import {WarningAlt as TriangleAlert} from "carbon-icons-svelte";
 </script>
 
 <div class="h-full w-full min-w-0 overflow-y-auto">

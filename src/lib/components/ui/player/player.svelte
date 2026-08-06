@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { Pause, Play, ArrowLeft } from "@lucide/svelte";
   import { fly } from "svelte/transition";
   import { cubicOut } from "svelte/easing";
   import {
     PlayFilledAlt,
     SkipBack,
+    ArrowLeft,
     SkipForward,
     Shuffle,
     Repeat,
@@ -14,12 +14,12 @@
     Favorite,
     FavoriteFilled,
   } from "carbon-icons-svelte";
-import { player } from "./playerStore.svelte";
-import { Capacitor } from "@capacitor/core";
-import Button from "../button/button.svelte";
-import MarqueeText from "../wrapper/marqueeText.svelte";
-import { DialogType, ui } from "$lib/stores/ui.svelte";
-import { formatearMS } from "$lib/utils";
+  import { player } from "./playerStore.svelte";
+  import { Capacitor } from "@capacitor/core";
+  import Button from "../button/button.svelte";
+  import MarqueeText from "../wrapper/marqueeText.svelte";
+  import { DialogType, ui } from "$lib/stores/ui.svelte";
+  import { formatearMS } from "$lib/utils";
   let audioElement = $state<HTMLAudioElement | null>(null);
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
@@ -153,7 +153,8 @@ import { formatearMS } from "$lib/utils";
   };
 
   function handleChangeRepeatMode() {
-    const { next, msg } = REPEAT_TRANSITIONS[player.mode as keyof typeof REPEAT_TRANSITIONS];
+    const { next, msg } =
+      REPEAT_TRANSITIONS[player.mode as keyof typeof REPEAT_TRANSITIONS];
     player.mode = next;
     showNotificacion(msg);
   }
@@ -209,7 +210,7 @@ import { formatearMS } from "$lib/utils";
       <div class="flex items-center gap-3 w-[50%]">
         {#if player.currentSong}
           <img
-          // @ts-ignore
+            // @ts-ignore
             src={Capacitor.convertFileSrc(player.currentSong.image)}
             loading="lazy"
             alt={player.currentSong.title}
@@ -253,9 +254,9 @@ import { formatearMS } from "$lib/utils";
           class="p-2 hover:scale-105 transition disabled:opacity-50 border border-white p-2"
         >
           {#if player.isPlaying}
-            <Pause size={18} />
+            <PauseFilled size={18} />
           {:else}
-            <Play class="" size={18} />
+            <PlayFilledAlt class="" size={18} />
           {/if}
         </button>
         <button
@@ -286,16 +287,23 @@ import { formatearMS } from "$lib/utils";
         ><ArrowLeft class="size-6" /></Button
       >
       <div class="flex flex-row w-auto items-center justify-center *:m-0 *:p-2">
-        <Button variant="ghost" onclick={() => ui.openDialog(DialogType.Unimplemented)}>
+        <Button
+          variant="ghost"
+          onclick={() => ui.openDialog(DialogType.Unimplemented)}
+        >
           <Favorite class="size-6" />
         </Button>
-        <Button variant="ghost" onclick={() => ui.openDialog(DialogType.Unimplemented)}><EllipsisVertical class="size-6" /></Button>
+        <Button
+          variant="ghost"
+          onclick={() => ui.openDialog(DialogType.Unimplemented)}
+          ><EllipsisVertical class="size-6" /></Button
+        >
       </div>
     </div>
     <div class="aspect-square h-auto p-5">
       <figure class="shadow-lg overflow-hidden">
         <img
-        // @ts-ignore
+          // @ts-ignore
           src={Capacitor.convertFileSrc(player.currentSong.image)}
           loading="lazy"
           alt={player.currentSong?.title}
@@ -399,11 +407,9 @@ import { formatearMS } from "$lib/utils";
       </button>
       <button
         onclick={handleChangeRepeatMode}
-        class={player.mode !== 'off'
-          ? ""
-          : "text-muted-foreground"}
+        class={player.mode !== "off" ? "" : "text-muted-foreground"}
       >
-        {#if player.mode == 'one'}
+        {#if player.mode == "one"}
           <RepeatOne size={20} />
         {:else}
           <Repeat size={20} />

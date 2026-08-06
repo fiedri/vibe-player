@@ -65,9 +65,6 @@ importers:
       '@libsql/client':
         specifier: latest
         version: 0.17.4
-      '@lucide/svelte':
-        specifier: ^1.26.0
-        version: 1.26.0(svelte@5.56.7)
       '@sveltejs/adapter-auto':
         specifier: latest
         version: 7.0.1(@sveltejs/kit@2.70.1(@sveltejs/vite-plugin-svelte@7.2.0(svelte@5.56.7)(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)))(svelte@5.56.7)(typescript@6.0.3)(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)))
@@ -795,11 +792,6 @@ packages:
     resolution: {integrity: sha512-4/0CvEdhi6+KjMxMaVbFM2n2Z44escBRoEYpR+gZg64DdetzGnYm8mcNLcoySaDJZNaBd6wz5DNdgRmcI4hXcg==}
     cpu: [x64]
     os: [win32]
-
-  '@lucide/svelte@1.26.0':
-    resolution: {integrity: sha512-KUfLTlNRVrHZ460Um7jdrvh46hI/8Sw4+1k/Ttj4g6JI9bCrjD7HZVG4cqhh7LasjfDz5b+CuKrjd/k/3obYcA==}
-    peerDependencies:
-      svelte: ^5
 
   '@napi-rs/wasm-runtime@1.1.6':
     resolution: {integrity: sha512-ZLv/JdUfkvOy9eCnnBaGfiO+XimbjebAeO+MRQqD/B+FR1tnRN0tpKSJHRbE8sFfS6aqsXZ67TQjfwfsxULVbg==}
@@ -3812,10 +3804,6 @@ snapshots:
 
   '@libsql/win32-x64-msvc@0.5.29':
     optional: true
-
-  '@lucide/svelte@1.26.0(svelte@5.56.7)':
-    dependencies:
-      svelte: 5.56.7
 
   '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:

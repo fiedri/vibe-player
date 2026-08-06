@@ -4,8 +4,10 @@
 > Para el usuario final ver [CHANGELOG.md](./CHANGELOG.md).
 
 ---
+## [unreleased]
+- Migracion completa a carbon-icons
 
-## [Unrealeased]
+## [0.2.4] - 2026-08-05
 - **Bug**: top-level await en `querys.ts`, cualquier modulo que lo importase se queda colgado hasta que termina la funcion `getDb()`
 - **Fix**: convertir `getDb()` en una funcion lazy con reintentos y manejos de errores e ejecutarla en cada query
 

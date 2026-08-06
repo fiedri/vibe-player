@@ -144,10 +144,6 @@
 ::-webkit-scrollbar-track {
   background: transparent; /* En lugar de #000000 */
 }
-svg.lucide {
-  stroke-linecap: square !important;
-  stroke-linejoin: miter !important;
-}
 
 
 @keyframes slideUp {
