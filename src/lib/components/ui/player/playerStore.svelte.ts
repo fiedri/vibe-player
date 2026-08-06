@@ -10,14 +10,29 @@ import {
 import { cargarEstadoReproductor } from "$lib/services/stores";
 
 export enum ContextType {
-InPlaylist = 'playlists',
-  InBiblioteca = 'biblioteca'
-
-  }
+  InPlaylist = "playlists",
+  InBiblioteca = "biblioteca",
+}
 
 class PlayerStore {
-  queue = $state([...biblioteca.songs]);
-  allSongs = $derived([...biblioteca.songs]);
+  queue = $derived.by(() => {
+    let queueValue
+    if (this.context === ContextType.InPlaylist && this.playlistSongs) {
+       queueValue =[...this.playlistSongs];
+    } else { 
+      queueValue = [...biblioteca.songs];
+    }
+    if (this.isShuffle) {
+      
+      const currentSong = this.currentSong;
+      queueValue = this.shuffle(queueValue);
+      if (currentSong) {
+        queueValue = queueValue.filter((song) => song.id !== currentSong.id);
+        queueValue.unshift(currentSong);
+      }
+    }
+    return queueValue
+  });
   playlistSongs = $state<Song[]>([]);
   currentSong = $state<Song | null>(null);
   isPlaying = $state<boolean>(false);
@@ -28,11 +43,7 @@ class PlayerStore {
 
   currentSongIndex = $derived<number | null>(
     Array.isArray(this.queue) && this.currentSong
-      ? this.queue.findIndex(
-          (el) =>
-            el.id === this.currentSong?.id ||
-            el.title === this.currentSong?.title,
-        )
+      ? this.queue.findIndex((el) => el.id === this.currentSong?.id)
       : null,
   );
   isOpened = $state<boolean>(false);
@@ -48,27 +59,14 @@ class PlayerStore {
   public setContext(context: ContextType, songs?: Song[]) {
     if (context === ContextType.InPlaylist && songs) {
       this.playlistSongs = [...songs];
-      this.queue = [...songs];
-    } else {
+    }else{
       this.playlistSongs = [];
-      this.queue = [...this.allSongs];
     }
     this.context = context;
-    if (this.isShuffle) this.aplicarShuffle();
+
   }
 
-  private aplicarShuffle() {
-    const source =
-      this.context === ContextType.InPlaylist
-        ? this.playlistSongs
-        : this.allSongs;
-    const currentSong = this.currentSong;
-    this.queue = this.shuffle(source);
-    if (currentSong) {
-      this.queue = this.queue.filter((song) => song.id !== currentSong.id);
-      this.queue.unshift(currentSong);
-    }
-  }
+
 
   private suppressNativePausePush = false;
 
@@ -146,9 +144,8 @@ class PlayerStore {
     this.beginNativePauseSuppression();
     this.currentTime = lastState.position;
     this.currentSong = restoredSong;
-    this.mode = lastState.mode ? lastState.mode : 'off';
+    this.mode = lastState.mode ? lastState.mode : "off";
     void this.getArtworkSrc(restoredSong.image);
-
 
     if (Capacitor.isNativePlatform()) {
       // PlayerState no persiste isPlaying y el <audio> arranca pausado tras el
@@ -354,14 +351,6 @@ class PlayerStore {
   }
   toggleShuffle() {
     this.isShuffle = !this.isShuffle;
-    if (this.isShuffle) {
-      this.aplicarShuffle();
-    } else {
-      this.queue =
-        this.context === ContextType.InPlaylist
-          ? [...this.playlistSongs]
-          : [...this.allSongs];
-    }
   }
 
   play() {
@@ -389,12 +378,10 @@ class PlayerStore {
       this.updatePositionState(0, this.duration, true);
       return;
     } else if (this.mode == "all" && this.currentSong) {
-      if ((this.queue.length-1) <= this.currentSongIndex) {
+      if (this.queue.length - 1 <= this.currentSongIndex) {
         this.setSong(this.queue[0]);
-        return
+        return;
       }
-
-
     }
     if (this.currentSongIndex === null || this.currentSongIndex === -1) return;
     const nextSong = this.queue[this.currentSongIndex + 1];
