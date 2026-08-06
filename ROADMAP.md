@@ -5,7 +5,6 @@
 - Subvista para ver metadatas de album/artista y las canciones relacionadas
 - Funcionalidad de favoritos (reutilizar codigo logica de playlist, crear playlist favoritos)
 - Visualizar que numero de cancion se esta reproduciendo de la cola de reproduccion
-- eliminar canciones
 # Futuro
 - Seleccion de varios Elementos (long-press)
 - Ecualizador

@@ -6,6 +6,7 @@
     PlayFilledAlt as Play,
     PauseFilled as Pause,
   } from "carbon-icons-svelte";
+  import { longPress } from "$lib/components/multiSelector/pointer";
   import type { Song } from "$lib/types/songs";
   import { ui, DialogType } from "$lib/stores/ui.svelte";
   import { slide } from "svelte/transition";
@@ -53,6 +54,7 @@ import { formatearMS } from "$lib/utils";
 </script>
 
 <div
+use:longPress = {song.id}
   onclick={handlePlay}
   onkeydown={(e) => (e.key === "Enter" || e.key === " ") && handlePlay()}
   role="button"

@@ -17,6 +17,7 @@
   import PlaylistSelection from "$lib/components/ui/dialogs/playlistSelection.svelte";
   import BackupPlaylistDialog from "$lib/components/ui/dialogs/backupPlaylistDialog.svelte";
     import ErrorDialog from "$lib/components/ui/dialogs/errorDialog.svelte";
+    import SelectionMode from "$lib/components/multiSelector/selectionMode.svelte";
   let { children } = $props();
   let backListener: any = null;
   let pauseListener: any = null;
@@ -126,3 +127,5 @@ ui.openDialog(DialogType.Error, mensaje as string);
     {/if}
   {/snippet}
 </Dialog>
+
+<SelectionMode/>
