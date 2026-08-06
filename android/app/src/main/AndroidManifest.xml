@@ -36,7 +36,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
-
     <!-- 1. Para leer música en Android 13+ (API 33 o superior) -->
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 

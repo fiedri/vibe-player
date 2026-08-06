@@ -8,10 +8,11 @@
   } from "carbon-icons-svelte";
   import type { Song } from "$lib/types/songs";
   import { ui, DialogType } from "$lib/stores/ui.svelte";
+  import { biblioteca } from "$lib/stores/biblioteca.svelte";
   import { slide } from "svelte/transition";
-    import Button from "../button/button.svelte";
-import { formatearMS } from "$lib/utils";
-    import { playlistStore } from "$lib/stores/playlist.svelte";
+  import Button from "../button/button.svelte";
+  import { formatearMS } from "$lib/utils";
+  import { playlistStore } from "$lib/stores/playlist.svelte";
   interface Props {
     song: Song;
     idx: number;
@@ -27,7 +28,7 @@ import { formatearMS } from "$lib/utils";
     context = ContextType.InBiblioteca,
     contextSongs = [],
     playlistId = undefined,
-    onDelete = ()=>{}
+    onDelete = () => {},
   }: Props = $props();
 
   let isCurrent = $derived(
@@ -41,12 +42,18 @@ import { formatearMS } from "$lib/utils";
     if (isCurrent) {
       player.togglePlay();
     } else {
-    
       player.setSong(song);
     }
   }
-  function handleRemove(playlistId: number, songid: string){
-  playlistStore.removeSong(playlistId, songid)
+  function handleRemoveFromPlaylist(playlistId: number, songid: string) {
+    playlistStore.removeSong(playlistId, songid);
+  }
+
+  function handelDelete(songId: string, songUri: string) {
+    biblioteca.deleteSong(songId, songUri);
+    if (player.currentSong?.id == songId) {
+      player.next();
+    }
   }
 
   let openMenu = $state(false);
@@ -88,7 +95,11 @@ import { formatearMS } from "$lib/utils";
   </div>
 
   <div class="relative flex gap-2 items-center justify-center shrink-0">
-    <span class="text-muted-foreground">{typeof song.duration == "number"? formatearMS(song.duration) : "00:00"}</span>
+    <span class="text-muted-foreground"
+      >{typeof song.duration == "number"
+        ? formatearMS(song.duration)
+        : "00:00"}</span
+    >
     <button
       onclick={(e) => {
         e.stopPropagation();
@@ -115,33 +126,43 @@ import { formatearMS } from "$lib/utils";
     transition:slide
     class="fixed bottom-0 right-0 left-0 z-50 min-h-[30%] border-t border-border bg-popover text-popover-foreground pb-[env(safe-area-inset-bottom)] shadow-xl"
   >
-  <Button
+    <Button
       class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
       onclick={(e) => {
         e.stopPropagation();
-       ui.openDialog(DialogType.Playlist, song.id) 
+        ui.openDialog(DialogType.Playlist, song.id);
         openMenu = false;
       }}
       variant="ghost"
     >
       Agregar a playlists
     </Button>
-   {#if context === ContextType.InPlaylist && playlistId}
-    
-<Button
-      class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
-      onclick={(e) => {
-        e.stopPropagation();
-        openMenu = false;
-        handleRemove(playlistId, song.id);
-        onDelete(song.id)
-      }}
-      variant="ghost"
-    >
-      Quitar de playlists</Button>
-
-  <!-- {:else} se muestran el submenu en canciones-->
-
-   {/if}
+    {#if context === ContextType.InPlaylist && playlistId}
+      <Button
+        class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
+        onclick={(e) => {
+          e.stopPropagation();
+          openMenu = false;
+          handleRemoveFromPlaylist(playlistId, song.id);
+          onDelete(song.id);
+        }}
+        variant="ghost"
+      >
+        Quitar de playlists</Button
+      >
+    {:else}
+      <Button
+        class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
+        onclick={(e) => {
+          e.stopPropagation();
+          openMenu = false;
+          handelDelete(song.id, song.audioUrl)
+          onDelete(song.id);
+        }}
+        variant="destructive"
+      >
+        Borrar</Button
+      >
+    {/if}
   </div>
 {/if}

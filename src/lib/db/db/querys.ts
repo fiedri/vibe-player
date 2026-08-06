@@ -59,3 +59,8 @@ export async function removeSongFromPlaylist(
       ),
     );
 }
+
+export async function removeSongFromAllPlaylists(songId: string){
+  const db = await getDb();
+  await db.delete(playlistsSongs).where(eq(playlistsSongs.songId, songId))
+}

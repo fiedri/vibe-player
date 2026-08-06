@@ -1,5 +1,15 @@
 import { CapacitorMediaStore } from "@odion-cloud/capacitor-mediastore";
+import { registerPlugin } from "@capacitor/core";
 import type { Song } from "$lib/types/songs";
+
+export interface MediaDeletePlugin {
+  deleteFile(options: {
+    uri?: string;
+    path?: string;
+    filePath?: string;
+  }): Promise<{ success: boolean }>;
+}
+const MediaDelete = registerPlugin<MediaDeletePlugin>("MediaDelete");
 
 interface MediaFile {
   id: string | number;
@@ -24,6 +34,21 @@ interface MediaFile {
   isExternal?: boolean;
 }
 
+export async function eliminarCancion(rutaABorrar: string) {
+  try {
+    const resultado = await MediaDelete.deleteFile({ uri: rutaABorrar });
+
+    if (resultado.success) {
+      console.log("¡Canción eliminada del dispositivo con éxito!");
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error al intentar eliminar la canción:", error);
+    throw error;
+  }
+}
+
 export async function solicitarPermisosAudio() {
   try {
     return await CapacitorMediaStore.requestPermissions({ types: ["audio"] });
@@ -33,9 +58,10 @@ export async function solicitarPermisosAudio() {
 }
 
 // files.ts
-export async function cargarBiblioteca(limit = 500, offset = 0): Promise<MediaFile[]> {
-
-
+export async function cargarBiblioteca(
+  limit = 500,
+  offset = 0,
+): Promise<MediaFile[]> {
   const opciones: any = {
     mediaType: "audio",
     sortBy: "DATE",
@@ -49,8 +75,6 @@ export async function cargarBiblioteca(limit = 500, offset = 0): Promise<MediaFi
   const resultado = await CapacitorMediaStore.getMediasByType(opciones);
   return resultado.media || [];
 }
-
-
 
 export function formatbiblioteca(biblioteca: MediaFile[]): Song[] {
   return biblioteca.map((song): Song => {

@@ -1,4 +1,5 @@
 import { cargarBiblioteca, formatbiblioteca } from "$lib/services/files";
+import { eliminarCancion } from "$lib/services/files";
 import { ensureThumbnail } from "$lib/services/artworks";
 import {
   esCacheBibliotecaFresco,
@@ -7,6 +8,9 @@ import {
 } from "$lib/services/stores";
 import { Capacitor } from "@capacitor/core";
 import type { Song } from "$lib/types/songs";
+import { DialogType, ui } from "./ui.svelte";
+import { removeSongFromAllPlaylists } from "$lib/db/db/querys";
+import { player } from "$lib/components/ui/player/playerStore.svelte";
 
 const LOTE_INICIAL = 1500;
 
@@ -15,9 +19,8 @@ class BibliotecaStore {
   loading = $state(false);
   error = $state<string | null>(null);
   loaded = $state(false);
-permissionDenied = $state<boolean>(false)
+  permissionDenied = $state<boolean>(false);
   songCount = $derived(this.songs.length);
-
 
   /**
    * Carga la biblioteca. Devuelve true si escaneó el device completo,
@@ -32,7 +35,7 @@ permissionDenied = $state<boolean>(false)
   async load(forceScan = false): Promise<boolean> {
     if (this.loaded || this.loading) return false;
 
-    console.log('cargar biblioteca')
+    console.log("cargar biblioteca");
     this.loading = true;
     this.error = null;
 
@@ -68,7 +71,6 @@ permissionDenied = $state<boolean>(false)
       await this.loadRestInBackground();
 
       return true;
-
     } catch (e) {
       this.error = e instanceof Error ? e.message : "Error cargando biblioteca";
       console.error("BibliotecaStore:", e);
@@ -128,7 +130,6 @@ permissionDenied = $state<boolean>(false)
         // que el MediaSession (setMetadata/setPositionState) avance entre
         // batchs.
         await new Promise((resolve) => setTimeout(resolve, 1200));
-
       } catch (e) {
         console.error("Error en carga en segundo plano:", e);
         hasMore = false;
@@ -140,9 +141,9 @@ permissionDenied = $state<boolean>(false)
     // Re-escaneo forzado: ignora la frescura de la caché.
     this.loaded = false;
     this.songs = [];
-    const oldSongCount = this.songCount
+    const oldSongCount = this.songCount;
     await this.load(true);
-    if(oldSongCount < this.songCount){
+    if (oldSongCount < this.songCount) {
       guardarCache(this.songs);
     }
   }
@@ -153,7 +154,9 @@ permissionDenied = $state<boolean>(false)
     if (this.thumbnailsRunning) return;
     this.thumbnailsRunning = true;
     try {
-      const unique = [...new Set(this.songs.map((s) => s.image).filter(Boolean))];
+      const unique = [
+        ...new Set(this.songs.map((s) => s.image).filter(Boolean)),
+      ];
       for (let i = 0; i < unique.length; i++) {
         await ensureThumbnail(unique[i]!);
         if (i % 5 === 4) {
@@ -171,8 +174,20 @@ permissionDenied = $state<boolean>(false)
       (s) =>
         s.title?.toLowerCase().includes(q) ||
         s.artists?.toLowerCase().includes(q) ||
-        s.album?.toLowerCase().includes(q)
+        s.album?.toLowerCase().includes(q),
     );
+  }
+  async deleteSong(songId: string, songUri: string) {
+    try {
+      const result = await eliminarCancion(songUri);
+      if (!result) return;
+      this.songs = this.songs.filter((el) => el.audioUrl !== songUri);
+      guardarCache(this.songs)
+      await removeSongFromAllPlaylists(songId); 
+    } catch (error) {
+      console.error(error);
+      ui.openDialog(DialogType.Error, error);
+    }
   }
 }
 
