@@ -5,6 +5,10 @@
 
 ---
 
+## [Unrealeased]
+- **Bug**: top-level await en `querys.ts`, cualquier modulo que lo importase se queda colgado hasta que termina la funcion `getDb()`
+- **Fix**: convertir `getDb()` en una funcion lazy con reintentos y manejos de errores e ejecutarla en cada query
+
 ## [0.2.3] - 2026-08-05
 
 **Commits:** `fix(playlist): dedupe por id evita each_key_duplicate (pantalla 400/404)`
