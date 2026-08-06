@@ -5,6 +5,7 @@
     exportPlaylistsBackup,
     importPlaylistsBackup,
   } from "$lib/db/backup";
+  import { copyToClipboard } from "$lib/utils/clipboard";
 
   let importText = $state("");
   let status = $state<{ ok: boolean; message: string } | null>(null);
@@ -16,7 +17,7 @@
     status = null;
     try {
       const json = await exportPlaylistsBackup();
-      await navigator.clipboard.writeText(json);
+      await copyToClipboard(json);
       status = { ok: true, message: "Backup copiado al portapapeles." };
     } catch (err) {
       status = { ok: false, message: errorMessage(err) };
