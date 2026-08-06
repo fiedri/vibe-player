@@ -3,6 +3,7 @@ export enum DialogType {
   CreatePlaylist = 'createPlaylist',
   Unimplemented = 'unimplemented',
   Backup = 'backup',
+  Error = 'error' 
 }
 
 class UiStore {

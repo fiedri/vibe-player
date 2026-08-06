@@ -13,8 +13,9 @@ ui.query = ""
   let filteredSongs = $derived(
     searchQuery ? biblioteca.search(searchQuery) : biblioteca.songs,
   );
-</script>
 
+</script>
+ 
 <div class="biblioteca h-full w-full">
   {#if biblioteca.loading && biblioteca.songs.length === 0}
     <div class="loading p-4 text-center">
@@ -22,7 +23,13 @@ ui.query = ""
     </div>
   {:else if biblioteca.error && biblioteca.songs.length === 0}
     <div class="error p-4 text-center">
-      <p>❌ {biblioteca.error}</p>
+      {#if biblioteca.permissionDenied}
+      <p>
+❌ Necesitás permisos de musica y audio → [Abrir Ajustes]. Cuando lo hayas hecho vuelve y presiona reintentar
+      </p>
+      {:else}
+      <p>❌{biblioteca.error}</p>
+      {/if}
       <button
         onclick={() => biblioteca.refresh()}
         class="mt-2 text-primary font-medium"

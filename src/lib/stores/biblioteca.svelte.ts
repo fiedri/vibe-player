@@ -15,8 +15,9 @@ class BibliotecaStore {
   loading = $state(false);
   error = $state<string | null>(null);
   loaded = $state(false);
-
+permissionDenied = $state<boolean>(false)
   songCount = $derived(this.songs.length);
+
 
   /**
    * Carga la biblioteca. Devuelve true si escaneó el device completo,

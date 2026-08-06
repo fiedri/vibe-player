@@ -389,7 +389,6 @@ class PlayerStore {
       this.updatePositionState(0, this.duration, true);
       return;
     } else if (this.mode == "all" && this.currentSong) {
-      if(!this.currentSongIndex) return
       if ((this.queue.length-1) <= this.currentSongIndex) {
         this.setSong(this.queue[0]);
         return

@@ -83,9 +83,9 @@ async function crearTablas(conn: any) {
 }
 const esperar = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export async function getDb() {
+export async function getDb() : Promise<Database>{
   if (!dbInitPromise) {
-    dbInitPromise = (async () => {
+    dbInitPromise = (async () : Promise<Database>=> {
       const maxIntentos = 3;
       let intentos = 0;
 
@@ -101,10 +101,9 @@ export async function getDb() {
               `No se pudo inicializar la base de datos tras ${maxIntentos} intentos: ${e}`,
             );
           }
-          await esperar(500*intentos);
+          await esperar(500*Math.pow(2, intentos));
         }
       }
-      throw new Error('Error inesperado en el flujo de reintentos.');
     })();
   }
   return dbInitPromise;

@@ -4,22 +4,19 @@
   import Player from "$lib/components/ui/player/player.svelte";
   import { biblioteca } from "$lib/stores/biblioteca.svelte";
   import { solicitarPermisosAudio } from "$lib/services/files";
-  import {
-    guardarCache,
-    guardarEstadoReproductor,
-    obtenerCache,
-  } from "$lib/services/stores";
+  import { guardarCache, guardarEstadoReproductor } from "$lib/services/stores";
   import { DialogType, ui } from "$lib/stores/ui.svelte";
   import { onMount, onDestroy } from "svelte";
   import { App } from "@capacitor/app";
   import { player } from "$lib/components/ui/player/playerStore.svelte";
   import { Capacitor } from "@capacitor/core";
   import { LocalNotifications } from "@capacitor/local-notifications";
-   import Dialog from "$lib/components/ui/dialogs/dialog.svelte"; 
-   import UnImplementedDialog from "$lib/components/ui/dialogs/unImplementedDialog.svelte";
-    import CreatePlaylistsDialog from "$lib/components/ui/dialogs/createPlaylistsDialog.svelte";
-    import PlaylistSelection from "$lib/components/ui/dialogs/playlistSelection.svelte";
-    import BackupPlaylistDialog from "$lib/components/ui/dialogs/backupPlaylistDialog.svelte";
+  import Dialog from "$lib/components/ui/dialogs/dialog.svelte";
+  import UnImplementedDialog from "$lib/components/ui/dialogs/unImplementedDialog.svelte";
+  import CreatePlaylistsDialog from "$lib/components/ui/dialogs/createPlaylistsDialog.svelte";
+  import PlaylistSelection from "$lib/components/ui/dialogs/playlistSelection.svelte";
+  import BackupPlaylistDialog from "$lib/components/ui/dialogs/backupPlaylistDialog.svelte";
+    import ErrorDialog from "$lib/components/ui/dialogs/errorDialog.svelte";
   let { children } = $props();
   let backListener: any = null;
   let pauseListener: any = null;
@@ -27,12 +24,17 @@
   onMount(async () => {
     player.init();
     await player.loadLastSavedState();
-    await solicitarPermisosAudio();
+    const permissions = await solicitarPermisosAudio();
+    if (permissions?.audio !== "granted") {
+      biblioteca.permissionDenied = true;
+    }
     setTimeout(async () => {
       if (!biblioteca.loaded && !biblioteca.loading) {
         console.log("📀 Iniciando carga de biblioteca...");
         const escaneoCompleto = await biblioteca.load();
-        console.log(`📀 Biblioteca cargada: ${biblioteca.songs.length} canciones`);
+        console.log(
+          `📀 Biblioteca cargada: ${biblioteca.songs.length} canciones`,
+        );
 
         // Renovar la caché (y su timestamp) SOLO cuando hubo un escaneo
         // real. Si load() usó la caché fresca no se toca el timestamp:
@@ -70,10 +72,20 @@
       pauseListener = await App.addListener("pause", () => {
         // guardarEstado reproductor
         if (player.currentSong) {
-          guardarEstadoReproductor(player.currentSong?.id, player.currentTime, player.mode);
+          guardarEstadoReproductor(
+            player.currentSong?.id,
+            player.currentTime,
+            player.mode,
+          );
         }
       });
     }
+    window.addEventListener("unhandledrejection", (event) => {
+      console.error("Promesa rechazada no manejada:", event.reason);
+
+      const mensaje = event.reason?.message || "Ocurrió un error inesperado";
+ui.openDialog(DialogType.Error, mensaje as string);
+    });
   });
 
   onDestroy(async () => {
@@ -87,8 +99,8 @@
     }
   });
   window.addEventListener("popstate", () => {
-  if (ui.activeDialog) ui.closeDialog();
-});
+    if (ui.activeDialog) ui.closeDialog();
+  });
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -102,14 +114,15 @@
 <Dialog>
   {#snippet children(dialogType: DialogType)}
     {#if dialogType === DialogType.Playlist}
-   <PlaylistSelection/> 
+      <PlaylistSelection />
     {:else if dialogType === DialogType.Unimplemented}
-      <UnImplementedDialog/>
+      <UnImplementedDialog />
     {:else if dialogType === DialogType.CreatePlaylist}
-    <CreatePlaylistsDialog/>
+      <CreatePlaylistsDialog />
     {:else if dialogType === DialogType.Backup}
-      <BackupPlaylistDialog/>
+      <BackupPlaylistDialog />
+      {:else if dialogType === DialogType.Error}
+      <ErrorDialog/>
     {/if}
   {/snippet}
 </Dialog>
-

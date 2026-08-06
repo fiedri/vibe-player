@@ -11,7 +11,7 @@ export const load: LayoutLoad = async () => {
   
  await getDb()
   if(playlistStore.playlists.length === 0){
-    playlistStore.loadPlaylist()
+    await playlistStore.loadPlaylist()
   }
   const cache = await obtenerCache();
   if (cache.length > 0) biblioteca.songs = cache;
