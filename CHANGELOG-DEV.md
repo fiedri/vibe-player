@@ -4,10 +4,10 @@
 > Para el usuario final ver [CHANGELOG.md](./CHANGELOG.md).
 
 ---
-## [unreleased]
+## [0.3.0] - 2026-08-06
 - Migracion completa a carbon-icons
 - Eliminacion de canciones del almacenamiento mediante un custom plugin en capacitor `MediaDeletePlugin`
-- Seleccion multiple de canciones.
+- Seleccion multiple de canciones (long Press).
 
 ## [0.2.4] - 2026-08-05
 - **Bug**: top-level await en `querys.ts`, cualquier modulo que lo importase se queda colgado hasta que termina la funcion `getDb()`
