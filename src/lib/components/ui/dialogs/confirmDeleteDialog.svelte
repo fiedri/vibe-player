@@ -3,6 +3,7 @@
   import { ui } from "$lib/stores/ui.svelte";
   import { biblioteca } from "$lib/stores/biblioteca.svelte";
   import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
+    import { player } from "../player/playerStore.svelte";
 
   let selectedIds = $derived(ui.dialogPayload as Set<string | number>);
   let count = $derived(selectedIds?.size ?? 0);
@@ -14,6 +15,9 @@
 
   async function handleConfirm() {
     const idsToDelete = new Set(selectedIds);
+    if(idsToDelete.has(player.currentSong?.id)){
+   player.currentSong= null 
+    }
     ui.closeDialog();
     selection.clear();
     if (idsToDelete.size > 0) {
