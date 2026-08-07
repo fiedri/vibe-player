@@ -87,10 +87,11 @@
               <div
                 class="absolute right-0 top-full mt-2 w-30 bg-popover border border-border shadow-lg z-50"
               >
-                <button
-                  class="p-2"
+                <Button
+                  class="p-2 w-full"
                   onclick={(e) => {e.preventDefault();playlistStore.delete(playlists.id)}}
-                  >Eliminar</button
+                  variant="destructive"
+                  >Eliminar</Button
                 >
               </div>
             {/if}
