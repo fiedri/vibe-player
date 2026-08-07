@@ -7,6 +7,7 @@ export function longPress(node: HTMLElement, id: string | number) {
       // lo que va a pasar al finalizar el contador
       console.log("se ejecuta el longPress");
       selection.isActive = true
+      selection.toggleId(id);
     }, 500);
   });
   const cancelEvents = ["pointerup", "pointercancel"];

@@ -17,6 +17,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -24,7 +25,11 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Capacitor Plugin para la eliminación segura de archivos multimedia en Android,
@@ -35,6 +40,20 @@ public class MediaDeletePlugin extends Plugin {
 
     private ActivityResultLauncher<IntentSenderRequest> deleteLauncher;
 
+    private int pendingBatchDeletedCount = 0;
+    private int pendingBatchPendingCount = 0;
+    private List<String> pendingBatchFailedFiles = new ArrayList<>();
+    private List<String> pendingBatchInputs = new ArrayList<>();
+    private List<String> pendingBatchPathsToScan = new ArrayList<>();
+
+    private void clearPendingBatchState() {
+        pendingBatchDeletedCount = 0;
+        pendingBatchPendingCount = 0;
+        pendingBatchFailedFiles.clear();
+        pendingBatchInputs.clear();
+        pendingBatchPathsToScan.clear();
+    }
+
     @Override
     public void load() {
         super.load();
@@ -44,12 +63,39 @@ public class MediaDeletePlugin extends Plugin {
             result -> {
                 PluginCall savedCall = getSavedCall();
                 if (savedCall != null) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
+                    String methodName = savedCall.getMethodName();
+                    if ("deleteFiles".equals(methodName) || "deleteMultipleFiles".equals(methodName)) {
                         JSObject ret = new JSObject();
-                        ret.put("success", true);
-                        savedCall.resolve(ret);
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            for (String path : pendingBatchPathsToScan) {
+                                MediaScannerConnection.scanFile(getContext(), new String[]{path}, null, null);
+                            }
+                            int totalDeleted = pendingBatchDeletedCount + pendingBatchPendingCount;
+                            ret.put("success", pendingBatchFailedFiles.isEmpty());
+                            ret.put("deletedCount", totalDeleted);
+                            ret.put("failedCount", pendingBatchFailedFiles.size());
+                            ret.put("failedFiles", new JSArray(pendingBatchFailedFiles));
+                            savedCall.resolve(ret);
+                        } else {
+                            int totalFailed = pendingBatchFailedFiles.size() + pendingBatchPendingCount;
+                            List<String> allFailed = new ArrayList<>(pendingBatchFailedFiles);
+                            allFailed.addAll(pendingBatchInputs);
+                            ret.put("success", false);
+                            ret.put("deletedCount", pendingBatchDeletedCount);
+                            ret.put("failedCount", totalFailed);
+                            ret.put("failedFiles", new JSArray(allFailed));
+                            ret.put("error", "El usuario denegó el permiso para eliminar los archivos.");
+                            savedCall.resolve(ret);
+                        }
+                        clearPendingBatchState();
                     } else {
-                        savedCall.reject("El usuario denegó el permiso para eliminar el archivo.");
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            JSObject ret = new JSObject();
+                            ret.put("success", true);
+                            savedCall.resolve(ret);
+                        } else {
+                            savedCall.reject("El usuario denegó el permiso para eliminar el archivo.");
+                        }
                     }
                     freeSavedCall();
                 }
@@ -223,5 +269,158 @@ public class MediaDeletePlugin extends Plugin {
         } catch (Exception ignored) {}
 
         return null;
+    }
+
+    /**
+     * Extrae una lista de cadenas de texto desde un JSArray (admitiendo cadenas u objetos con {uri, path, filePath}).
+     */
+    private List<String> extractStringList(JSArray array) {
+        List<String> list = new ArrayList<>();
+        if (array == null) return list;
+        for (int i = 0; i < array.length(); i++) {
+            try {
+                Object obj = array.get(i);
+                if (obj instanceof String) {
+                    String s = (String) obj;
+                    if (!s.trim().isEmpty()) {
+                        list.add(s);
+                    }
+                } else if (obj instanceof JSONObject) {
+                    JSONObject jsonObj = (JSONObject) obj;
+                    String val = jsonObj.optString("uri", null);
+                    if (val == null) val = jsonObj.optString("path", null);
+                    if (val == null) val = jsonObj.optString("filePath", null);
+                    if (val != null && !val.trim().isEmpty()) {
+                        list.add(val);
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+        return list;
+    }
+
+    @PluginMethod
+    public void deleteMultipleFiles(PluginCall call) {
+        deleteFiles(call);
+    }
+
+    @PluginMethod
+    public void deleteFiles(PluginCall call) {
+        JSArray filesArray = call.getArray("files");
+        if (filesArray == null) filesArray = call.getArray("uris");
+        if (filesArray == null) filesArray = call.getArray("paths");
+        if (filesArray == null) filesArray = call.getArray("filePaths");
+        if (filesArray == null) filesArray = call.getArray("urls");
+
+        List<String> inputList = extractStringList(filesArray);
+
+        if (inputList.isEmpty()) {
+            call.reject("No se proporcionó ninguna lista de URIs o rutas de archivo ('files', 'uris', 'paths' o 'filePaths').");
+            return;
+        }
+
+        int deletedCount = 0;
+        List<String> failedFiles = new ArrayList<>();
+        List<Uri> pendingUrisForPermission = new ArrayList<>();
+        List<String> pendingInputsForPermission = new ArrayList<>();
+        List<String> pendingPathsToScan = new ArrayList<>();
+        ContentResolver contentResolver = getContext().getContentResolver();
+
+        for (String input : inputList) {
+            try {
+                Uri contentUri = null;
+                String filePath = null;
+
+                if (input.startsWith("content://")) {
+                    contentUri = Uri.parse(input);
+                } else {
+                    if (input.startsWith("file://")) {
+                        filePath = Uri.parse(input).getPath();
+                    } else {
+                        filePath = input;
+                    }
+
+                    if (filePath != null) {
+                        contentUri = getContentUriFromPath(getContext(), filePath);
+                    }
+                }
+
+                // 1. Intento directo con ContentResolver
+                if (contentUri != null) {
+                    try {
+                        int rowsDeleted = contentResolver.delete(contentUri, null, null);
+                        if (rowsDeleted > 0) {
+                            if (filePath != null) {
+                                MediaScannerConnection.scanFile(getContext(), new String[]{filePath}, null, null);
+                            }
+                            deletedCount++;
+                            continue;
+                        }
+                    } catch (SecurityException securityException) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            pendingUrisForPermission.add(contentUri);
+                            pendingInputsForPermission.add(input);
+                            if (filePath != null) {
+                                pendingPathsToScan.add(filePath);
+                            }
+                            continue;
+                        }
+                    }
+                }
+
+                // 2. Intento de borrado físico directo
+                if (filePath != null) {
+                    File file = new File(filePath);
+                    if (file.exists() && file.delete()) {
+                        MediaScannerConnection.scanFile(getContext(), new String[]{filePath}, null, null);
+                        deletedCount++;
+                        continue;
+                    }
+                }
+
+                // 3. Android 11+ MediaStore pending request fallback
+                if (contentUri != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !pendingUrisForPermission.contains(contentUri)) {
+                    pendingUrisForPermission.add(contentUri);
+                    pendingInputsForPermission.add(input);
+                    if (filePath != null) {
+                        pendingPathsToScan.add(filePath);
+                    }
+                    continue;
+                }
+
+                failedFiles.add(input);
+
+            } catch (Exception e) {
+                failedFiles.add(input);
+            }
+        }
+
+        // Si hay archivos que requieren diálogo de confirmación del sistema en Android 11+ (API 30+)
+        if (!pendingUrisForPermission.isEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                PendingIntent pendingIntent = MediaStore.createDeleteRequest(
+                        contentResolver,
+                        pendingUrisForPermission
+                );
+                pendingBatchDeletedCount = deletedCount;
+                pendingBatchPendingCount = pendingUrisForPermission.size();
+                pendingBatchFailedFiles = failedFiles;
+                pendingBatchInputs = pendingInputsForPermission;
+                pendingBatchPathsToScan = pendingPathsToScan;
+
+                requestUserDeletePermission(call, pendingIntent.getIntentSender());
+                return;
+            } catch (Exception e) {
+                failedFiles.addAll(pendingInputsForPermission);
+            }
+        }
+
+        // Si no se requirió diálogo de confirmación o en Android < 11
+        JSObject ret = new JSObject();
+        ret.put("success", failedFiles.isEmpty());
+        ret.put("deletedCount", deletedCount);
+        ret.put("failedCount", failedFiles.size());
+        ret.put("failedFiles", new JSArray(failedFiles));
+        call.resolve(ret);
     }
 }

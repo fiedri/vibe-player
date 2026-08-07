@@ -1,4 +1,8 @@
-import { cargarBiblioteca, formatbiblioteca } from "$lib/services/files";
+import {
+  cargarBiblioteca,
+  eliminarCanciones,
+  formatbiblioteca,
+} from "$lib/services/files";
 import { eliminarCancion } from "$lib/services/files";
 import { ensureThumbnail } from "$lib/services/artworks";
 import {
@@ -9,7 +13,7 @@ import {
 import { Capacitor } from "@capacitor/core";
 import type { Song } from "$lib/types/songs";
 import { DialogType, ui } from "./ui.svelte";
-import { removeSongFromAllPlaylists } from "$lib/db/db/querys";
+import { removeManySongFromAllPlaylists, removeSongFromAllPlaylists } from "$lib/db/db/querys";
 import { player } from "$lib/components/ui/player/playerStore.svelte";
 
 const LOTE_INICIAL = 1500;
@@ -182,8 +186,30 @@ class BibliotecaStore {
       const result = await eliminarCancion(songUri);
       if (!result) return;
       this.songs = this.songs.filter((el) => el.audioUrl !== songUri);
-      guardarCache(this.songs)
-      await removeSongFromAllPlaylists(songId); 
+      guardarCache(this.songs);
+      await removeSongFromAllPlaylists(songId);
+    } catch (error) {
+      console.error(error);
+      ui.openDialog(DialogType.Error, error);
+    }
+  }
+  async deleteManySongs(songsIds: Set<string>) {
+    try {
+      const ids = Array.from(songsIds)
+      const songsTodeleleUri = this.songs
+        .filter((el) => songsIds.has(el.id))
+        .map((el) => {
+          return el.audioUrl;
+        });
+      const result = await eliminarCanciones(songsTodeleleUri);
+      if (result.error) {
+        console.log(result.error);
+        return;
+      }
+      this.songs = this.songs.filter((el)=> !songsIds.has(el.id));
+      guardarCache(this.songs);
+      await removeManySongFromAllPlaylists(ids)
+      console.log("cancion borrada con exito")
     } catch (error) {
       console.error(error);
       ui.openDialog(DialogType.Error, error);

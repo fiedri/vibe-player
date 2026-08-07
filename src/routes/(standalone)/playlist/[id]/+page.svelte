@@ -7,6 +7,10 @@
   import { formatearDuracionTotal } from "$lib/utils.js";
   import { Capacitor } from "@capacitor/core";
   import { ContextType } from "$lib/components/ui/player/playerStore.svelte.js";
+  import { page } from "$app/stores";
+  import { playlistStore } from "$lib/stores/playlist.svelte";
+  import { onMount } from "svelte";
+
   function goBack(e: MouseEvent) {
     if (window.history.length > 1) {
       e.preventDefault();
@@ -14,10 +18,24 @@
     }
   }
 
-  let { data } = $props();
-  let playlists = $derived(data.name);
+  let playlistId = $derived.by(() => {
+    const match = $page.url.pathname.match(/^\/playlist\/(\d+)$/);
+    return match ? Number(match[1]) : null;
+  });
 
-  let songs = $derived(data.songs);
+  onMount(() => {
+    if (playlistId !== null) playlistStore.loadPlaylistSongs(playlistId);
+  });
+
+  let songs = $derived.by(() =>
+    playlistStore.currentPlaylistId === playlistId
+      ? playlistStore.currentPlaylistSongs
+      : [],
+  );
+  let playlists = $derived.by(
+    () =>
+      playlistStore.playlists.find((e) => e.id === playlistId)?.name ?? "",
+  );
   let totalDuration = $derived(formatearDuracionTotal(songs));
   let tight = $state(false);
 
@@ -43,10 +61,6 @@
   }
   function getRandomIndex(): number {
     return Math.floor(Math.random() * (songs.length - 1 - 0 + 1)) + 0;
-  }
-
-  function onDelete(songId: string) {
-    songs = songs.filter((e) => e.id !== songId);
   }
 
   // Ejemplo: Generar un entero entre 1 y 10
@@ -131,8 +145,7 @@
             {idx}
             context={ContextType.InPlaylist}
             contextSongs={songs}
-            playlistId={data.id}
-            {onDelete}
+            playlistId={playlistId ?? undefined}
           />
         {/each}
       </div>

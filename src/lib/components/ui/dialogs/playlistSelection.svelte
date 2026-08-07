@@ -3,7 +3,8 @@
   import { DialogType, ui } from "$lib/stores/ui.svelte";
   import { SvelteSet } from "svelte/reactivity";
   import { Add, Checkmark } from "carbon-icons-svelte";
-    import Button from "../button/button.svelte";
+  import Button from "../button/button.svelte";
+    import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
   let selectedIds = new SvelteSet<number>();
   function togglePlaylist(id: number) {
     if (selectedIds.has(id)) {
@@ -13,12 +14,27 @@
     }
   }
   async function handleSubmit() {
-    // Si necesitas enviarlo a una API como Array:
-    const idsArray = Array.from(selectedIds);
-    for(const id of idsArray){
-await playlistStore.addSong(id, ui.dialogPayload as string)
+    const playlistIdsArray = Array.from(selectedIds);
+    const payload = ui.dialogPayload;
+
+    let addAction: (playlistId: number) => {};
+
+    if (payload instanceof Set || Array.isArray(payload)) {
+      const songsIdToAdd = Array.from(payload);
+      addAction = (playlistId) =>
+        playlistStore.addManySongs(playlistId, songsIdToAdd);
+    } else {
+      // Es una sola canción (string)
+      const songId = payload as string;
+      addAction = (playlistId) => playlistStore.addSong(playlistId, songId);
     }
-    ui.closeDialog()
+
+    // 2. Un solo bucle 'for' que ejecuta la acción configurada
+    for (const playlistId of playlistIdsArray) {
+      await addAction(playlistId);
+    }
+selection.clear()
+    ui.closeDialog();
   }
 </script>
 
@@ -65,10 +81,11 @@ await playlistStore.addSong(id, ui.dialogPayload as string)
         >
       </button>
     {/each}
-    
   </div>
   <div class="flex flex-row gap-3 mt-3 justify-end items-center">
-    <Button variant="ghost" class="p-0" onclick={()=> ui.closeDialog()}>cancelar</Button>
+    <Button variant="ghost" class="p-0" onclick={() => ui.closeDialog()}
+      >cancelar</Button
+    >
     <Button class="p-2 h-10" onclick={handleSubmit}>Agregar</Button>
-    </div>
+  </div>
 </div>

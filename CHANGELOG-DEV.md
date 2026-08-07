@@ -7,6 +7,7 @@
 ## [unreleased]
 - Migracion completa a carbon-icons
 - Eliminacion de canciones del almacenamiento mediante un custom plugin en capacitor `MediaDeletePlugin`
+- Seleccion multiple de canciones.
 
 ## [0.2.4] - 2026-08-05
 - **Bug**: top-level await en `querys.ts`, cualquier modulo que lo importase se queda colgado hasta que termina la funcion `getDb()`

@@ -14,6 +14,7 @@
   import Button from "../button/button.svelte";
   import { formatearMS } from "$lib/utils";
   import { playlistStore } from "$lib/stores/playlist.svelte";
+    import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
   interface Props {
     song: Song;
     idx: number;
@@ -38,14 +39,19 @@
   );
   let isPlayingThis = $derived(isCurrent && player.isPlaying);
 
-  function handlePlay() {
+  function handleOnclick(id: string) {
     player.setContext(context, contextSongs);
+    if(selection.isActive){
+    selection.toggleId(id)
+    return
+    }
     if (isCurrent) {
       player.togglePlay();
     } else {
       player.setSong(song);
     }
   }
+
   function handleRemoveFromPlaylist(playlistId: number, songid: string) {
     playlistStore.removeSong(playlistId, songid);
   }
@@ -62,20 +68,16 @@
 
 <div
 use:longPress = {song.id}
-  onclick={handlePlay}
-  onkeydown={(e) => (e.key === "Enter" || e.key === " ") && handlePlay()}
+  onclick={()=>{handleOnclick(song.id)}}
+  onkeydown={(e) => (e.key === "Enter" || e.key === " ") && handleOnclick(song.id)}
   role="button"
   tabindex="0"
-  class="flex items-center justify-between p-2 hover:bg-zinc-800/50 group text-sm cursor-pointer select-none {isPlayingThis
+  class="flex items-center justify-between p-2 hover:bg-zinc-800/50 group text-sm cursor-pointer select-none {isPlayingThis || selection.seletedIds.has(song.id)
     ? 'bg-card'
     : ''} transition-all duration-200 ease-in-out gap-2"
 >
   <div class="flex items-center gap-4 flex-1 min-w-0 pointer-events-none">
     <button
-      onclick={(e) => {
-        e.stopPropagation();
-        handlePlay();
-      }}
       aria-label={isPlayingThis ? "Pausar" : "Reproducir"}
       class="w-6 text-center text-muted-foreground cursor-pointer flex justify-center items-center shrink-0 pointer-events-auto"
     >

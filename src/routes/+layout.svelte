@@ -17,7 +17,9 @@
   import PlaylistSelection from "$lib/components/ui/dialogs/playlistSelection.svelte";
   import BackupPlaylistDialog from "$lib/components/ui/dialogs/backupPlaylistDialog.svelte";
     import ErrorDialog from "$lib/components/ui/dialogs/errorDialog.svelte";
+    import ConfirmDeleteDialog from "$lib/components/ui/dialogs/confirmDeleteDialog.svelte";
     import SelectionMode from "$lib/components/multiSelector/selectionMode.svelte";
+    import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
   let { children } = $props();
   let backListener: any = null;
   let pauseListener: any = null;
@@ -62,6 +64,10 @@
         if (player.isOpened) {
           player.isOpened = false;
           return;
+        }
+        if(selection.isActive){
+        selection.clear()
+        return
         }
 
         if (window.history.length > 1) {
@@ -124,6 +130,8 @@ ui.openDialog(DialogType.Error, mensaje as string);
       <BackupPlaylistDialog />
       {:else if dialogType === DialogType.Error}
       <ErrorDialog/>
+      {:else if dialogType === DialogType.ConfirmDelete}
+      <ConfirmDeleteDialog />
     {/if}
   {/snippet}
 </Dialog>
