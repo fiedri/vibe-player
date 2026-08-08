@@ -340,6 +340,7 @@
       class="px-5 flex flex-col items-center gap-2 w-full text-xs text-zinc-400"
     >
       <input
+    
         type="range"
         min="0"
         max={player.duration || 100}
@@ -365,8 +366,12 @@
         <span class="text-sm text-muted-foreground"
           >{formatearMS(displayTime * 1000)}</span
         >
+        <span class="text-[10px] text-muted-foreground">
+{(player.currentSongIndex+1)}/
+{player.queue.length}
+        </span>
         <span class="text-sm text-muted-foreground"
-          >{formatearMS(player.duration * 1000)}</span
+          >{player.duration ?formatearMS(player.duration * 1000) : "00:00"}</span
         >
       </div>
     </div>
@@ -378,7 +383,6 @@
         onclick={handleShuffle}
         class={player.isShuffle ? "" : "text-muted-foreground"}
       >
-        <!--PONER EN BLANCO CUANDO ESTE ACTIVADOJK-->
         <Shuffle size={20} />
       </button>
       <button
