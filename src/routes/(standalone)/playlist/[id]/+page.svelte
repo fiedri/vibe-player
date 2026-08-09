@@ -3,10 +3,10 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import { PlayFilledAlt, Shuffle } from "carbon-icons-svelte";
   import SongCard from "$lib/components/ui/Cards/SongCard.svelte";
-  import { player } from "$lib/components/ui/player/playerStore.svelte.js";
+  import { playerService } from "$lib/services/player/PlayerFacade";
   import { formatearDuracionTotal } from "$lib/utils.js";
   import { Capacitor } from "@capacitor/core";
-  import { ContextType } from "$lib/components/ui/player/playerStore.svelte.js";
+  import { ContextType } from "$lib/services/player/types";
   import { page } from "$app/stores";
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { onMount } from "svelte";
@@ -49,15 +49,15 @@
 
   function handlePlay() {
     if (songs.length === 0) return;
-    player.setContext(ContextType.InPlaylist, songs);
-    player.setSong(songs[0]);
+    playerService.setContext(ContextType.InPlaylist, songs);
+    playerService.setSong(songs[0]);
   }
 
   function handleShuffled() {
     if (songs.length === 0) return;
-    const songShuffled = player.shuffle(songs);
-    player.setContext(ContextType.InPlaylist, songShuffled);
-    player.setSong(player.queue[0]);
+    const songShuffled = playerService.shuffle(songs);
+    playerService.setContext(ContextType.InPlaylist, songShuffled);
+    playerService.setSong(playerService.queue[0]);
   }
   function getRandomIndex(): number {
     return Math.floor(Math.random() * (songs.length - 1 - 0 + 1)) + 0;

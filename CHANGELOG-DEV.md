@@ -2,9 +2,40 @@
 
 > Historial técnico de `Vibe` a partir de los commits (Conventional Commits, SemVer).
 > Para el usuario final ver [CHANGELOG.md](./CHANGELOG.md).
+---
+
+## [0.3.0] - 2026-08-09
+
+**Commits:** `refactor(player): patrón State para modos de reproducción` (commit actual, rama `refactor/player-facade`)
+
+### Contexto para devs
+
+- **Patrón State** implementado para los modos de repetición: nuevo directorio `src/lib/services/player/states/` con `ModeState` (abstracto) y las implementaciones `RepeatOffmode`, `RepeatOneMode`, `RepeatAllMode`.
+- `QueueManager.transitionTo(state)` delega `next()`, `previous()` y `handleTrackEnded()` al modo activo.
+- `PlayerFacade.switchMode(mode)` cambia de modo (off → one → all).
+
+### Archivos
+
+- **Nuevos:** `src/lib/services/player/states/` (`modeState.ts`, `index.ts`).
+- **Modificados:** `src/lib/services/player/PlayerFacade.ts`, `src/lib/services/player/subsystem/queue.svelte.ts`, `src/lib/components/ui/player/player.svelte`.
 
 ---
-## [0.3.0] - 2026-08-06
+**Commits:** `9a621fe` `refactor(player): migrar lógica del reproductor al patrón Facade`
+
+### Contexto para devs
+
+- **Patrón Facade** aplicado al reproductor: toda la lógica se centraliza en `PlayerFacade`. Se eliminó el store legacy `playerStore.svelte.ts` (~419 líneas); ahora todo pasa por el facade.
+- `PlayerFacade` expone el estado (`currentSong`, `isPlaying`, `volume`, `mode`, `currentIndex`, `numberOfSongs`, `playTrigger`) y delega en subsistemas: `AudioEngine` (audio/volumen), `QueueManager` (cola/shuffle), `ArtworkService` (artwork) y `MediaSessionService` (integración con controles nativos).
+- El estado de UI (player abierto/cerrado) vive en `stores/ui.svelte.ts`.
+- **Consecuencia:** la UI ya no toca el `<audio>` directamente; reacciona al `playTrigger` del facade.
+
+### Archivos
+
+- **Nuevos:** `src/lib/services/player/PlayerFacade.ts` y subsistemas `src/lib/services/player/subsystem/`.
+- **Eliminados:** `src/lib/components/ui/player/playerStore.svelte.ts`.
+
+---
+
 - Migracion completa a carbon-icons
 - Eliminacion de canciones del almacenamiento mediante un custom plugin en capacitor `MediaDeletePlugin`
 - Seleccion multiple de canciones (long Press).

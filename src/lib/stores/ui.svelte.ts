@@ -9,7 +9,7 @@ export enum DialogType {
 
 class UiStore {
   query = $state<string>("");
-  
+ playerIsOpen = $state<boolean>(false) 
   activeDialog = $state<DialogType | null>(null);
   dialogPayload = $state<unknown>(null);
 

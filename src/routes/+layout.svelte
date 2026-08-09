@@ -8,7 +8,7 @@
   import { DialogType, ui } from "$lib/stores/ui.svelte";
   import { onMount, onDestroy } from "svelte";
   import { App } from "@capacitor/app";
-  import { player } from "$lib/components/ui/player/playerStore.svelte";
+  import { playerService } from "$lib/services/player/PlayerFacade";
   import { Capacitor } from "@capacitor/core";
   import { LocalNotifications } from "@capacitor/local-notifications";
   import Dialog from "$lib/components/ui/dialogs/dialog.svelte";
@@ -25,9 +25,10 @@
   let pauseListener: any = null;
 
   onMount(async () => {
-    player.init();
-    await player.loadLastSavedState();
-    const permissions = await solicitarPermisosAudio();
+    await playerService.loadLastSavedState();
+    const permissions = (await solicitarPermisosAudio()) as
+      | { audio?: string }
+      | undefined;
     if (permissions?.audio !== "granted") {
       biblioteca.permissionDenied = true;
     }
@@ -61,8 +62,8 @@
       }
 
       backListener = await App.addListener("backButton", (event) => {
-        if (player.isOpened) {
-          player.isOpened = false;
+        if (ui.playerIsOpen) {
+          ui.playerIsOpen = false;
           return;
         }
         if(selection.isActive){
@@ -78,11 +79,11 @@
       });
       pauseListener = await App.addListener("pause", () => {
         // guardarEstado reproductor
-        if (player.currentSong) {
+        if (playerService.currentSong) {
           guardarEstadoReproductor(
-            player.currentSong?.id,
-            player.currentTime,
-            player.mode,
+            playerService.currentSong?.id,
+            playerService.currentTime,
+            playerService.mode,
           );
         }
       });

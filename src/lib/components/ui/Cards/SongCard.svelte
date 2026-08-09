@@ -1,6 +1,7 @@
 <script lang="ts">
   import { portal } from "$lib/uiUtils";
-  import { ContextType, player } from "../player/playerStore.svelte";
+  import { ContextType } from "$lib/services/player/types";
+  import { playerService as player } from "$lib/services/player/PlayerFacade";
   import {
     OverflowMenuVertical as EllipsisVertical,
     PlayFilledAlt as Play,

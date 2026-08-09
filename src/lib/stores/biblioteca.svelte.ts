@@ -14,7 +14,6 @@ import { Capacitor } from "@capacitor/core";
 import type { Song } from "$lib/types/songs";
 import { DialogType, ui } from "./ui.svelte";
 import { removeManySongFromAllPlaylists, removeSongFromAllPlaylists } from "$lib/db/db/querys";
-import { player } from "$lib/components/ui/player/playerStore.svelte";
 
 const LOTE_INICIAL = 1500;
 

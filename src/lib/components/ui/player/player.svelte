@@ -14,8 +14,8 @@
     Favorite,
     FavoriteFilled,
   } from "carbon-icons-svelte";
-  import { player } from "./playerStore.svelte";
   import { Capacitor } from "@capacitor/core";
+  import { playerService } from "$lib/services/player/PlayerFacade";
   import Button from "../button/button.svelte";
   import MarqueeText from "../wrapper/marqueeText.svelte";
   import { DialogType, ui } from "$lib/stores/ui.svelte";
@@ -25,91 +25,66 @@
   let seekValue = $state<number>(0);
 
   $effect(() => {
-    player.playTrigger;
-    const song = player.currentSong;
-    const isPlaying = player.isPlaying;
-    if (!audioElement || !song) return;
-
-    if (isPlaying) {
-      const playPromise = audioElement.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          if (error.name !== "AbortError") {
-            console.error("Error al reproducir audio:", error);
-            player.pause();
-          }
-        });
-      }
-    }
-  });
-
-  $effect(() => {
     if (audioElement) {
-      player.onSeekRequest = (time: number) => {
-        if (audioElement) {
-          audioElement.currentTime = time;
-        }
-      };
-      player.onPauseRequest = () => audioElement?.pause();
+      playerService.attachElement(audioElement);
     }
   });
 
-  let displayTime = $derived(isSeeking ? seekValue : player.currentTime);
+
+  let previousPlayTrigger = 0;
+  $effect(() => {
+    const trigger = playerService.playTrigger;
+    if (!audioElement) return;
+    const song = playerService.currentSong;
+    if (trigger <= previousPlayTrigger || !song) return;
+    previousPlayTrigger = trigger;
+
+    const playPromise = audioElement.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        if (error.name !== "AbortError") {
+          console.error("Error al reproducir audio:", error);
+          playerService.pause();
+        }
+      });
+    }
+  });
+
+  let displayTime = $derived(isSeeking ? seekValue : playerService.currentTime);
   let progressPercent = $derived(
-    player.duration ? (displayTime / player.duration) * 100 : 0,
+    playerService.duration ? (displayTime / playerService.duration) * 100 : 0,
   );
-
-  function handleTimeUpdate() {
-    if (!audioElement || isSeeking) return;
-    player.currentTime = audioElement.currentTime;
-    if (player.isPlaying) {
-      player.updatePositionState(player.currentTime, player.duration, false);
-    }
-  }
-
-  function handleLoadedMetadata() {
-    if (!audioElement || !player.currentSong) return;
-    // El nuevo src ya cargó: la transición terminó, se levanta la supresión.
-    player.endNativePauseSuppression();
-    player.duration = audioElement.duration;
-    if (player.currentTime > 0 && player.currentTime < audioElement.duration) {
-      audioElement.currentTime = player.currentTime;
-    }
-    player.updatePositionState(player.currentTime, player.duration, true);
-  }
 
   function handleSeekChange(e: Event) {
     const target = e.target as HTMLInputElement;
     const newTime = parseFloat(target.value);
-    if (audioElement) {
-      audioElement.currentTime = newTime;
-    }
-    player.currentTime = newTime;
+
+    playerService.seekTo(newTime);
     isSeeking = false;
   }
 
   function handlePlay() {
-    player.isPlaying = true;
-    player.endNativePauseSuppression();
-    player.syncNativePlaybackState(true);
+    playerService.isPlaying = true;
+    playerService.endNativePauseSuppression();
+    playerService.syncNativePlaybackState(true);
   }
 
   function handlePause() {
-    if (player.isSuppressingNativePause) {
+    if (playerService.isSuppressingNativePause) {
       return;
     }
-    player.isPlaying = false;
-    player.syncNativePlaybackState(false);
+    playerService.isPlaying = false;
+    playerService.syncNativePlaybackState(false);
   }
 
   function handleEnded() {
-    player.next();
+    playerService.handleTrackEnded();
   }
 
   function handleError(e: Event) {
     console.error("Error en elemento audio:", e);
-    player.isPlaying = false;
-    player.endNativePauseSuppression();
+    playerService.pause();
+    playerService.endNativePauseSuppression();
   }
 
   function handleSeekStart(e: Event) {
@@ -125,22 +100,26 @@
   }
 
   function handleOpenAndClosePlayer() {
-    if (!player.currentSong) return;
-    player.isOpened = !player.isOpened;
+    if (ui.playerIsOpen) {
+      ui.playerIsOpen = false;
+      return;
+    }
+    if (!playerService.currentSong) return;
+    ui.playerIsOpen = true;
   }
 
   function handleNextSong(e?: Event) {
     if (e) e.stopPropagation();
-    player.next();
+    playerService.next();
   }
 
   function handlePreviousSong(e?: MouseEvent | Event) {
     if (e) e.stopPropagation();
-    player.previous();
+    playerService.previous();
   }
   function handleShuffle() {
-    player.toggleShuffle();
-    if (player.isShuffle) {
+    playerService.toggleShuffle();
+    if (playerService.isShuffle) {
       showNotificacion("Modo Aleatorio (activo)");
     } else {
       showNotificacion("Modo Aleatorio (desactivado)");
@@ -151,11 +130,12 @@
     one: { next: "all", msg: "Repetir todas" },
     all: { next: "off", msg: "Repetición desactivada" },
   };
-
+let repeatMode = $state(playerService.mode);
   function handleChangeRepeatMode() {
     const { next, msg } =
-      REPEAT_TRANSITIONS[player.mode as keyof typeof REPEAT_TRANSITIONS];
-    player.mode = next;
+     REPEAT_TRANSITIONS[playerService.mode as keyof typeof REPEAT_TRANSITIONS];
+   playerService.switchMode(next);
+   repeatMode = next
     showNotificacion(msg);
   }
 
@@ -170,22 +150,21 @@
   }
 </script>
 
-{#if player.currentSong}
+{#if playerService.currentSong}
   <audio
     bind:this={audioElement}
-    src={player.currentSong?.audioUrl
-      ? Capacitor.convertFileSrc(player.currentSong.audioUrl)
+    src={playerService.currentSong?.audioUrl
+      ? Capacitor.convertFileSrc(playerService.currentSong.audioUrl)
       : ""}
-    bind:volume={player.volume}
-    ontimeupdate={handleTimeUpdate}
-    onloadedmetadata={handleLoadedMetadata}
+    bind:volume={playerService.volume}
+    onloadedmetadata={() => playerService.handleLoadedMetadata()}
     onplay={handlePlay}
     onpause={handlePause}
     onended={handleEnded}
     onerror={handleError}
   ></audio>
 {/if}
-{#if !player.isOpened}
+{#if !ui.playerIsOpen}
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
@@ -196,24 +175,24 @@
       <input
         type="range"
         min="0"
-        max={player.duration || 100}
+        max={playerService.duration || 100}
         value={displayTime}
         onpointerdown={handleSeekStart}
         oninput={handleSeekInput}
         onchange={handleSeekChange}
-        disabled={!player.currentSong}
+        disabled={!playerService.currentSong}
         style="background: linear-gradient(to right,oklch(0.424 0.199 265.638) {progressPercent}%, #3f3f46 {progressPercent}%);"
         class="w-full h-1 cursor-pointer appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:appearance-none"
       />
     </div>
     <div class="w-full flex justify-between items-center h-20 px-3">
       <div class="flex items-center gap-3 w-[50%]">
-        {#if player.currentSong}
+        {#if playerService.currentSong}
           <img
             // @ts-ignore
-            src={Capacitor.convertFileSrc(player.currentSong.image)}
+            src={Capacitor.convertFileSrc(playerService.currentSong.image)}
             loading="lazy"
-            alt={player.currentSong.title}
+            alt={playerService.currentSong.title}
             class="w-14 h-14 border border-border object-cover"
             onerror={(e) => {
               const target = e.target as HTMLImageElement;
@@ -227,11 +206,11 @@
           />
           <div class="flex flex-col overflow-hidden">
             <MarqueeText
-              text={player.currentSong?.title}
+              text={playerService.currentSong?.title}
               class="pr-14 text-white font-black"
             />
             <span class="text-xs text-muted-foreground truncate"
-              >{player.currentSong.artists}</span
+              >{playerService.currentSong?.artists}</span
             >
           </div>
         {:else}
@@ -248,12 +227,12 @@
         <button
           onclick={(e) => {
             e.stopPropagation();
-            player.togglePlay();
+            playerService.togglePlay();
           }}
-          disabled={!player.currentSong}
+          disabled={!playerService.currentSong}
           class="p-2 hover:scale-105 transition disabled:opacity-50 border border-white p-2"
         >
-          {#if player.isPlaying}
+          {#if playerService.isPlaying}
             <PauseFilled size={18} />
           {:else}
             <PlayFilledAlt class="" size={18} />
@@ -304,9 +283,9 @@
       <figure class="shadow-lg overflow-hidden">
         <img
           // @ts-ignore
-          src={Capacitor.convertFileSrc(player.currentSong.image)}
+          src={Capacitor.convertFileSrc(playerService.currentSong.image)}
           loading="lazy"
-          alt={player.currentSong?.title}
+          alt={playerService.currentSong?.title}
           class="w-full h-80 border-3 border-border object-cover"
           onerror={(e) => {
             const target = e.target as HTMLImageElement;
@@ -318,18 +297,18 @@
         <figcaption class="mt-5 flex flex-col gap-3">
           <h3 class=" text-xl font-extrabold">
             <MarqueeText
-              text={player.currentSong?.title}
+              text={playerService.currentSong?.title}
               class="pr-14 text-white font-black"
             />
           </h3>
           <p class="text-muted-foreground text-xs truncate">
-            {player.currentSong?.artists}
+            {playerService.currentSong?.artists}
           </p>
           <p
             class="text-muted-foreground text-xs truncate animate-seamless-marquee"
           >
             <MarqueeText
-              text={player.currentSong?.album}
+              text={playerService.currentSong?.album}
               class="pr-14 text-white font-medium"
             />
           </p>
@@ -340,15 +319,14 @@
       class="px-5 flex flex-col items-center gap-2 w-full text-xs text-zinc-400"
     >
       <input
-    
         type="range"
         min="0"
-        max={player.duration || 100}
+        max={playerService.duration || 100}
         value={displayTime}
         onpointerdown={handleSeekStart}
         oninput={handleSeekInput}
         onchange={handleSeekChange}
-        disabled={!player.currentSong}
+        disabled={!playerService.currentSong}
         style="background: linear-gradient(to right, oklch(0.424 0.199 265.638) {progressPercent}%, #3f3f46 {progressPercent}%);"
         class="w-full h-1 cursor-pointer appearance-none
     [&::-webkit-slider-thumb]:appearance-none
@@ -367,11 +345,13 @@
           >{formatearMS(displayTime * 1000)}</span
         >
         <span class="text-[10px] text-muted-foreground">
-{(player.currentSongIndex+1)}/
-{player.queue.length}
+          {playerService.currentSongIndex + 1}/
+          {playerService.numberOfSongs}
         </span>
         <span class="text-sm text-muted-foreground"
-          >{player.duration ?formatearMS(player.duration * 1000) : "00:00"}</span
+          >{playerService.duration
+            ? formatearMS(playerService.duration * 1000)
+            : "00:00"}</span
         >
       </div>
     </div>
@@ -381,7 +361,7 @@
     >
       <button
         onclick={handleShuffle}
-        class={player.isShuffle ? "" : "text-muted-foreground"}
+        class={playerService.isShuffle ? "" : "text-muted-foreground"}
       >
         <Shuffle size={20} />
       </button>
@@ -394,10 +374,10 @@
       <Button
         class="bg-white aspect-square h-28 w-28"
         onclick={(e) => {
-          player.togglePlay();
+          playerService.togglePlay();
         }}
       >
-        {#if !player.isPlaying}
+        {#if !playerService.isPlaying}
           <PlayFilledAlt size={32} class="text-card fill-current size-10" />
         {:else}
           <PauseFilled size={32} class="text-card fill-current size-10" />
@@ -411,14 +391,13 @@
       </button>
       <button
         onclick={handleChangeRepeatMode}
-        class={player.mode !== "off" ? "" : "text-muted-foreground"}
+        class={repeatMode !== "off" ? "" : "text-muted-foreground"}
       >
-        {#if player.mode == "one"}
+        {#if repeatMode == "one"}
           <RepeatOne size={20} />
         {:else}
           <Repeat size={20} />
         {/if}
-      </button>
-    </div>
+      </button>    </div>
   </div>
 {/if}

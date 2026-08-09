@@ -12,6 +12,9 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - Eliminacion de canciones del almacenamiento local.
 - Seleccion multiple de canciones.
 
+# Fixed
+- Comportamiento del modo repeat-one: ahora solo repite al terminar la cancion
+
 # [0.2.4] - 2026-08-05
 - Dialog para mostrar errores al usuario en tiempo de ejecucion
 
