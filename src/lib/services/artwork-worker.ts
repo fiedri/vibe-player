@@ -1,5 +1,4 @@
-// src/lib/services/artwork-worker.ts
-//
+
 // Decode/resize/encode del artwork FUERA del hilo principal.
 // Contrato: recibe { id, base64 } (el artwork ORIGINAL en base64) y responde
 // { id, dataUrl } con un data URL JPEG a 512px (dataUrl: null si falló).

@@ -8,7 +8,7 @@ export enum ContextType {
 
 export class QueueManager {
   queue = $state([...biblioteca.songs]);
-  rawSource = $derived([...biblioteca.songs]);
+  private rawSource = $derived([...biblioteca.songs]);
   private state!: ModeState;
   isShuffle = $state<boolean>(false);
   context = $state<ContextType | null>(null);
@@ -101,5 +101,8 @@ export class QueueManager {
   }
   public handleTrackEndednext(): Song | null {
     return this.state.handleTrackEndednext();
+  }
+  public fillqueue(){
+    this.queue = this.rawSource
   }
 }

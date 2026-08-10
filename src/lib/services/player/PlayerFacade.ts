@@ -145,9 +145,9 @@ export class PlayerFacade {
     this.mediaSessionService.beginNativePauseSuppression();
     this.audioEngine.restoreLoadPosition(lastState.position);
     this.queueManager.currentSong = restoredSong;
-    this.mode = lastState.mode || "off";
-    this.switchMode(this.mode)
-    this.queueManager.queue = this.queueManager.rawSource
+    const mode = lastState.mode || "off";
+    this.switchMode(mode)
+    this.queueManager.fillqueue();
     const img = await this.artworkServices.getArtworkSrc(restoredSong.image);
 
     if (Capacitor.isNativePlatform()) {
