@@ -3,6 +3,7 @@
 > Historial técnico de `Vibe` a partir de los commits (Conventional Commits, SemVer).
 > Para el usuario final ver [CHANGELOG.md](./CHANGELOG.md).
 ---
+## [0.4.0] - 2026-08-10
 
 ## [0.3.0] - 2026-08-09
 

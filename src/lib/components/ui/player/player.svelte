@@ -286,17 +286,14 @@ let repeatMode = $state(playerService.mode);
       </div>
     </div>
     <div >
-      <figure
-        class="overflow-hidden"
-        
-      >
+      <figure>
         <img
           // @ts-ignore
           src={Capacitor.convertFileSrc(playerService.currentSong.image)}
           loading="lazy"
           alt={playerService.currentSong?.title}
           class="w-full aspect-square border-2 border-border object-cover shadow-2xl"
-          style="filter: brightness(0.82) saturate(0.9); box-shadow: 0 0 80px 12px color-mix(in oklab, var(--primary) 35%, transparent);"
+          style="filter: brightness(0.82) saturate(0.9); box-shadow: 0 0 80px 12px color-mix(in oklab, var(--primary) 50%, transparent);"
           onerror={(e) => {
             const target = e.target as HTMLImageElement;
             if (target.src !== window.location.origin + "/default-cover.png") {

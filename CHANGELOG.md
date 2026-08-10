@@ -5,7 +5,13 @@ Todas las novedades y cambios notables de **Vibe** se documentarán en este arch
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
-## [Unreleased]
+## [0.4.0] - 2026-08-10
+
+### Added
+- Vistas individuales para albums y artistas.
+### Changed
+- Estetica de la vista individual de playlist y el reproductor
+
 ## [0.3.0] - 2026-08-06
 
 ### Added

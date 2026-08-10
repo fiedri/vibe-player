@@ -125,6 +125,9 @@
   html {
     @apply font-sans;
   }
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -145,7 +148,6 @@
   background: transparent; /* En lugar de #000000 */
 }
 
-
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -156,6 +158,6 @@
     transform: translateY(0); /* Termina en su posición natural */
   }
 }
-  .animate_slideUp{
+.animate_slideUp {
   animation: slideUp 0.5s ease-out forwards;
-  }
+}
