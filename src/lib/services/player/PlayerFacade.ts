@@ -17,11 +17,13 @@ export class PlayerFacade {
   /** Modo de repetición (off|one|all). Estado de configuración, no reactivo
    *  en UI: se persiste y restaura, pero la UI de repeat hoy está comentada. */
   mode: string = "off";
-  protected queueManager: QueueManager = new QueueManager(new RepeatOffmode());
+  protected queueManager: QueueManager;
   protected artworkServices: ArtworkService = new ArtworkService();
   protected mediaSessionService: MediaSessionService =
     new MediaSessionService();
   constructor() {
+    this.queueManager =new QueueManager(new RepeatOffmode());
+
     this.mediaSessionService.onPauseRequest = () => this.pause();
     this.mediaSessionService.onPlayRequest = () => this.play();
     this.mediaSessionService.onNextTrackRequest = () => this.next();
@@ -144,7 +146,8 @@ export class PlayerFacade {
     this.audioEngine.restoreLoadPosition(lastState.position);
     this.queueManager.currentSong = restoredSong;
     this.mode = lastState.mode || "off";
-    this.queueManager.transitionTo(this.mode);
+    this.switchMode(this.mode)
+    this.queueManager.queue = this.queueManager.rawSource
     const img = await this.artworkServices.getArtworkSrc(restoredSong.image);
 
     if (Capacitor.isNativePlatform()) {
