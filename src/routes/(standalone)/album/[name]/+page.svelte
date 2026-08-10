@@ -59,7 +59,7 @@
   <div class="top-0 z-10 py-1 absolute">
     <Button
       variant="ghost"
-      class="px-4 transition-all {tight ? 'bg-background rounded-full' : 'bg-transparent'}"
+      class="px-4 transition-all {tight ? 'bg-background' : 'bg-transparent'}"
       onclick={goBack}
     >
       <ArrowLeft class="size-6" />
@@ -86,9 +86,9 @@
   </div>
 
   {#if songs.length > 0}
-    <div class="flex gap-3 px-4 pt-5 pb-2">
+    <div class="flex gap-3 px-4 pt-5 pb-2 sticky top-5 bg-background">
       <Button
-        class="h-12 flex-1 rounded-full bg-white text-background font-semibold active:scale-95 transition-transform"
+        class="h-12 flex-1 bg-white text-background font-semibold active:scale-95 transition-transform"
         onclick={handlePlay}
       >
         <PlayFilledAlt />
@@ -96,7 +96,7 @@
       </Button>
       <Button
         variant="outline"
-        class="h-12 flex-1 rounded-full border-2 border-border font-semibold active:scale-95 transition-transform"
+        class="h-12 flex-1 border-2 border-border font-semibold active:scale-95 transition-transform !bg-background"
         onclick={handleShuffled}
       >
         <Shuffle />

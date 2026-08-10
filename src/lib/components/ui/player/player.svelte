@@ -250,43 +250,53 @@ let repeatMode = $state(playerService.mode);
 {:else}
   {#if needNotify}
     <div
-      class="fixed bg-card/70 text-muted-foreground z-30 text-base rounded px-5 bottom-8 left-[50%] translate-x-[-50%] animate_slideUp text-center"
+      class="fixed bg-card/70 text-muted-foreground z-30 text-base px-5 py-2 bottom-8 left-[50%] translate-x-[-50%] animate_slideUp text-center"
     >
       {notification}
     </div>
   {/if}
   <div
     class="min-h-full flex flex-col w-full bg-background fixed top-0 right-0 z-10"
+    style="background-image: radial-gradient(ellipse 90% 45% at 50% -5%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 70%);"
     transition:fly={{ y: 200, duration: 400, easing: cubicOut }}
   >
     <div
-      class="bg-background flex py-1 border-b-3 border-border flex-row justify-between px-5 items-center"
+      class="flex py-1 absolute w-full z-[100] flex-row justify-between px-5 items-center bg-card/10"
     >
-      <Button onclick={handleOpenAndClosePlayer} variant="ghost" class="p-2"
+      <Button
+        onclick={handleOpenAndClosePlayer}
+        variant="ghost"
+        class="p-2 active:scale-90 transition-transform"
         ><ArrowLeft class="size-6" /></Button
       >
       <div class="flex flex-row w-auto items-center justify-center *:m-0 *:p-2">
         <Button
           variant="ghost"
+          class="active:scale-90 transition-transform"
           onclick={() => ui.openDialog(DialogType.Unimplemented)}
         >
           <Favorite class="size-6" />
         </Button>
         <Button
           variant="ghost"
+          class="active:scale-90 transition-transform"
           onclick={() => ui.openDialog(DialogType.Unimplemented)}
           ><EllipsisVertical class="size-6" /></Button
         >
       </div>
     </div>
-    <div class="aspect-square h-auto p-5">
-      <figure class="shadow-lg overflow-hidden">
+    <div >
+      <figure
+        class="overflow-hidden"
+        
+      >
         <img
           // @ts-ignore
           src={Capacitor.convertFileSrc(playerService.currentSong.image)}
           loading="lazy"
           alt={playerService.currentSong?.title}
-          class="w-full h-80 border-3 border-border object-cover"
+          class="w-full aspect-square border-2 border-border object-cover shadow-2xl"
+          style="filter: brightness(0.82) saturate(0.9); box-shadow: 0 0 80px 12px color-mix(in oklab, var(--primary) 35%, transparent);"
           onerror={(e) => {
             const target = e.target as HTMLImageElement;
             if (target.src !== window.location.origin + "/default-cover.png") {
@@ -294,7 +304,7 @@ let repeatMode = $state(playerService.mode);
             }
           }}
         />
-        <figcaption class="mt-5 flex flex-col gap-3">
+        <figcaption class="mt-5 px-5 mb-5 flex flex-col gap-3">
           <h3 class=" text-xl font-extrabold">
             <MarqueeText
               text={playerService.currentSong?.title}
@@ -327,18 +337,17 @@ let repeatMode = $state(playerService.mode);
         oninput={handleSeekInput}
         onchange={handleSeekChange}
         disabled={!playerService.currentSong}
-        style="background: linear-gradient(to right, oklch(0.424 0.199 265.638) {progressPercent}%, #3f3f46 {progressPercent}%);"
+        style="background: linear-gradient(to right, var(--primary) {progressPercent}%, var(--border) {progressPercent}%);"
         class="w-full h-1 cursor-pointer appearance-none
     [&::-webkit-slider-thumb]:appearance-none
-    [&::-webkit-slider-thumb]:w-1
+    [&::-webkit-slider-thumb]:w-1.5
     [&::-webkit-slider-thumb]:h-4
     [&::-webkit-slider-thumb]:bg-primary
- 
-    [&::-moz-range-thumb]:w-1
+
+    [&::-moz-range-thumb]:w-1.5
     [&::-moz-range-thumb]:h-4
     [&::-moz-range-thumb]:bg-white
-    [&::-moz-range-thumb]:border-none
-    [&::-moz-range-thumb]:rounded-full"
+    [&::-moz-range-thumb]:border-none"
       />
       <div class="flex flex-row justify-between items-center w-full">
         <span class="text-sm text-muted-foreground"
@@ -361,7 +370,7 @@ let repeatMode = $state(playerService.mode);
     >
       <button
         onclick={handleShuffle}
-        class={playerService.isShuffle ? "" : "text-muted-foreground"}
+        class={playerService.isShuffle ? "text-primary transition-all duration-150" : "text-muted-foreground transition-all duration-150"}
       >
         <Shuffle size={20} />
       </button>
@@ -372,7 +381,7 @@ let repeatMode = $state(playerService.mode);
         <SkipBack size={20} />
       </button>
       <Button
-        class="bg-white aspect-square h-28 w-28"
+        class="bg-white aspect-square h-28 w-28 shadow-xl transition-transform active:scale-95"
         onclick={(e) => {
           playerService.togglePlay();
         }}
@@ -391,7 +400,7 @@ let repeatMode = $state(playerService.mode);
       </button>
       <button
         onclick={handleChangeRepeatMode}
-        class={repeatMode !== "off" ? "" : "text-muted-foreground"}
+        class={repeatMode !== "off" ? "text-primary transition-all duration-150" : "text-muted-foreground transition-all duration-150"}
       >
         {#if repeatMode == "one"}
           <RepeatOne size={20} />

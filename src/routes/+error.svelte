@@ -47,7 +47,7 @@
   <div class="top-0 z-10 py-1 absolute">
     <Button
       variant="ghost"
-      class="px-4 transition-all {tight ? 'bg-background rounded-full' : 'bg-transparent'}"
+      class="px-4 transition-all {tight ? 'bg-background' : 'bg-transparent'}"
       onclick={volver}
       aria-label="Volver atrás"
     >
@@ -108,7 +108,7 @@
 
     <div class="mt-2 flex w-full max-w-xs flex-col gap-3">
       <Button
-        class="h-12 w-full rounded-full bg-white text-background font-semibold active:scale-95 transition-transform"
+        class="h-12 w-full bg-white text-background font-semibold active:scale-95 transition-transform"
         onclick={volver}
       >
         <Home class="fill-current" />
@@ -116,7 +116,7 @@
       </Button>
       <Button
         variant="outline"
-        class="h-12 w-full rounded-full border-2 border-border font-semibold active:scale-95 transition-transform"
+        class="h-12 w-full border-2 border-border font-semibold active:scale-95 transition-transform"
         onclick={reintentar}
       >
         <Restart />

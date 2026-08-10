@@ -36,7 +36,7 @@ onscroll={handleScroll}
 <div class="top-0 z-10 py-1 absolute">
       <Button
         variant="ghost"
-        class="px-4 transition-all {tight ? 'bg-background rounded-full' : 'bg-transparent'}"
+        class="px-4 transition-all {tight ? 'bg-background' : 'bg-transparent'}"
         onclick={goBack}
       >
         <ArrowLeft class="size-6" />
