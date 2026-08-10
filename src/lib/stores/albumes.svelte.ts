@@ -50,6 +50,15 @@ class AlbumesStore {
         a.artist.toLowerCase().includes(q),
     );
   }
+
+  getAlbumInfo(albumName: string) {
+    const albums = this.albums.filter((el) => el.name === albumName);
+    const songs = biblioteca.songs.filter((el) => el.album === albumName);
+    return {
+      albums,
+      songs,
+    };
+  }
 }
 
 export const albumes = new AlbumesStore();

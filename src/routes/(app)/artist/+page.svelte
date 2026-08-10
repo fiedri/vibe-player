@@ -20,13 +20,16 @@ ui.query = ""
 <div class="h-full w-full p-1">
   <VirtualGrid items={filteredArtist} columns={3} rowHeight={170} gap={3} overscan={3}>
     {#snippet children(artist)}
-      <ThumbnailCard
+    <a href="artist/{artist.name}">
+ <ThumbnailCard
         width="w-28"
         height="h-28"
         title={artist.name}
         img={Capacitor.convertFileSrc(artist.image)}
         subtitle={`${artist.songCount} canciones`}
       />
+
+    </a> 
     {/snippet}
   </VirtualGrid>
 </div>

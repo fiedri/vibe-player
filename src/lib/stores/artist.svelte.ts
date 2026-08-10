@@ -1,21 +1,19 @@
 import { biblioteca } from "./biblioteca.svelte";
+import { albumes } from "./albumes.svelte";
 
-export interface artist{
-image: string;
-name: string;
-songCount: number;
+export interface artist {
+  image: string;
+  name: string;
+  songCount: number;
 }
 
-
-class ArtistStore{
-
+class ArtistStore {
   artists = $derived(this.#buildArtists());
 
   get loaded() {
     return biblioteca.loaded;
   }
-  // agregar separacion de artistas: una cacion tiene varios artistas, en este caso es un string y lo 
-  // artistas se separan por coma
+
   #buildArtists(): artist[] {
     const map = new Map<string, artist>();
 
@@ -42,12 +40,18 @@ class ArtistStore{
 
   search(query: string): artist[] {
     const q = query.toLowerCase();
-    return this.artists
-    .filter(
-      (a) =>
-        a.name.toLowerCase().includes(q)
+    return this.artists.filter((a) => a.name.toLowerCase().includes(q));
+  }
+  getAllArtistInfo(artisName: string) {
+    const albums = albumes.albums.filter((el) => el.artist.includes(artisName));
+    const songs = biblioteca.songs.filter((el) =>
+      el.artists?.includes(artisName),
     );
+    return {
+      albums,
+      songs,
+    };
   }
 }
 
-export const artists = new ArtistStore()
+export const artists = new ArtistStore();
