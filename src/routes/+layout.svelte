@@ -16,21 +16,71 @@
   import CreatePlaylistsDialog from "$lib/components/ui/dialogs/createPlaylistsDialog.svelte";
   import PlaylistSelection from "$lib/components/ui/dialogs/playlistSelection.svelte";
   import BackupPlaylistDialog from "$lib/components/ui/dialogs/backupPlaylistDialog.svelte";
-    import ErrorDialog from "$lib/components/ui/dialogs/errorDialog.svelte";
-    import ConfirmDeleteDialog from "$lib/components/ui/dialogs/confirmDeleteDialog.svelte";
-    import SelectionMode from "$lib/components/multiSelector/selectionMode.svelte";
-    import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
+  import ErrorDialog from "$lib/components/ui/dialogs/errorDialog.svelte";
+  import ConfirmDeleteDialog from "$lib/components/ui/dialogs/confirmDeleteDialog.svelte";
+  import SelectionMode from "$lib/components/multiSelector/selectionMode.svelte";
+  import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
   let { children } = $props();
   let backListener: any = null;
   let pauseListener: any = null;
 
   onMount(async () => {
-    await playerService.loadLastSavedState();
-    const permissions = (await solicitarPermisosAudio()) as
-      | { audio?: string }
-      | undefined;
-    if (permissions?.audio !== "granted") {
-      biblioteca.permissionDenied = true;
+    if (Capacitor.isNativePlatform()) {
+      try {
+        backListener = await App.addListener("backButton", (event) => {
+          console.log("[back] pressed", event);
+          if (ui.playerIsOpen) {
+            ui.playerIsOpen = false;
+            console.log("this is working");
+            return;
+          }
+          if (selection.isActive) {
+            console.log("this is working");
+            selection.clear();
+            return;
+          }
+
+          if (event.canGoBack) {
+            window.history.back();
+          } else {
+            App.exitApp();
+          }
+        });
+        console.log("[back] listener registrado");
+      } catch (err) {
+        console.error("[back] fallo al registrar listener:", err);
+      }
+
+      try {
+        pauseListener = await App.addListener("pause", () => {
+          // guardarEstado reproductor
+          if (playerService.currentSong) {
+            guardarEstadoReproductor(
+              playerService.currentSong?.id,
+              playerService.currentTime,
+              playerService.mode,
+            );
+          }
+        });
+      } catch (err) {
+        console.error("[pause] fallo al registrar listener:", err);
+      }
+    }
+
+    try {
+      await playerService.loadLastSavedState();
+    } catch (err) {
+      console.error("Error al cargar el último estado guardado:", err);
+    }
+    try {
+      const permissions = (await solicitarPermisosAudio()) as
+        | { audio?: string }
+        | undefined;
+      if (permissions?.audio !== "granted") {
+        biblioteca.permissionDenied = true;
+      }
+    } catch (err) {
+      console.error("Error al solicitar permisos de audio:", err);
     }
     setTimeout(async () => {
       if (!biblioteca.loaded && !biblioteca.loading) {
@@ -60,39 +110,12 @@
       } catch (err) {
         console.error("Error al solicitar permisos:", err);
       }
-
-      backListener = await App.addListener("backButton", (event) => {
-        if (ui.playerIsOpen) {
-          ui.playerIsOpen = false;
-          return;
-        }
-        if(selection.isActive){
-        selection.clear()
-        return
-        }
-
-        if (window.history.length > 1) {
-          window.history.back();
-        } else {
-          App.exitApp();
-        }
-      });
-      pauseListener = await App.addListener("pause", () => {
-        // guardarEstado reproductor
-        if (playerService.currentSong) {
-          guardarEstadoReproductor(
-            playerService.currentSong?.id,
-            playerService.currentTime,
-            playerService.mode,
-          );
-        }
-      });
     }
     window.addEventListener("unhandledrejection", (event) => {
       console.error("Promesa rechazada no manejada:", event.reason);
 
       const mensaje = event.reason?.message || "Ocurrió un error inesperado";
-ui.openDialog(DialogType.Error, mensaje as string);
+      ui.openDialog(DialogType.Error, mensaje as string);
     });
   });
 
@@ -112,6 +135,7 @@ ui.openDialog(DialogType.Error, mensaje as string);
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
+
 <div class="h-dvh flex flex-col justify-between border-r-0 overflow-hidden">
   {@render children()}
   <footer>
@@ -129,12 +153,12 @@ ui.openDialog(DialogType.Error, mensaje as string);
       <CreatePlaylistsDialog />
     {:else if dialogType === DialogType.Backup}
       <BackupPlaylistDialog />
-      {:else if dialogType === DialogType.Error}
-      <ErrorDialog/>
-      {:else if dialogType === DialogType.ConfirmDelete}
+    {:else if dialogType === DialogType.Error}
+      <ErrorDialog />
+    {:else if dialogType === DialogType.ConfirmDelete}
       <ConfirmDeleteDialog />
     {/if}
   {/snippet}
 </Dialog>
 
-<SelectionMode/>
+<SelectionMode />
