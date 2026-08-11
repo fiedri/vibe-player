@@ -11,6 +11,7 @@ export class MediaSessionService {
   private handlersInitialized = false;
   private suppressNativePausePush = false;
   private lastPositionSync = 0;
+  public onStopTrackRequest?: () => void;
   public get isSuppressingNativePause(): boolean {
     return this.suppressNativePausePush;
   }
@@ -45,6 +46,9 @@ export class MediaSessionService {
             this.onSeekRequest?.(details.seekTime);
           }
         });
+        MediaSession.setActionHandler({ action: "stop" }, () =>
+          this.onStopTrackRequest?.(),
+        );
       } catch (e) {
         console.warn("Error init handlers:", e);
       }
@@ -123,12 +127,61 @@ export class MediaSessionService {
     }
   }
 
+  /**
+   * Invalida el ancla nativa en CADA cambio de track: congela la barra en ~0
+   * (PAUSED + posición epsilon) en vez de dejar que el PlaybackState viejo
+   * (PLAYING + posición stale) siga extrapolando mientras el nuevo src carga.
+   * La barra solo se reactiva cuando onplay/handleLoadedMetadata re-anclan.
+   */
+  public resetNativePosition(song: Song | null, elementDuration: number = 0) {
+    if (!Capacitor.isNativePlatform()) return;
+
+    this.syncNativePlaybackState(false);
+
+    let finiteDuration = this.#songDurationToSeconds(song?.duration);
+    if (
+      !(finiteDuration > 0) &&
+      Number.isFinite(elementDuration) &&
+      elementDuration > 0
+    ) {
+      finiteDuration = elementDuration;
+    }
+    if (!(finiteDuration > 0)) return;
+
+    // 0.001 → 1ms nativo: vence el equality-guard del servicio (position !=
+    // newPosition) aunque el ancla vieja esté exactamente en 0.
+    this.updatePositionState(0.001, finiteDuration, true);
+  }
+
+  /** Song.duration es ms (número) o "mm:ss" (string). Devuelve segundos. */
+  #songDurationToSeconds(duration: number | string | undefined): number {
+    if (
+      typeof duration === "number" &&
+      Number.isFinite(duration) &&
+      duration > 0
+    ) {
+      return duration / 1000;
+    }
+    if (typeof duration === "string" && duration.includes(":")) {
+      const parts = duration.split(":").map(Number);
+      return parts.reduce((acc, part) => acc * 60 + part, 0);
+    }
+    return 0;
+  }
+
   updatePositionState(
     position: number,
     duration: number,
     force: boolean = false,
   ) {
-    if (duration <= 0 || position > duration || position < 0) return;
+    if (
+      duration <= 0 ||
+      position < 0 ||
+      position > duration ||
+      !Number.isFinite(duration) ||
+      !Number.isFinite(position)
+    )
+      return;
 
     const now = Date.now();
     if (!force && now - this.lastPositionSync < 2000) return;

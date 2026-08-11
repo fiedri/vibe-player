@@ -5,7 +5,7 @@ export class AudioEngine {
   isPlaying = $state<boolean>(false);
 
   playTrigger = $state<number>(0);
-  private audioElement: HTMLAudioElement | null = null;
+  audioElement: HTMLAudioElement | null = null;
 
   private pendingLoadPosition: number | null = null;
 

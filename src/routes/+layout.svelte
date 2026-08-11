@@ -19,6 +19,7 @@
   import ConfirmDeleteDialog from "$lib/components/ui/dialogs/confirmDeleteDialog.svelte";
   import SelectionMode from "$lib/components/multiSelector/selectionMode.svelte";
   import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
+  import { favorites } from "$lib/stores/favorites.svelte";
   let { children } = $props();
   let backListener: any = null;
   let pauseListener: any = null;
@@ -70,6 +71,11 @@
       await playerService.loadLastSavedState();
     } catch (err) {
       console.error("Error al cargar el último estado guardado:", err);
+    }
+    try {
+      await favorites.loadFavoritesInfo();
+    } catch (err) {
+      console.error("error al cargar favoritos", err);
     }
     try {
       const permissions = (await solicitarPermisosAudio()) as
@@ -132,7 +138,6 @@
     if (ui.activeDialog) ui.closeDialog();
   });
 </script>
-
 
 <div class="h-dvh flex flex-col justify-between border-r-0 overflow-hidden">
   {@render children()}

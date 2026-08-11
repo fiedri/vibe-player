@@ -75,17 +75,21 @@ async function crearTablas(conn: any) {
     `CREATE TABLE IF NOT EXISTS playlists_songs (
       playlist_id INTEGER REFERENCES playlists(id) ON DELETE CASCADE,
       song_id TEXT NOT NULL
-    );`,
+    );
+    `,
+    `INSERT INTO playlists(name)
+    SELECT 'favoritos' WHERE NOT EXISTS (SELECT 1 FROM playlists WHERE name = 'favoritos');`,
   ];
   for (const sql of tablas) {
     await conn.run(sql, []);
   }
 }
-const esperar = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const esperar = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
-export async function getDb() : Promise<Database>{
+export async function getDb(): Promise<Database> {
   if (!dbInitPromise) {
-    dbInitPromise = (async () : Promise<Database>=> {
+    dbInitPromise = (async (): Promise<Database> => {
       const maxIntentos = 3;
       let intentos = 0;
 
@@ -101,7 +105,7 @@ export async function getDb() : Promise<Database>{
               `No se pudo inicializar la base de datos tras ${maxIntentos} intentos: ${e}`,
             );
           }
-          await esperar(500*Math.pow(2, intentos));
+          await esperar(500 * Math.pow(2, intentos));
         }
       }
     })();

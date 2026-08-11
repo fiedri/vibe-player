@@ -3,7 +3,7 @@
 
   let {
     items = [],
-    itemHeight = 52,
+    itemHeight = 56,
     overscan = 5,
     children,
     scrollTop = $bindable(0), // ← lo movemos a prop bindable

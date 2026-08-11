@@ -22,13 +22,14 @@ export class PlayerFacade {
   protected mediaSessionService: MediaSessionService =
     new MediaSessionService();
   constructor() {
-    this.queueManager =new QueueManager(new RepeatOffmode());
+    this.queueManager = new QueueManager(new RepeatOffmode());
 
     this.mediaSessionService.onPauseRequest = () => this.pause();
     this.mediaSessionService.onPlayRequest = () => this.play();
     this.mediaSessionService.onNextTrackRequest = () => this.next();
     this.mediaSessionService.onPreviousTrackRequest = () => this.previous();
     this.mediaSessionService.onSeekRequest = (time) => this.seekTo(time);
+    this.mediaSessionService.onStopTrackRequest = () => this.pause();
     const defaultPath = "/default-cover.png";
 
     this.artworkServices
@@ -48,11 +49,13 @@ export class PlayerFacade {
       adyacentsSongImage.next,
       this.currentSong?.image,
     );
-    this.mediaSessionService.syncNativePlaybackState(true);
-    this.mediaSessionService.updatePositionState(
-      0,
-      this.audioEngine.duration,
-      true,
+    // Reset determinista del ancla nativa en CADA cambio de track. No
+    // empujamos PLAYING acá todavía: el src nuevo aún no arrancó, y PLAYING
+    // con la posición stale previa es exactamente lo que extrapola la barra
+    // en el nativo mientras cargamos. PAUSED (posición ~0) congela el bar.
+    this.mediaSessionService.resetNativePosition(
+      song,
+      this.audioEngine.audioElement?.duration ?? 0,
     );
     const img = await this.artworkServices.getArtworkSrc(song.image);
     void this.mediaSessionService.setMetadata(song, img);
@@ -125,11 +128,20 @@ export class PlayerFacade {
     if (!this.currentSong) return;
 
     this.mediaSessionService.endNativePauseSuppression();
-
+    const el = this.audioEngine.audioElement;
     this.mediaSessionService.updatePositionState(
-      this.audioEngine.currentTime,
-      this.audioEngine.duration,
+      el?.currentTime ?? 0,
+      el?.duration ?? 0,
       true,
+    );
+  }
+  public syncPlaybackPosition() {
+    const el = this.audioEngine.audioElement;
+    if (!el) return;
+    this.mediaSessionService.updatePositionState(
+      el.currentTime,
+      el.duration,
+      // sin force — el throttle de 2s del service filtra
     );
   }
   public async loadLastSavedState() {
@@ -146,7 +158,7 @@ export class PlayerFacade {
     this.audioEngine.restoreLoadPosition(lastState.position);
     this.queueManager.currentSong = restoredSong;
     const mode = lastState.mode || "off";
-    this.switchMode(mode)
+    this.switchMode(mode);
     this.queueManager.fillqueue();
     const img = await this.artworkServices.getArtworkSrc(restoredSong.image);
 

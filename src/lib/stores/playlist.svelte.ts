@@ -1,5 +1,4 @@
 import * as db from "$lib/db/db/querys";
-import { playlists } from "$lib/db/db/schema";
 import { biblioteca } from "./biblioteca.svelte";
 import type { Song } from "$lib/types/songs";
 interface Playlists {
@@ -64,17 +63,11 @@ class playlist {
     }
   }
   public getArraySong(playlistsSongArr: { songId: string }[] = []) {
-    const idsSongs = new Set(playlistsSongArr.map((item) => item.songId));
-    // Dedupe por id: si biblioteca.songs tiene dos objetos con el mismo id,
-    // devolver uno solo. Evita `each_key_duplicate` en los {#each (song.id)}.
-    const vistos = new Set<string>();
-    const result = biblioteca.songs.filter((el) => {
-      if (!idsSongs.has(el.id)) return false;
-      if (vistos.has(el.id)) return false;
-      vistos.add(el.id);
-      return true;
-    });
-    return result;
+const songsMap = new Map(biblioteca.songs.map(song => [song.id, song]));
+
+  return playlistsSongArr
+    .map(pSong => songsMap.get(pSong.songId))
+    .filter((song): song is typeof biblioteca.songs[number] => song !== undefined);
   }
   public async removeSong(playlistId: number, songId: string) {
     try {
@@ -123,6 +116,9 @@ class playlist {
     } catch (error) {
       console.warn("error al agregar muchas canciones", error);
     }
+  }
+  public async deleteDuplicate(){
+
   }
 }
 

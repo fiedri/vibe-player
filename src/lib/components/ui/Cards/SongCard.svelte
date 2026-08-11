@@ -73,7 +73,7 @@ use:longPress = {song.id}
   onkeydown={(e) => (e.key === "Enter" || e.key === " ") && handleOnclick(song.id)}
   role="button"
   tabindex="0"
-  class="flex items-center justify-between p-2 hover:bg-card/50 group text-sm cursor-pointer select-none {selection.seletedIds.has(song.id)
+  class=" flex items-center justify-between p-2 hover:bg-card/50 group text-sm cursor-pointer select-none {selection.seletedIds.has(song.id)
     ? 'bg-accent'
     : isPlayingThis ? "bg-card/50 shadow-[inset_0_0_0_1px_theme(colors.primary)] " : ""} transition-all duration-200 ease-in-out gap-2"
 >

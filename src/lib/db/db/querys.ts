@@ -1,6 +1,8 @@
 import { getDb } from ".";
 import { eq, count, sql, and, inArray } from "drizzle-orm";
 import { playlists, playlistsSongs } from "./schema";
+import { expoIn } from "svelte/easing";
+import { favorites } from "$lib/stores/favorites.svelte";
 
 export async function getPlaylists() {
   const db = await getDb();
@@ -60,31 +62,40 @@ export async function removeSongFromPlaylist(
     );
 }
 
-export async function removeSongFromAllPlaylists(songId: string){
+export async function removeSongFromAllPlaylists(songId: string) {
   const db = await getDb();
-  await db.delete(playlistsSongs).where(eq(playlistsSongs.songId, songId))
+  await db.delete(playlistsSongs).where(eq(playlistsSongs.songId, songId));
 }
 
-
-export async function removeManySongsFromPlaylist(playlistId: number, songIds: string[]) {
+export async function removeManySongsFromPlaylist(
+  playlistId: number,
+  songIds: string[],
+) {
   if (songIds.length === 0) return;
   const db = await getDb();
-  await db.delete(playlistsSongs).where(
-    and(
-      eq(playlistsSongs.playlistId, playlistId),
-      inArray(playlistsSongs.songId, songIds),
-    ),
-  );
+  await db
+    .delete(playlistsSongs)
+    .where(
+      and(
+        eq(playlistsSongs.playlistId, playlistId),
+        inArray(playlistsSongs.songId, songIds),
+      ),
+    );
 }
 
-export async function removeManySongFromAllPlaylists(songIds: string[]){
+export async function removeManySongFromAllPlaylists(songIds: string[]) {
   if (songIds.length === 0) return;
   const db = await getDb();
-  await db.delete(playlistsSongs).where(inArray(playlistsSongs.songId, songIds))
+  await db
+    .delete(playlistsSongs)
+    .where(inArray(playlistsSongs.songId, songIds));
 }
 
-export async function addManySongsToPlaylists(playlistId: number, songsId: string[]){
-if (songsId.length === 0) return;
+export async function addManySongsToPlaylists(
+  playlistId: number,
+  songsId: string[],
+) {
+  if (songsId.length === 0) return;
 
   const db = await getDb();
 
@@ -94,4 +105,17 @@ if (songsId.length === 0) return;
   }));
 
   await db.insert(playlistsSongs).values(valuesToInsert);
+}
+
+export async function getFavoritesInfo() {
+  const db = await getDb();
+  const favorito = "favoritos";
+  return await db.query.playlists.findFirst({
+    where: {
+      name: favorito,
+    },
+    with: {
+      playlistsSongs: true,
+    },
+  });
 }

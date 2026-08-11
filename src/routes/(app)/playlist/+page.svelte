@@ -4,14 +4,16 @@
     AddLarge,
     OverflowMenuVertical,
     Download,
+    FavoriteFilled
   } from "carbon-icons-svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { ui, DialogType } from "$lib/stores/ui.svelte";
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { animateTyping } from "$lib/animations";
+  import { favorites } from "$lib/stores/favorites.svelte";
 
   let activeMenuId = $state<number | null>(null);
-
+let playlists = $derived(playlistStore.playlists.filter(el=> el.name !== 'favoritos'))
   function toggleMenu(id: number) {
     activeMenuId = activeMenuId === id ? null : id;
   }
@@ -29,7 +31,7 @@
 <div
   class=" h-full w-full min-w-0 overflow-x-hidden flex flex-col gap-15 min-h-0 overflow-y-auto"
 >
-  {#if playlistStore.isLoading && playlistStore.playlists.length === 0}
+  {#if playlistStore.isLoading && playlists.length === 0}
     <div
       role="status"
       class="flex flex-row items-center w-full gap-3 justify-center h-full"
@@ -54,31 +56,47 @@
       </div>
       <span use:animateTyping={"Cargando playlists..."}></span>
     </div>
-  {:else if playlistStore.playlists.length === 0 && playlistStore.error}
+  {:else if playlists.length === 0 && playlistStore.error}
     <div class="h-full w-full flex justify-center items-center">
       <p class="text-muted-foreground text-lg">{playlistStore.error}</p>
     </div>
     {@render buttonToCreate()}
   {:else}
     <div>
+        <a href="playlist/{favorites.favoritesId}" class="mb-5 h-14 px-2 py-10 flex flex-row justify-between border-primary border items-center">
+          <div class="flex flex-row gap-3 items-center w-[50%]">
+            <FavoriteFilled size={38}  class="text-primary"/>
+            <h2 class="font-medium hover:underline text-white underline underline-offset-4 uppercase truncate text-primary">
+              Favoritos
+            </h2>
+          </div>
+          <div class="mr-5 relative flex flex-row gap-3 items-center">
+            <span class="text-xs text-muted-foreground hover:underline truncate"
+              >{favorites.counts} songs</span
+            >
+
+          </div>
+        </a>
+    <h2 class="font-bold text-xl uppercase  px-2">Mis Playlist</h2>
+
       {@render buttonToCreate()}
-      {#each playlistStore.playlists as playlists (playlists.id)}
-        <a href="playlist/{playlists.id}" class="h-14 p-2 flex flex-row justify-between items-center">
+      {#each playlists as playlist (playlist.id)}
+        <a href="playlist/{playlist.id}" class="h-14 p-2 flex flex-row justify-between items-center">
           <div class="flex flex-row gap-3 items-center w-[50%]">
             <Playlist size={40} />
             <h2 class="font-medium hover:underline text-white truncate">
-              {playlists.name}
+              {playlist.name}
             </h2>
           </div>
           <div class="relative flex flex-row gap-3 items-center">
             <span class="text-xs text-muted-foreground hover:underline truncate"
-              >{playlists.songsCount} songs</span
+              >{playlist.songsCount} songs</span
             >
 
             <button
               onclick={(e) => {
                 e.preventDefault();
-                toggleMenu(playlists.id);
+                toggleMenu(playlist.id);
               }}
             >
               <OverflowMenuVertical size={28} />
@@ -102,15 +120,15 @@
   {/if}
 </div>
 {#snippet buttonToCreate()}
-  <div class="animate_slideUp absolute bottom-25 right-3 z-0">
+  <div class="animate_slideUp absolute bottom-25 right-3 z-50">
     <Button
-      class="rounded-sm size-15 "
+      class="size-12 aspect-square "
       onclick={() => (ui.openDialog(DialogType.CreatePlaylist))}><AddLarge /></Button
     >
   </div>
-  <div class="animate_slideUp absolute bottom-25 right-23 z-0">
+  <div class="animate_slideUp absolute bottom-25 right-18 z-50">
     <Button
-      class="rounded-sm size-15"
+      class="size-12 aspect-square"
       onclick={() => (ui.openDialog(DialogType.Backup))}
       title="Backup / restaurar playlists"
       aria-label="Backup de playlists"

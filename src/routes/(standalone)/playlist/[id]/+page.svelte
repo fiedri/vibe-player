@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ArrowLeft } from "carbon-icons-svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { PlayFilledAlt, Shuffle } from "carbon-icons-svelte";
+  import {OverflowMenuVertical, PlayFilledAlt, Shuffle } from "carbon-icons-svelte";
   import SongCard from "$lib/components/ui/Cards/SongCard.svelte";
   import { playerService } from "$lib/services/player/PlayerFacade";
   import { formatearDuracionTotal } from "$lib/utils.js";
@@ -78,13 +78,20 @@
   id="playlists-view"
   onscroll={handleScroll}
 >
-  <div class="top-0 z-10 absolute w-full {tight? 'bg-background' : 'bg-transparent'}">
+  <div class="top-0 z-10 absolute w-full flex justify-between flex-row {tight? 'bg-background' : 'bg-transparent'}">
     <Button
       variant="ghost"
       class="px-4 transition-all"
       onclick={goBack}
     >
       <ArrowLeft class="size-6" />
+    </Button>
+
+    <Button
+      variant="ghost"
+      class="px-4 transition-all"
+    >
+      <OverflowMenuVertical class="size-6" />
     </Button>
   </div>
 
@@ -126,7 +133,7 @@
       </Button>
     </div>
     <div>
-      {#each songs as song, idx (song.id)}
+      {#each songs as song, idx}
         <SongCard
           {song}
           {idx}

@@ -20,6 +20,8 @@
   import MarqueeText from "../wrapper/marqueeText.svelte";
   import { DialogType, ui } from "$lib/stores/ui.svelte";
   import { formatearMS } from "$lib/utils";
+    import { favorites } from "$lib/stores/favorites.svelte";
+    import { playlistStore } from "$lib/stores/playlist.svelte";
   let audioElement = $state<HTMLAudioElement | null>(null);
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
@@ -158,6 +160,7 @@ let repeatMode = $state(playerService.mode);
       : ""}
     bind:volume={playerService.volume}
     onloadedmetadata={() => playerService.handleLoadedMetadata()}
+    ontimeupdate={() => playerService.syncPlaybackPosition()}
     onplay={handlePlay}
     onpause={handlePause}
     onended={handleEnded}
@@ -273,9 +276,15 @@ let repeatMode = $state(playerService.mode);
         <Button
           variant="ghost"
           class="active:scale-90 transition-transform"
-          onclick={() => ui.openDialog(DialogType.Unimplemented)}
+          onclick={() => favorites.toggleFavorite(playerService.currentSong?.id)}
         >
+        {#if favorites.songsIds.has(playerService.currentSong.id)}
+          
+        <FavoriteFilled class="size-6"/>
+        {:else}
+
           <Favorite class="size-6" />
+        {/if}
         </Button>
         <Button
           variant="ghost"

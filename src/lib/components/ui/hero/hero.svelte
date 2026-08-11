@@ -157,7 +157,7 @@
   </div>
 
   <nav>
-    <ul class="flex flex-row relative">
+    <ul class="flex flex-row relative overflow-x-auto">
       {#each tabs as tab (tab.href)}
         {@const isActive = activeTab === tab.href}
         <li class="relative">
