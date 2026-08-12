@@ -10,13 +10,9 @@
   import { page } from "$app/stores";
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { onMount } from "svelte";
+    import PlaylistsMenu from "$lib/components/ui/menus/playlistsMenu.svelte";
 
-  function goBack(e: MouseEvent) {
-    if (window.history.length > 1) {
-      e.preventDefault();
-      window.history.back();
-    }
-  }
+
 
   let playlistId = $derived.by(() => {
     const match = $page.url.pathname.match(/^\/playlist\/(\d+)$/);
@@ -69,6 +65,7 @@
   );
   const FADE_RANGE = 200;
   let fade = $derived(Math.min(scrollTop / FADE_RANGE, 1));
+  let isOpenMenu = $state(false)
 </script>
 
 <section
@@ -82,7 +79,7 @@
     <Button
       variant="ghost"
       class="px-4 transition-all"
-      onclick={goBack}
+     href="/playlist" 
     >
       <ArrowLeft class="size-6" />
     </Button>
@@ -90,9 +87,14 @@
     <Button
       variant="ghost"
       class="px-4 transition-all"
+      onclick={()=> isOpenMenu = !isOpenMenu}
     >
       <OverflowMenuVertical class="size-6" />
     </Button>
+    {#if isOpenMenu}
+      
+    <PlaylistsMenu playlistId={playlistId} isOpen={isOpenMenu}/>
+    {/if}
   </div>
 
   <div

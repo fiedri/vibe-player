@@ -1,8 +1,7 @@
 import { getDb } from ".";
-import { eq, count, sql, and, inArray } from "drizzle-orm";
+import { eq, count, min, notInArray, sql, and, inArray } from "drizzle-orm";
 import { playlists, playlistsSongs } from "./schema";
-import { expoIn } from "svelte/easing";
-import { favorites } from "$lib/stores/favorites.svelte";
+import { throws } from "assert";
 
 export async function getPlaylists() {
   const db = await getDb();
@@ -18,6 +17,9 @@ export async function getPlaylists() {
 }
 
 export async function createPlaylist(name: string) {
+  if (name.toLowerCase() === "favoritos") {
+    throw Error("No puedes crear otra playlists llamada 'Favoritos'");
+  }
   const db = await getDb();
   const [result] = await db
     .insert(playlists)
@@ -118,4 +120,28 @@ export async function getFavoritesInfo() {
       playlistsSongs: true,
     },
   });
+}
+export async function deleteDuplicates(playlistId: number) {
+  const db = await getDb();
+  try {
+    const validIds = db
+      .select({
+        id: min(playlistsSongs.id),
+      })
+      .from(playlists)
+      .innerJoin(playlistsSongs, eq(playlists.id, playlistsSongs.playlistId))
+      .where(eq(playlists.id, playlistId))
+      .groupBy(playlistsSongs.songId);
+
+    await db
+      .delete(playlistsSongs)
+      .where(
+        and(
+          eq(playlistsSongs.playlistId, playlistId),
+          notInArray(playlistsSongs.id, validIds),
+        ),
+      );
+  } catch (e) {
+    console.error(e);
+  }
 }

@@ -7,6 +7,7 @@ export const playlists = sqliteTable("playlists", {
 });
 
 export const playlistsSongs = sqliteTable("playlists_songs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   playlistId: integer("playlist_id").references(() => playlists.id, {
     onDelete: "cascade",
   }),

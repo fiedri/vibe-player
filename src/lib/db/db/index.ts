@@ -73,6 +73,7 @@ async function crearTablas(conn: any) {
       date_created TEXT DEFAULT CURRENT_TIMESTAMP
     );`,
     `CREATE TABLE IF NOT EXISTS playlists_songs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       playlist_id INTEGER REFERENCES playlists(id) ON DELETE CASCADE,
       song_id TEXT NOT NULL
     );

@@ -4,16 +4,20 @@
     AddLarge,
     OverflowMenuVertical,
     Download,
-    FavoriteFilled
+    FavoriteFilled,
   } from "carbon-icons-svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { ui, DialogType } from "$lib/stores/ui.svelte";
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { animateTyping } from "$lib/animations";
-  import { favorites } from "$lib/stores/favorites.svelte";
 
   let activeMenuId = $state<number | null>(null);
-let playlists = $derived(playlistStore.playlists.filter(el=> el.name !== 'favoritos'))
+  let playlists = $derived(
+    playlistStore.playlists.filter((el) => el.name !== "favoritos"),
+  );
+  let favorito = $derived(
+    playlistStore.playlists.find((el) => el.name == "favoritos"),
+  );
   function toggleMenu(id: number) {
     activeMenuId = activeMenuId === id ? null : id;
   }
@@ -63,25 +67,32 @@ let playlists = $derived(playlistStore.playlists.filter(el=> el.name !== 'favori
     {@render buttonToCreate()}
   {:else}
     <div>
-        <a href="playlist/{favorites.favoritesId}" class="mb-5 h-14 px-2 py-10 flex flex-row justify-between border-primary border items-center">
-          <div class="flex flex-row gap-3 items-center w-[50%]">
-            <FavoriteFilled size={38}  class="text-primary"/>
-            <h2 class="font-medium hover:underline text-white underline underline-offset-4 uppercase truncate text-primary">
-              Favoritos
-            </h2>
-          </div>
-          <div class="mr-5 relative flex flex-row gap-3 items-center">
-            <span class="text-xs text-muted-foreground hover:underline truncate"
-              >{favorites.counts} songs</span
-            >
-
-          </div>
-        </a>
-    <h2 class="font-bold text-xl uppercase  px-2">Mis Playlist</h2>
+      <a
+        href="playlist/{favorito?.id}"
+        class="mb-5 h-14 px-2 py-10 flex flex-row justify-between border-primary border items-center"
+      >
+        <div class="flex flex-row gap-3 items-center w-[50%]">
+          <FavoriteFilled size={38} class="text-primary" />
+          <h2
+            class="font-medium hover:underline text-white underline underline-offset-4 uppercase truncate text-primary"
+          >
+            Favoritos
+          </h2>
+        </div>
+        <div class="mr-5 relative flex flex-row gap-3 items-center">
+          <span class="text-xs text-muted-foreground hover:underline truncate"
+            >{favorito?.songsCount} songs</span
+          >
+        </div>
+      </a>
+      <h2 class="font-bold text-xl uppercase px-2">Mis Playlist</h2>
 
       {@render buttonToCreate()}
       {#each playlists as playlist (playlist.id)}
-        <a href="playlist/{playlist.id}" class="h-14 p-2 flex flex-row justify-between items-center">
+        <a
+          href="playlist/{playlist.id}"
+          class="h-14 p-2 flex flex-row justify-between items-center"
+        >
           <div class="flex flex-row gap-3 items-center w-[50%]">
             <Playlist size={40} />
             <h2 class="font-medium hover:underline text-white truncate">
@@ -101,15 +112,17 @@ let playlists = $derived(playlistStore.playlists.filter(el=> el.name !== 'favori
             >
               <OverflowMenuVertical size={28} />
             </button>
-            {#if activeMenuId === playlists.id}
+            {#if activeMenuId === playlist.id}
               <div
                 class="absolute right-0 top-full mt-2 w-30 bg-popover border border-border shadow-lg z-50"
               >
                 <Button
                   class="p-2 w-full"
-                  onclick={(e) => {e.preventDefault();playlistStore.delete(playlists.id)}}
-                  variant="destructive"
-                  >Eliminar</Button
+                  onclick={(e) => {
+                    e.preventDefault();
+                    playlistStore.delete(playlist.id);
+                  }}
+                  variant="destructive">Eliminar</Button
                 >
               </div>
             {/if}
@@ -123,17 +136,16 @@ let playlists = $derived(playlistStore.playlists.filter(el=> el.name !== 'favori
   <div class="animate_slideUp absolute bottom-25 right-3 z-50">
     <Button
       class="size-12 aspect-square "
-      onclick={() => (ui.openDialog(DialogType.CreatePlaylist))}><AddLarge /></Button
+      onclick={() => ui.openDialog(DialogType.CreatePlaylist)}
+      ><AddLarge /></Button
     >
   </div>
   <div class="animate_slideUp absolute bottom-25 right-18 z-50">
     <Button
       class="size-12 aspect-square"
-      onclick={() => (ui.openDialog(DialogType.Backup))}
+      onclick={() => ui.openDialog(DialogType.Backup)}
       title="Backup / restaurar playlists"
-      aria-label="Backup de playlists"
-      ><Download /></Button
+      aria-label="Backup de playlists"><Download /></Button
     >
   </div>
-
 {/snippet}

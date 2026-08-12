@@ -1,6 +1,7 @@
 import * as db from "$lib/db/db/querys";
 import { biblioteca } from "./biblioteca.svelte";
 import type { Song } from "$lib/types/songs";
+import { DialogType, ui } from "./ui.svelte";
 interface Playlists {
   name: string;
   id: number;
@@ -42,6 +43,7 @@ class playlist {
       });
     } catch (e) {
       console.error(e);
+      ui.openDialog(DialogType.Error, e);
     }
   }
   public async delete(playlistsId: number) {
@@ -63,11 +65,13 @@ class playlist {
     }
   }
   public getArraySong(playlistsSongArr: { songId: string }[] = []) {
-const songsMap = new Map(biblioteca.songs.map(song => [song.id, song]));
+    const songsMap = new Map(biblioteca.songs.map((song) => [song.id, song]));
 
-  return playlistsSongArr
-    .map(pSong => songsMap.get(pSong.songId))
-    .filter((song): song is typeof biblioteca.songs[number] => song !== undefined);
+    return playlistsSongArr
+      .map((pSong) => songsMap.get(pSong.songId))
+      .filter(
+        (song): song is (typeof biblioteca.songs)[number] => song !== undefined,
+      );
   }
   public async removeSong(playlistId: number, songId: string) {
     try {
@@ -110,15 +114,27 @@ const songsMap = new Map(biblioteca.songs.map(song => [song.id, song]));
     try {
       const playlistIdx = this.playlists.findIndex((e) => e.id == playlistId);
       if (playlistIdx === -1) return;
-      this.playlists[playlistIdx].songsCount = this.playlists[playlistIdx].songsCount + songsIds.length;
+      this.playlists[playlistIdx].songsCount =
+        this.playlists[playlistIdx].songsCount + songsIds.length;
 
       await db.addManySongsToPlaylists(playlistId, songsIds);
     } catch (error) {
       console.warn("error al agregar muchas canciones", error);
     }
   }
-  public async deleteDuplicate(){
-
+  public async deleteDuplicates(playlistId: number) {
+    try {
+      if (playlistId !== this.currentPlaylistId){
+        throw Error("Ocurrio un error al eliminar duplicados");
+      }
+      await db.deleteDuplicates(playlistId);
+      const uniquesSongs = new Set(this.currentPlaylistSongs);
+      this.currentPlaylistSongs = [...uniquesSongs];
+      const playlistIdx = this.playlists.findIndex((el) => el.id == playlistId);
+      this.playlists[playlistIdx].songsCount = uniquesSongs.size;
+    } catch (e) {
+      console.error(e);
+    }
   }
 }
 
