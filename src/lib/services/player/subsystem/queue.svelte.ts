@@ -14,23 +14,17 @@ export class QueueManager {
   context = $state<ContextType | null>(null);
   playlistSongs = $state<Song[]>([]);
   currentSong = $state<Song | null>(null);
-  currentSongIndex = $derived<number | null>(
-    Array.isArray(this.queue) && this.currentSong
-      ? this.queue.findIndex(
-          (el) =>
-            el.id === this.currentSong?.id
-
-        )
-      : null,
-  );
-  constructor(state: ModeState){
-    this.transitionTo(state)
+  //findLastIndex no es una buena solucion, ya que si la cancion esta despues de la que se esta reproduciendo actualmente
+  //al agregarla a la siguiente, siempre buscara la ultima, no la que acabamos de agregar que aparecera amtes
+  currentSongIndex = $state<number | null>(null);
+  constructor(state: ModeState) {
+    this.transitionTo(state);
   }
   public transitionTo(state: ModeState): void {
-        console.log(`Context: Transition to ${(<any>state).constructor.name}.`);
-        this.state = state;
-        this.state.setContext(this);
-    }
+    console.log(`Context: Transition to ${(<any>state).constructor.name}.`);
+    this.state = state;
+    this.state.setContext(this);
+  }
   public setContext(context: ContextType, songs?: Song[]) {
     if (context === ContextType.InPlaylist && songs) {
       this.playlistSongs = [...songs];
@@ -41,11 +35,21 @@ export class QueueManager {
     }
     this.context = context;
     if (this.isShuffle) this.aplicarShuffle();
+    this.calculateIndex()
   }
   public setCurrentSong(song: Song) {
     this.currentSong = song;
+    this.calculateIndex(song);
   }
+  private calculateIndex(song?: Song) {
+    const index = this.queue.findIndex((item) => {
+      return this.currentSong?.id == item.id || song?.id == item.id;
+    });
 
+    if (index !== -1) {
+      this.currentSongIndex = index;
+    }
+  }
   private aplicarShuffle() {
     const source =
       this.context === ContextType.InPlaylist
@@ -56,6 +60,7 @@ export class QueueManager {
     if (currentSong) {
       this.queue = this.queue.filter((song) => song.id !== currentSong.id);
       this.queue.unshift(currentSong);
+      this.currentSongIndex = 0;
     }
   }
 
@@ -78,6 +83,7 @@ export class QueueManager {
           ? [...this.playlistSongs]
           : [...this.rawSource];
     }
+    this.calculateIndex()
   }
   public getAdyacentsSongImage() {
     let previous = null;
@@ -92,17 +98,21 @@ export class QueueManager {
   }
 
   public previous() {
-   this.state.previous()
-
+    this.state.previous();
   }
   public next() {
-   this.state.next()
-
+    this.state.next();
   }
   public handleTrackEndednext(): Song | null {
     return this.state.handleTrackEndednext();
   }
-  public fillqueue(){
-    this.queue = this.rawSource
+  public fillqueue() {
+    this.queue = this.rawSource;
+    this.calculateIndex()
+  }
+  public setNextSong(song: Song) {
+    if (this.currentSongIndex !== null) {
+      this.queue.splice(this.currentSongIndex + 1, 0, song);
+    }
   }
 }

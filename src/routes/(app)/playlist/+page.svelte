@@ -10,7 +10,21 @@
   import { ui, DialogType } from "$lib/stores/ui.svelte";
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { animateTyping } from "$lib/animations";
+  import { longPress } from "$lib/components/multiSelector/pointer";
+  import { goto } from "$app/navigation";
+  import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
+  import { onDestroy, onMount } from "svelte";
+  onMount(() => {
+    if (selection.isActive) {
+      selection.clear();
+    }
+  });
+  onDestroy(()=>{
 
+    if (selection.isActive) {
+      selection.clear();
+    }
+  })
   let activeMenuId = $state<number | null>(null);
   let playlists = $derived(
     playlistStore.playlists.filter((el) => el.name !== "favoritos"),
@@ -20,6 +34,9 @@
   );
   function toggleMenu(id: number) {
     activeMenuId = activeMenuId === id ? null : id;
+  }
+  function gotoPlaylist(id: number) {
+    goto(`/playlist/${id}`);
   }
 </script>
 
@@ -60,11 +77,6 @@
       </div>
       <span use:animateTyping={"Cargando playlists..."}></span>
     </div>
-  {:else if playlists.length === 0 && playlistStore.error}
-    <div class="h-full w-full flex justify-center items-center">
-      <p class="text-muted-foreground text-lg">{playlistStore.error}</p>
-    </div>
-    {@render buttonToCreate()}
   {:else}
     <div>
       <a
@@ -89,9 +101,17 @@
 
       {@render buttonToCreate()}
       {#each playlists as playlist (playlist.id)}
+        <!-- svelte-ignore a11y_missing_attribute -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <a
-          href="playlist/{playlist.id}"
-          class="h-14 p-2 flex flex-row justify-between items-center"
+          class="h-14 long-press-item p-2 flex flex-row justify-between items-center {selection.seletedIds.has(
+            playlist.id,
+          )
+            ? 'bg-popover'
+            : ''}"
+          role="button"
+          tabindex="0"
+          onclick={() => gotoPlaylist(playlist.id)}
         >
           <div class="flex flex-row gap-3 items-center w-[50%]">
             <Playlist size={40} />
@@ -128,19 +148,25 @@
             {/if}
           </div>
         </a>
+      {:else}
+        <div class="h-full w-full flex justify-center items-center">
+          <p class="text-muted-foreground text-lg">
+            Aun no hay playlists disponibles...
+          </p>
+        </div>
       {/each}
     </div>
   {/if}
 </div>
 {#snippet buttonToCreate()}
-  <div class="animate_slideUp absolute bottom-25 right-3 z-50">
+  <div class="animate_slideUp absolute bottom-25 right-3 z-10">
     <Button
       class="size-12 aspect-square "
       onclick={() => ui.openDialog(DialogType.CreatePlaylist)}
       ><AddLarge /></Button
     >
   </div>
-  <div class="animate_slideUp absolute bottom-25 right-18 z-50">
+  <div class="animate_slideUp absolute bottom-25 right-18 z-10">
     <Button
       class="size-12 aspect-square"
       onclick={() => ui.openDialog(DialogType.Backup)}

@@ -21,6 +21,7 @@ public nextHelper(): Song | null {
     const nextSong =
       this.queueContext.queue[this.queueContext.currentSongIndex + 1];
     this.queueContext.currentSong = nextSong;
+    this.queueContext.currentSongIndex++
     return nextSong;
 }
 public previousHelper(): Song | null {
@@ -33,6 +34,7 @@ public previousHelper(): Song | null {
     const previousSong =
       this.queueContext.queue[this.queueContext.currentSongIndex - 1];
     this.queueContext.currentSong = previousSong;
+    this.queueContext.currentSongIndex--
     return previousSong;
 }
   public abstract next(): Song | null;
@@ -68,6 +70,7 @@ export class RepeatAllMode extends ModeState{
   public next(): Song | null {
     if ((this.queueContext.queue.length-1) <= this.queueContext.currentSongIndex) {
         this.queueContext.currentSong = this.queueContext.queue[0];
+        this.queueContext.currentSongIndex = 0
         return this.queueContext.currentSong;
       }
     return this.nextHelper();

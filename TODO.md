@@ -1,3 +1,3 @@
 # playlist
-[] Permitir eliminar canciones del almacenamiento
+[] - Metodo en la clase queueManager para agregar una cancion en la posicion de seguiente.
 

@@ -156,7 +156,7 @@ export class PlayerFacade {
     const restoredSong = biblioteca.songs[lastSong];
     this.mediaSessionService.beginNativePauseSuppression();
     this.audioEngine.restoreLoadPosition(lastState.position);
-    this.queueManager.currentSong = restoredSong;
+    this.queueManager.setCurrentSong(restoredSong);
     const mode = lastState.mode || "off";
     this.switchMode(mode);
     this.queueManager.fillqueue();
@@ -213,7 +213,9 @@ export class PlayerFacade {
       this.startPlayback();
     }
   }
-
+  public setNextSong(song: Song) {
+    this.queueManager.setNextSong(song);
+  }
   public next() {
     this.queueManager.next();
     const song = this.queueManager.currentSong;

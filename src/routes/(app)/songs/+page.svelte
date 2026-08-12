@@ -3,10 +3,14 @@
   import { biblioteca } from "$lib/stores/biblioteca.svelte";
   import VirtualList from "$lib/components/ui/virtualList.svelte";
   import { ui } from "$lib/stores/ui.svelte";
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
+    import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
 
   onMount(()=>{
 ui.query = ""
+  })
+  onDestroy(()=>{
+selection.clear()
   })
   let searchQuery = $derived(ui.query);
 

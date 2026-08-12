@@ -5,6 +5,15 @@ Todas las novedades y cambios notables de **Vibe** se documentarán en este arch
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
+## [unrealased]
+### Added
+- Gestion de canciones favoritas
+- Eliminacion de duplicados en Playlists
+- Menu de opciones para playlist
+- Opcion para agregar a siguiente en la cola
+- seleccionar todos en la Multiseleccion
+### Fixed
+- Seleccion multiple
 ## [0.4.0] - 2026-08-10
 
 ### Added

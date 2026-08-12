@@ -21,7 +21,6 @@
   import { DialogType, ui } from "$lib/stores/ui.svelte";
   import { formatearMS } from "$lib/utils";
     import { favorites } from "$lib/stores/favorites.svelte";
-    import { playlistStore } from "$lib/stores/playlist.svelte";
   let audioElement = $state<HTMLAudioElement | null>(null);
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
@@ -171,7 +170,7 @@ let repeatMode = $state(playerService.mode);
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="bg-card w-full sticky z-100 overflow-hidden md:hidden"
+    class="bg-card w-full sticky z-[9999] overflow-hidden md:hidden"
     onclick={handleOpenAndClosePlayer}
   >
     <div class="flex items-center gap-2 w-full text-xs text-zinc-400">
@@ -217,7 +216,7 @@ let repeatMode = $state(playerService.mode);
             >
           </div>
         {:else}
-          <div class="text-xs text-zinc-500">No song selected</div>
+          <div class="text-xs text-zinc-500">Sin Canción</div>
         {/if}
       </div>
       <div class="flex items-center justify-between gap-5 *:text-white">

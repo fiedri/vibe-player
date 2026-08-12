@@ -15,7 +15,7 @@
   import Button from "../button/button.svelte";
   import { formatearMS } from "$lib/utils";
   import { playlistStore } from "$lib/stores/playlist.svelte";
-    import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
+  import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
   interface Props {
     song: Song;
     idx: number;
@@ -42,9 +42,9 @@
 
   function handleOnclick(id: string) {
     player.setContext(context, contextSongs);
-    if(selection.isActive){
-    selection.toggleId(id)
-    return
+    if (selection.isActive) {
+      selection.toggleId(id);
+      return;
     }
     if (isCurrent) {
       player.togglePlay();
@@ -68,14 +68,21 @@
 </script>
 
 <div
-use:longPress = {song.id}
-  onclick={()=>{handleOnclick(song.id)}}
-  onkeydown={(e) => (e.key === "Enter" || e.key === " ") && handleOnclick(song.id)}
+  use:longPress={song.id}
+  onclick={() => {
+    handleOnclick(song.id);
+  }}
+  onkeydown={(e) =>
+    (e.key === "Enter" || e.key === " ") && handleOnclick(song.id)}
   role="button"
   tabindex="0"
-  class=" flex items-center justify-between p-2 hover:bg-card/50 group text-sm cursor-pointer select-none {selection.seletedIds.has(song.id)
+  class=" flex items-center justify-between p-2 hover:bg-card/50 group text-sm cursor-pointer select-none {selection.seletedIds.has(
+    song.id,
+  )
     ? 'bg-accent'
-    : isPlayingThis ? "bg-card/50 shadow-[inset_0_0_0_1px_theme(colors.primary)] " : ""} transition-all duration-200 ease-in-out gap-2"
+    : isPlayingThis
+      ? 'bg-card/50 shadow-[inset_0_0_0_1px_theme(colors.primary)] '
+      : ''} transition-all duration-200 ease-in-out gap-2"
 >
   <div class="flex items-center gap-4 flex-1 min-w-0 pointer-events-none">
     <button
@@ -129,8 +136,19 @@ use:longPress = {song.id}
   <div
     use:portal
     transition:slide
-    class="fixed bottom-0 right-0 left-0 z-50 min-h-[30%] border-t border-border bg-popover text-popover-foreground pb-[env(safe-area-inset-bottom)] shadow-xl"
+    class="fixed bottom-0 right-0 left-0 z-50 min-h-[30%] border-t border-border bg-popover text-popover-foreground pb-22 shadow-xl"
   >
+
+    <Button
+      class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
+      variant="ghost"
+      onclick={()=>{
+player.setNextSong(song)
+openMenu =false
+      }}
+    >
+      Siguiente
+    </Button>
     <Button
       class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
       onclick={(e) => {
@@ -161,7 +179,7 @@ use:longPress = {song.id}
         onclick={(e) => {
           e.stopPropagation();
           openMenu = false;
-          handelDelete(song.id, song.audioUrl)
+          handelDelete(song.id, song.audioUrl);
           onDelete(song.id);
         }}
         variant="destructive"
