@@ -182,8 +182,10 @@ class BibliotecaStore {
   }
   async deleteSong(songId: string, songUri: string) {
     try {
+
       const result = await eliminarCancion(songUri);
       if (!result) return;
+
       this.songs = this.songs.filter((el) => el.audioUrl !== songUri);
       guardarCache(this.songs);
       await removeSongFromAllPlaylists(songId);

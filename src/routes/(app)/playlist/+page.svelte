@@ -19,12 +19,11 @@
       selection.clear();
     }
   });
-  onDestroy(()=>{
-
+  onDestroy(() => {
     if (selection.isActive) {
       selection.clear();
     }
-  })
+  });
   let activeMenuId = $state<number | null>(null);
   let playlists = $derived(
     playlistStore.playlists.filter((el) => el.name !== "favoritos"),
@@ -103,7 +102,7 @@
       {#each playlists as playlist (playlist.id)}
         <!-- svelte-ignore a11y_missing_attribute -->
         <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <a
+        <div
           class="h-14 long-press-item p-2 flex flex-row justify-between items-center {selection.seletedIds.has(
             playlist.id,
           )
@@ -126,7 +125,7 @@
 
             <button
               onclick={(e) => {
-                e.preventDefault();
+                e.stopPropagation();
                 toggleMenu(playlist.id);
               }}
             >
@@ -139,7 +138,7 @@
                 <Button
                   class="p-2 w-full"
                   onclick={(e) => {
-                    e.preventDefault();
+                    e.stopPropagation();
                     playlistStore.delete(playlist.id);
                   }}
                   variant="destructive">Eliminar</Button
@@ -147,10 +146,10 @@
               </div>
             {/if}
           </div>
-        </a>
+        </div>
       {:else}
         <div class="h-full w-full flex justify-center items-center">
-          <p class="text-muted-foreground text-lg">
+          <p class="text-muted-foreground text-lg italic">
             Aun no hay playlists disponibles...
           </p>
         </div>

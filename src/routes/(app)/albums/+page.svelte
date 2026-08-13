@@ -27,7 +27,7 @@ ui.query = ""
           title={album.name}
           img={Capacitor.convertFileSrc(album.image)}
           subtitle={album.artist}
-        />
+                  />
       </a>
     {/snippet}
   </VirtualGrid>

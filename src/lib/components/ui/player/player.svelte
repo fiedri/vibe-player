@@ -21,6 +21,7 @@
   import { DialogType, ui } from "$lib/stores/ui.svelte";
   import { formatearMS } from "$lib/utils";
     import { favorites } from "$lib/stores/favorites.svelte";
+    import PlayerMenu from "../menus/playerMenu.svelte";
   let audioElement = $state<HTMLAudioElement | null>(null);
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
@@ -140,6 +141,7 @@ let repeatMode = $state(playerService.mode);
     showNotificacion(msg);
   }
 
+let isOpenMenu = $state(false)
   let needNotify = $state(false);
   let notification = $state("");
   function showNotificacion(Message: string) {
@@ -271,10 +273,10 @@ let repeatMode = $state(playerService.mode);
         class="p-2 active:scale-90 transition-transform"
         ><ArrowLeft class="size-6" /></Button
       >
-      <div class="flex flex-row w-auto items-center justify-center *:m-0 *:p-2">
+      <div class="flex flex-row w-auto items-center justify-center">
         <Button
           variant="ghost"
-          class="active:scale-90 transition-transform"
+          class="active:scale-90 transition-transform m-0 p-2"
           onclick={() => favorites.toggleFavorite(playerService.currentSong?.id)}
         >
         {#if favorites.songsIds.has(playerService.currentSong.id)}
@@ -287,10 +289,14 @@ let repeatMode = $state(playerService.mode);
         </Button>
         <Button
           variant="ghost"
-          class="active:scale-90 transition-transform"
-          onclick={() => ui.openDialog(DialogType.Unimplemented)}
+          class="active:scale-90 transition-transform m-0 p-2"
+          onclick={() => isOpenMenu = !isOpenMenu}
           ><EllipsisVertical class="size-6" /></Button
         >
+       {#if isOpenMenu}
+        
+<PlayerMenu onClose={()=> isOpenMenu= false} song={playerService.currentSong}/>
+       {/if }
       </div>
     </div>
     <div >

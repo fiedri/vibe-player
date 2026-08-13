@@ -27,6 +27,8 @@ ui.query = ""
         title={artist.name}
         img={Capacitor.convertFileSrc(artist.image)}
         subtitle={`${artist.songCount} canciones`}
+        onErrorImg={'/default-artist.png'}
+
       />
 
     </a> 

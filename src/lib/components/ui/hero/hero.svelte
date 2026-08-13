@@ -5,6 +5,7 @@
     OverflowMenuVertical,
     Information as Info,
     Menu,
+    Search,
   } from "carbon-icons-svelte";
   import { crossfade } from "svelte/transition";
   import { cubicInOut } from "svelte/easing";
@@ -60,11 +61,12 @@
   }}
 />
 
-<section id="hero" class="pt-5 px-2 border-b-4 border-border">
+<section id="hero" class="pt-2 px-2 border-b-4 border-border">
   <div class="flex flex-row justify-between items-center w-full mb-5">
     <div class="relative" {@attach clickOutside}>
       <Button
         variant="ghost"
+        class="px-2"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
         aria-label="Abrir menú"
@@ -92,19 +94,23 @@
     </div>
 
     <h1 class="uppercase text-center text-2xl">Vibe</h1>
-    <div>
+    <div class="relative">
+      <Button variant="ghost"
+        class="px-1"
+        href="/search"
+      ><Search class="size-6" /></Button>
       <Button
         variant="ghost"
+        class="px-0"
         onclick={() => {
           overflowMenuOpen = !overflowMenuOpen;
         }}
       >
-        <OverflowMenuVertical class="size-5" />
+        <OverflowMenuVertical class="size-6" />
       </Button>
       {#if overflowMenuOpen}
         <button
           class="fixed h-screen w-screen inset-0 z-[100] flex items-center justify-center"
-          
           onclick={() => {
             overflowMenuOpen = false;
           }}
@@ -112,7 +118,7 @@
         >
         </button>
         <div
-          class="absolute w-50 right-4 h-auto bg-popover border border-border z-[9999]"
+          class="absolute top-full w-50 right-4 h-auto bg-popover border border-border z-[9999]"
         >
           {#each overflowMenu as options}
             <button
@@ -129,32 +135,13 @@
       {/if}
     </div>
   </div>
-  <div class="relative w-[95%] mx-auto mb-4">
-    <input
+  <!--<input
       class="appearance-none border-2 bg-input hover:border-border/70 transition-colors w-full py-3 px-3 leading-tight focus:outline-none focus:ring-ring focus:border-border focus:shadow-outline border-border"
       id="username"
       type="text"
       placeholder="Search..."
       bind:value={ui.query}
-    />
-
-    <div class="absolute right-0 inset-y-0 flex mr-4 items-center">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6 ml-3 hover:text-primary/70"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
-    </div>
-  </div>
+    />-->
 
   <nav>
     <ul class="flex flex-row relative overflow-x-auto">

@@ -93,7 +93,7 @@
     </Button>
     {#if isOpenMenu}
       
-    <PlaylistsMenu playlistId={playlistId} isOpen={isOpenMenu}/>
+    <PlaylistsMenu playlistId={playlistId} onClose={()=>isOpenMenu=false}/>
     {/if}
   </div>
 

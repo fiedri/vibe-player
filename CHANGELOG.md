@@ -14,6 +14,10 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - seleccionar todos en la Multiseleccion
 ### Fixed
 - Seleccion multiple
+
+### Changed
+- La busqueda se ahora se realiza en una ruta especializada.
+
 ## [0.4.0] - 2026-08-10
 
 ### Added
