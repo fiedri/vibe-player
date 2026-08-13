@@ -12,8 +12,7 @@
   import { ui } from "$lib/stores/ui.svelte";
   import { biblioteca } from "$lib/stores/biblioteca.svelte";
   let tabs = [
-    { href: "/", tab: "Inicios" },
-    { href: "/songs", tab: "Canciones" },
+    { href: "/", tab: "Canciones" },
     { href: "/albums", tab: "Álbumes" },
     { href: "/artist", tab: "Artistas" },
     { href: "/playlist", tab: "Playlist" },
@@ -144,7 +143,7 @@
     />-->
 
   <nav>
-    <ul class="flex flex-row relative overflow-x-auto">
+    <ul class="flex flex-row relative overflow-x-auto justify-center">
       {#each tabs as tab (tab.href)}
         {@const isActive = activeTab === tab.href}
         <li class="relative">

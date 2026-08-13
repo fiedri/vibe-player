@@ -1,116 +1,62 @@
-<script lang="ts">
+<script>
   import SongCard from "$lib/components/ui/Cards/SongCard.svelte";
-  import ThumbnailCard from "$lib/components/ui/Cards/thumbnailCard.svelte";
-  import HorizontalContainer from "$lib/components/ui/wrapper/horizontalContainer.svelte";
-  import { DialogType, ui } from "$lib/stores/ui.svelte";
-  // Generamos 2.000 canciones de prueba
-  const mockSongs = Array.from({ length: 2000 }, (_, i) => ({
-    id: `${i}`,
-    title: `Canción Virtual #${i + 1}`,
-    artists: `Artista #${(i % 10) + 1}`,
-    album: "Álbum de Prueba",
-    duration: 180,
-    path: `/test/${i}.mp3`,
-    audioUrl: "",
-    image: "/default-cover.png",
-  }));
+  import { biblioteca } from "$lib/stores/biblioteca.svelte";
+  import VirtualList from "$lib/components/ui/virtualList.svelte";
+  import { ui } from "$lib/stores/ui.svelte";
+    import { onMount, onDestroy } from "svelte";
+    import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
 
-  function greeting() {
-    const currentTime = new Date();
-    const currentHour = currentTime.getHours();
-    let greeting = "";
+  onMount(()=>{
+ui.query = ""
+  })
+  onDestroy(()=>{
+selection.clear()
+  })
+  $effect(()=>{
+selection.avaiblesIds = biblioteca.songs.map(el => el.id)
+  })
+  let searchQuery = $derived(ui.query);
 
-    if (currentHour < 12) {
-      greeting = "Buenos dias";
-    } else if (currentHour < 18) {
-      greeting = "Buenas tardes";
-    } else {
-      greeting = "Buenas Noches";
-    }
-    return greeting;
-  }
-  let mockPlaylist = Array.from({ length: 5 }, (_, i) => ({
-    title: "Ejemplo",
-    portada: "/default-cover.png",
-  }));
-  let mockArtist = Array.from({ length: 5 }, (_, i) => ({
-    title: "Ejemplo",
-    portada: "/default-cover.png",
-  }));
+  let filteredSongs = $derived(
+    searchQuery ? biblioteca.search(searchQuery) : biblioteca.songs,
+  );
+
 </script>
-
-<div
-  class=" h-full w-full min-w-0 overflow-x-hidden flex p-5 pb-10 flex-col gap-15 min-h-0 overflow-y-auto [&_h2]:uppercase [&_h2]:font-black [&_h2]:tracking-wide [&_h2]:text-sm [&_h2]:text-muted-foreground [&_h2]:mb-3"
->
-  <div class="w-full mb-6">
-    <div class="flex flex-row justify-between items-center">
-      <h2>Tus Playlists</h2>
-      <button class="mb-3 underline text-muted-foreground text-sm"
-        onclick={(e) => { e.preventDefault(); ui.openDialog(DialogType.Unimplemented); }}
-        >Ver todas</button
+ 
+<div class="biblioteca h-full w-full">
+  {#if biblioteca.loading && biblioteca.songs.length === 0}
+    <div class="loading p-4 text-center">
+      <p>Escaneando Biblioteca...</p>
+    </div>
+  {:else if biblioteca.error && biblioteca.songs.length === 0}
+    <div class="error p-4 text-center">
+      {#if biblioteca.permissionDenied}
+      <p>
+❌ Necesitás permisos de musica y audio → [Abrir Ajustes]. Cuando lo hayas hecho vuelve y presiona reintentar
+      </p>
+      {:else}
+      <p>❌{biblioteca.error}</p>
+      {/if}
+      <button
+        onclick={() => biblioteca.refresh()}
+        class="mt-2 text-primary font-medium"
       >
+        Reintentar
+      </button>
     </div>
-
-    <HorizontalContainer>
-      {#each mockPlaylist as playlist}
-        <!--Card-->
-        <ThumbnailCard title={playlist.title} img={playlist.portada} />
-      {/each}
-    </HorizontalContainer>
-  </div>
-
-  <div class="w-full mb-6">
-    <h2>Agregados Recientemente</h2>
-    <!-- Tu contenido aquí -->
-    <div class="flex flex-col gap-3">
-      {#each mockSongs.slice(0, 3) as song, idx}
-        <div class="h-12 flex gap-3">
-          <img src={song.image} alt="" class="border-2 border-border" />
-          <div class="min-w-0 flex-1">
-            <p class="font-medium hover:underline text-white truncate">
-              {song.title}
-            </p>
-            <p class="text-xs text-muted-foreground hover:underline truncate">
-              {song.artists}
-            </p>
-          </div>
-        </div>
-      {/each}
+  {:else if filteredSongs.length === 0}
+    <div class="p-4 text-center text-zinc-400">
+      {#if searchQuery}
+        <p>No se encontraron resultados para "{searchQuery}"</p>
+      {:else}
+        <p>No hay canciones en el dispositivo</p>
+      {/if}
     </div>
-  </div>
-
-  <div class="w-full mb-6">
-    <h2>Las Mas Escuchadas</h2>
-    <!-- Tu contenido aquí -->
-    <HorizontalContainer>
-      {#each mockArtist as playlist}
-        <!--Card-->
-        <ThumbnailCard title="" img={playlist.portada} />
-      {/each}
-    </HorizontalContainer>
-  </div>
-
-  <div class="w-full mb-6">
-    <h2>Canciones Favoritas</h2>
-    <!-- Tu contenido aquí -->
-    <div>
-      {#each mockSongs.slice(0, 5) as song, idx}
+  {:else}
+    <VirtualList items={filteredSongs} itemHeight={52}>
+      {#snippet children(song, idx)}
         <SongCard {song} {idx} playlistId={undefined}/>
-      {/each}
-      <button class="ml-2 underline text-muted-foreground text-sm" onclick={(e) => { e.preventDefault(); ui.openDialog(DialogType.Unimplemented); }}
-        >Ver Mas</button
-      >
-    </div>
-  </div>
-
-  <div class="w-full mb-6">
-    <h2>Artistas Favoritos</h2>
-    <!-- Tu contenido aquí -->
-    <HorizontalContainer>
-      {#each mockArtist as playlist}
-        <!--Card-->
-        <ThumbnailCard title={playlist.title} img={playlist.portada} />
-      {/each}
-    </HorizontalContainer>
-  </div>
+      {/snippet}
+    </VirtualList>
+  {/if}
 </div>

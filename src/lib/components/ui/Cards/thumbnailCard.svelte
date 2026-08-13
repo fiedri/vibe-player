@@ -1,20 +1,26 @@
 <script lang="ts">
-import { fade } from "svelte/transition";
-  let { 
-    title="", 
-    img, 
-    subtitle="", 
-    width = "w-36", 
+  import { fade } from "svelte/transition";
+
+  let {
+    title = "",
+    img,
+    subtitle = "",
+    width = "w-36",
     height = "h-36",
     imgClass = "object-cover",
     onErrorImg = "/default-cover.png"
   } = $props();
+
   let loaded = $state(false);
+  let failed = $state(false);
+  let currentImg = $state(img);
 
   // Reinicia la carga si cambia la prop de la imagen
   $effect(() => {
     if (img) {
+      currentImg = img;
       loaded = false;
+      failed = false;
     }
   });
 </script>
@@ -23,27 +29,28 @@ import { fade } from "svelte/transition";
   <div
     class="{height} bg-zinc-800 overflow-hidden flex items-center justify-center relative"
   >
-  {#if !loaded}
-    <img 
-      src={onErrorImg} 
-      alt={title} 
-      class="fallback absolute inset-0 w-full h-full object-cover"
-      out:fade={{ duration: 300 }} 
-    />
-  {/if}
+    {#if !loaded && !failed}
+      <div
+        class="absolute inset-0 animate-pulse bg-zinc-700 rounded"
+        out:fade={{ duration: 300 }}
+      ></div>
+    {/if}
     <img
-      src={img}
+      src={currentImg}
       class="w-full h-full {imgClass} hover:scale-105 transition-all duration-300 {loaded ? 'opacity-100' : 'opacity-0'}"
       alt="{title || 'Imagen'} "
       loading="lazy"
-      onerror={(e) => {
-        const target = e.target as HTMLImageElement;
-        if (target.src !== window.location.origin + onErrorImg) {
-          target.src = onErrorImg;
+      decoding="async"
+      onerror={() => {
+        if (!failed && onErrorImg) {
+          failed = true;
+          currentImg = onErrorImg;
         }
-        loaded = true;
       }}
-      onload={() => loaded = true}
+      onload={() => {
+        loaded = true;
+        failed = false;
+      }}
     />
   </div>
 
@@ -59,10 +66,3 @@ import { fade } from "svelte/transition";
     </p>
   {/if}
 </div>
-
-<style>
-  .fallback {
-    z-index: 2;
-    background-color: #2a2a2a;
-  }
-</style>
