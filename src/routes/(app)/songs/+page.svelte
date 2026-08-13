@@ -12,6 +12,9 @@ ui.query = ""
   onDestroy(()=>{
 selection.clear()
   })
+  $effect(()=>{
+selection.avaiblesIds = biblioteca.songs.map(el => el.id)
+  })
   let searchQuery = $derived(ui.query);
 
   let filteredSongs = $derived(

@@ -5,6 +5,7 @@ class Selection {
   seletedIds = new SvelteSet<string | number>();
   count: number = $derived(this.seletedIds.size);
   isSelectedAll = $state(false);
+  avaiblesIds = $state<any[]>([])
   toggleId(id) {
     if (this.seletedIds.has(id)) {
       this.seletedIds.delete(id);
@@ -20,9 +21,9 @@ class Selection {
     if (!this.isSelectedAll) {
       this.isSelectedAll = true;
 
-      biblioteca.songs.forEach((el) => {
-        this.seletedIds.add(el.id);
-      });
+     if(this.avaiblesIds.length > 0){
+       this.avaiblesIds.forEach(el=> this.seletedIds.add(el));
+     }
     } else {
       this.isSelectedAll = false;
       selection.seletedIds.clear();
@@ -33,7 +34,6 @@ class Selection {
     this.isActive = false;
     this.isSelectedAll = false
   }
-  isSelected(id) {}
 }
 
 export const selection = new Selection();

@@ -11,6 +11,7 @@
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { onMount } from "svelte";
     import PlaylistsMenu from "$lib/components/ui/menus/playlistsMenu.svelte";
+    import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
 
 
 
@@ -28,6 +29,9 @@
       ? playlistStore.currentPlaylistSongs
       : [],
   );
+    $effect(()=>{
+selection.avaiblesIds = songs.map(el => el.id)
+  })
   let playlists = $derived.by(
     () =>
       playlistStore.playlists.find((e) => e.id === playlistId)?.name ?? "",

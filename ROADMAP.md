@@ -1,10 +1,11 @@
 # ROADMAP
 
-# Proxima version (0.6.0)
+## Proxima version (0.6.0)
 - Ver informacion completa de la cancion.
 - poder ordernar por nombre, fecha, artista (ascendente y descente)
 - compartir
-# Futuro
+- manejo de lista de reproduccion (quitar cancion, ver)
+## Futuro
 - Ecualizador
 - Editar metadatos de un archivo
 - Obtener informacion de artistas/albumes mediante apis.
