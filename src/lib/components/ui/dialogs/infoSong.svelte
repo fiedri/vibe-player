@@ -99,7 +99,6 @@
   </div>
 {:else}
   <div class="flex flex-col gap-4 max-h-[80vh] overflow-y-auto pr-1">
-    <!-- Header / Cover & Core Info -->
     <div
       class="flex items-center gap-4 p-3 bg-secondary/30 border border-border/50"
     >
