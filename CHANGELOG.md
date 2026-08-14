@@ -5,6 +5,9 @@ Todas las novedades y cambios notables de **Vibe** se documentarán en este arch
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
+## [unreleased]
+### Changed
+- Migracion de cache a filesystem
 ## [0.5.0] - 2026-08-13
 
 ### Added

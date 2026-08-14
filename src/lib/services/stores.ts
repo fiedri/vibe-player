@@ -1,5 +1,6 @@
 import { Preferences } from "@capacitor/preferences";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { Capacitor } from "@capacitor/core";
 export interface PlayerState {
   trackId: string | number;
   position: number;
@@ -33,17 +34,15 @@ export async function guardarCache(data: any[]) {
 
 export async function obtenerCache(): Promise<any[]> {
   try {
-    const result = await Filesystem.readFile({
+    const fileUri = await Filesystem.getUri({
       path: `${CACHE_KEY}.json`,
       directory: Directory.Data,
-      encoding: Encoding.UTF8,
     });
 
-    if (typeof result.data === "string") {
-      return JSON.parse(result.data);
-    }
-
-    return [];
+    const response = await fetch(Capacitor.convertFileSrc(fileUri.uri));
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data ?? [];
   } catch (error) {
     console.log("No se encontró caché o hubo un error al leerlo.");
     return [];
@@ -56,13 +55,13 @@ export async function esCacheBibliotecaFresco(): Promise<boolean> {
       directory: Directory.Data,
       encoding: Encoding.UTF8,
     });
-    
-  const timestamp = Number(result.data);
-  if (!Number.isFinite(timestamp)) return false;
-  return Date.now() - timestamp < CACHE_MAX_AGE_MS;
+
+    const timestamp = Number(result.data);
+    if (!Number.isFinite(timestamp)) return false;
+    return Date.now() - timestamp < CACHE_MAX_AGE_MS;
   } catch (error) {
     console.log(error);
-    return false
+    return false;
   }
 }
 export async function guardarEstadoReproductor(
