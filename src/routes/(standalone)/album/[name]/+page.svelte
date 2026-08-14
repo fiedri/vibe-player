@@ -9,6 +9,7 @@
   import { ContextType } from "$lib/services/player/types";
   import { page } from "$app/state";
   import { albumes } from "$lib/stores/albumes.svelte";
+  import { DEFAULT_COVER } from "$lib/types/songs";
 
   let albumName = $derived(page.params.name ?? "");
   let albumData = $derived(albumes.getAlbumInfo(albumName));
@@ -71,7 +72,7 @@
     style:background-image="linear-gradient(to bottom, rgba(0,0,0,0.2) 20%,
     rgba(0,0,0,0.5) 85%,rgba(0,0,0,0.9) 100%), url('{albumImage
       ? Capacitor.convertFileSrc(albumImage)
-      : '/default-cover.png'}')"
+      : DEFAULT_COVER}')"
     style:opacity={1 - fade}
   >
     <div class="w-[80%] mb-3 ml-2.5 flex flex-col gap-1">

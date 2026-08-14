@@ -1,4 +1,5 @@
 import { biblioteca } from "./biblioteca.svelte.ts";
+import { displayAlbum, displayArtist, displayImage, DEFAULT_COVER } from "$lib/types/songs";
 
 export interface AlbumInfo {
   name: string;
@@ -18,22 +19,27 @@ class AlbumesStore {
     const map = new Map<string, AlbumInfo>();
 
     for (const song of biblioteca.songs) {
-      const key = `${song.album ?? "Unknown"}||${song.artists ?? "Unknown"}`;
+      const albumName = displayAlbum(song);
+      const artistName = displayArtist(song);
+      const key = `${albumName}||${artistName}`;
 
       let entry = map.get(key);
       if (!entry) {
         entry = {
-          name: song.album ?? "Unknown",
-          artist: song.artists ?? "Unknown",
-          image: song.image ?? "/default-cover.png",
+          name: albumName,
+          artist: artistName,
+          image: displayImage(song),
           songCount: 0,
         };
         map.set(key, entry);
       }
 
       // Primera imagen no vacía que encontremos
-      if (entry.image === "/default-cover.png" && song.image) {
-        entry.image = song.image;
+      if (entry.image === DEFAULT_COVER) {
+        const cover = displayImage(song);
+        if (cover !== DEFAULT_COVER) {
+          entry.image = cover;
+        }
       }
 
       entry.songCount++;
@@ -53,7 +59,7 @@ class AlbumesStore {
 
   getAlbumInfo(albumName: string) {
     const albums = this.albums.filter((el) => el.name === albumName);
-    const songs = biblioteca.songs.filter((el) => el.album === albumName);
+    const songs = biblioteca.songs.filter((el) => displayAlbum(el) === albumName);
     return {
       albums,
       songs,

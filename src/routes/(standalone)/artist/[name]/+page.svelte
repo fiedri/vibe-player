@@ -8,9 +8,10 @@
   import HorizontalContainer from "$lib/components/ui/wrapper/horizontalContainer.svelte";
   import SongCard from "$lib/components/ui/Cards/SongCard.svelte";
   import { ContextType } from "$lib/services/player/types";
+  import { DEFAULT_COVER } from "$lib/types/songs";
   let artistName = $derived(page.params.name ?? "");
-  let artistInfo = artists.artists.filter((el) => el.name === artistName)[0];
-  let artistImg = Capacitor.convertFileSrc(artistInfo.image);
+  let artistInfo = $derived(artists.artists.find((el) => el.name === artistName));
+  let artistImg = $derived(artistInfo?.image ? Capacitor.convertFileSrc(artistInfo.image) : DEFAULT_COVER);
   let allArtistsResources = $derived(artists.getAllArtistInfo(artistName));
   function goBack(e: MouseEvent) {
     if (window.history.length > 1) {

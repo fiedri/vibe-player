@@ -1,5 +1,6 @@
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import defaultCoverUrl from "$lib/assets/default-cover.png?inline";
+import { DEFAULT_COVER } from "$lib/types/songs";
 
 const ARTWORK_MAX = 512;
 
@@ -199,7 +200,7 @@ async function generateThumbnail(image: string): Promise<string | null> {
 }
 
 export async function ensureThumbnail(image: string): Promise<string | null> {
-  if (image === "/default-cover.png") return DEFAULT_COVER_DATA_URL;
+  if (image === DEFAULT_COVER || image === "/default-cover.png") return DEFAULT_COVER_DATA_URL;
 
   // Caché en memoria primero: evita lecturas nativas y re-decode cuando el
   // thumbnail ya se procesó en esta sesión.

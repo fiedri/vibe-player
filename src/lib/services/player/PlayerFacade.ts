@@ -10,7 +10,8 @@ import {
 } from "./states/modeState";
 import { biblioteca } from "$lib/stores/biblioteca.svelte";
 import { Capacitor } from "@capacitor/core";
-import type { Song } from "$lib/types/songs";
+import type { MediaFile } from "$lib/types/songs";
+import { displayImage } from "$lib/types/songs";
 import type { ContextType } from "./types";
 export class PlayerFacade {
   protected audioEngine: AudioEngine = new AudioEngine();
@@ -42,12 +43,12 @@ export class PlayerFacade {
       });
   }
 
-  private async initSong(song: Song) {
+  private async initSong(song: MediaFile) {
     const adyacentsSongImage = this.queueManager.getAdyacentsSongImage();
     this.artworkServices.prewarmArtworkAdyacente(
       adyacentsSongImage.previous,
       adyacentsSongImage.next,
-      this.currentSong?.image,
+      this.currentSong ? displayImage(this.currentSong) : undefined,
     );
     // Reset determinista del ancla nativa en CADA cambio de track. No
     // empujamos PLAYING acá todavía: el src nuevo aún no arrancó, y PLAYING
@@ -57,14 +58,14 @@ export class PlayerFacade {
       song,
       this.audioEngine.audioElement?.duration ?? 0,
     );
-    const img = await this.artworkServices.getArtworkSrc(song.image);
+    const img = await this.artworkServices.getArtworkSrc(displayImage(song));
     void this.mediaSessionService.setMetadata(song, img);
   }
 
   get currentSong() {
     return this.queueManager.currentSong;
   }
-  set currentSong(song: Song | null) {
+  set currentSong(song: MediaFile | null) {
     this.queueManager.currentSong = song;
   }
   get playTrigger() {
@@ -160,7 +161,7 @@ export class PlayerFacade {
     const mode = lastState.mode || "off";
     this.switchMode(mode);
     this.queueManager.fillqueue();
-    const img = await this.artworkServices.getArtworkSrc(restoredSong.image);
+    const img = await this.artworkServices.getArtworkSrc(displayImage(restoredSong));
 
     if (Capacitor.isNativePlatform()) {
       this.mediaSessionService.syncNativePlaybackState(false);
@@ -189,7 +190,7 @@ export class PlayerFacade {
     this.audioEngine.play();
   }
 
-  public setSong(song: Song) {
+  public setSong(song: MediaFile) {
     this.queueManager.setCurrentSong(song);
     this.initSong(song);
     this.startPlayback();
@@ -213,7 +214,7 @@ export class PlayerFacade {
       this.startPlayback();
     }
   }
-  public setNextSong(song: Song) {
+  public setNextSong(song: MediaFile) {
     this.queueManager.setNextSong(song);
   }
   public next() {
@@ -234,7 +235,7 @@ export class PlayerFacade {
   public toggleShuffle() {
     this.queueManager.toggleShuffle();
   }
-  public shuffle(songs: Song[]): Song[] {
+  public shuffle(songs: MediaFile[]): MediaFile[] {
     return this.queueManager.shuffle(songs);
   }
   public handleTrackEnded() {
@@ -258,7 +259,7 @@ export class PlayerFacade {
       this.audioEngine.isPlaying,
     );
   }
-  public setContext(context: ContextType, songs: Song[]) {
+  public setContext(context: ContextType, songs: MediaFile[]) {
     this.queueManager.setContext(context, songs);
   }
   // MediaSessionService

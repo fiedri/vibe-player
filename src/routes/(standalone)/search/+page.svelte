@@ -9,6 +9,7 @@
   import SongCard from "$lib/components/ui/Cards/SongCard.svelte";
   import HorizontalContainer from "$lib/components/ui/wrapper/horizontalContainer.svelte";
   import ThumbnailCard from "$lib/components/ui/Cards/thumbnailCard.svelte";
+  import type { MediaFile } from "$lib/types/songs";
   function goBack(e: MouseEvent) {
     if (window.history.length > 1) {
       e.preventDefault();
@@ -16,9 +17,9 @@
     }
   }
   let searchQuery: string = $state("");
-  let filteredSongs = $state<any>([]);
-  let filteredAlbums = $state<any>([]);
-  let filteredArtist = $state<any>([]);
+  let filteredSongs = $state<MediaFile[]>([]);
+  let filteredAlbums = $state<any[]>([]);
+  let filteredArtist = $state<any[]>([]);
 
   $effect(() => {
     const query = searchQuery;
@@ -103,6 +104,7 @@
           {idx}
           context={ContextType.InPlaylist}
           contextSongs={filteredSongs}
+          playlistId={undefined}
         />
       {/each}
     {/if}

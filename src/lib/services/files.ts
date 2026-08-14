@@ -1,6 +1,8 @@
 import { CapacitorMediaStore } from "@odion-cloud/capacitor-mediastore";
+import type { MediaFile } from "@odion-cloud/capacitor-mediastore";
 import { registerPlugin } from "@capacitor/core";
-import type { Song } from "$lib/types/songs";
+
+export type { MediaFile } from "@odion-cloud/capacitor-mediastore";
 
 export interface BatchDeleteOptions {
   files?: (string | { uri?: string; path?: string; filePath?: string })[];
@@ -30,29 +32,6 @@ export interface MediaDeletePlugin {
 }
 const MediaDelete = registerPlugin<MediaDeletePlugin>("MediaDelete");
 
-interface MediaFile {
-  id: string | number;
-  uri: string;
-  displayName: string;
-  size: number;
-  mimeType: string;
-  dateAdded: number;
-  mediaType: string;
-  title?: string;
-  artist?: string;
-  album?: string;
-  albumArtist?: string;
-  composer?: string;
-  duration?: number;
-  genre?: string;
-  year?: number;
-  track?: number;
-  albumArtUri?: string;
-  width?: number;
-  height?: number;
-  isExternal?: boolean;
-}
-
 export async function eliminarCancion(rutaABorrar: string) {
   try {
     const resultado = await MediaDelete.deleteFile({ uri: rutaABorrar });
@@ -69,19 +48,19 @@ export async function eliminarCancion(rutaABorrar: string) {
 }
 
 export async function eliminarCanciones(
-  rutasABorrar: string[]
+  rutasABorrar: string[],
 ): Promise<BatchDeleteResult> {
   try {
     const resultado = await MediaDelete.deleteFiles({ files: rutasABorrar });
 
     if (resultado.success) {
       console.log(
-        `¡${resultado.deletedCount} canciones eliminadas del dispositivo con éxito!`
+        `¡${resultado.deletedCount} canciones eliminadas del dispositivo con éxito!`,
       );
     } else {
       console.warn(
         `Eliminación de lote finalizada: ${resultado.deletedCount} eliminadas, ${resultado.failedCount} fallidas.`,
-        resultado.failedFiles
+        resultado.failedFiles,
       );
     }
     return resultado;
@@ -115,36 +94,12 @@ export async function cargarBiblioteca(
   if (offset > 0) opciones.offset = offset;
 
   const resultado = await CapacitorMediaStore.getMediasByType(opciones);
-  return resultado.media || [];
-}
-
-export function formatbiblioteca(biblioteca: MediaFile[]): Song[] {
-  return biblioteca.map((song): Song => {
-    const {
-      id,
-      title,
-      duration,
-      album,
-      artist,
-      uri,
-      albumArtUri,
-      displayName,
-    } = song;
-
-    const safeTitle = title || displayName || "Sin título";
-    const safeArtist = artist || "Artista desconocido";
-    const safeAlbum = album || "Álbum desconocido";
-    const safeDuration = duration;
-    const safeImage = albumArtUri || "/default-cover.png";
-
-    return {
-      id: String(id),
-      title: safeTitle,
-      duration: safeDuration,
-      album: safeAlbum,
-      artists: safeArtist,
-      audioUrl: uri,
-      image: safeImage,
-    };
-  });
+  return (
+    resultado.media.map((el) => {
+      return {
+        ...el,
+        dateModified: el.dateModified ?? Date.now()
+      };
+    }) || []
+  );
 }

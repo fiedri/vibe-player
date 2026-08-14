@@ -20,6 +20,7 @@
   import SelectionMode from "$lib/components/multiSelector/selectionMode.svelte";
   import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
   import { favorites } from "$lib/stores/favorites.svelte";
+    import InfoSong from "$lib/components/ui/dialogs/infoSong.svelte";
   let { children } = $props();
   let backListener: any = null;
   let pauseListener: any = null;
@@ -160,6 +161,8 @@
       <ErrorDialog />
     {:else if dialogType === DialogType.ConfirmDelete}
       <ConfirmDeleteDialog />
+      {:else if dialogType == DialogType.InfoSong}
+      <InfoSong/>
     {/if}
   {/snippet}
 </Dialog>

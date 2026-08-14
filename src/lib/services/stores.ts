@@ -7,8 +7,8 @@ export interface PlayerState {
   mode: string
 }
 
-const CACHE_KEY = "biblioteca_cache";
-const CACHE_TIMESTAMP_KEY = "biblioteca_cache_timestamp";
+const CACHE_KEY = "biblioteca_cache_v2";
+const CACHE_TIMESTAMP_KEY = "biblioteca_cache_timestamp_v2";
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 h
 
 export async function guardarCache(data: any[]) {

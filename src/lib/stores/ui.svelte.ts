@@ -4,7 +4,8 @@ export enum DialogType {
   Unimplemented = 'unimplemented',
   Backup = 'backup',
   Error = 'error',
-  ConfirmDelete = 'confirmDelete'
+  ConfirmDelete = 'confirmDelete',
+  InfoSong = 'InfoSong'
 }
 
 class UiStore {

@@ -6,9 +6,11 @@
     OverflowMenuVertical as EllipsisVertical,
     PlayFilledAlt as Play,
     PauseFilled as Pause,
+    Information
   } from "carbon-icons-svelte";
   import { longPress } from "$lib/components/multiSelector/pointer";
-  import type { Song } from "$lib/types/songs";
+  import type { MediaFile } from "$lib/types/songs";
+  import { displayTitle, displayArtist } from "$lib/types/songs";
   import { ui, DialogType } from "$lib/stores/ui.svelte";
   import { biblioteca } from "$lib/stores/biblioteca.svelte";
   import { slide } from "svelte/transition";
@@ -17,10 +19,10 @@
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
   interface Props {
-    song: Song;
+    song: MediaFile;
     idx: number;
     context?: ContextType;
-    contextSongs?: Song[];
+    contextSongs?: MediaFile[];
     playlistId: number | undefined;
     onDelete?: (songId: string) => void;
   }
@@ -98,10 +100,10 @@
 
     <div class="min-w-0 flex-1">
       <p class="font-medium hover:underline text-white truncate">
-        {song.title}
+        {displayTitle(song)}
       </p>
       <p class="text-xs text-muted-foreground hover:underline truncate">
-        {song.artists}
+        {displayArtist(song)}
       </p>
     </div>
   </div>
@@ -143,6 +145,16 @@
       class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
       variant="ghost"
       onclick={()=>{
+      ui.openDialog(DialogType.InfoSong, song)
+openMenu =false
+      }}
+    >
+     <Information/> Informacion
+    </Button>
+    <Button
+      class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
+      variant="ghost"
+      onclick={()=>{
 player.setNextSong(song)
 openMenu =false
       }}
@@ -179,7 +191,7 @@ openMenu =false
         onclick={(e) => {
           e.stopPropagation();
           openMenu = false;
-          handelDelete(song.id, song.audioUrl);
+          handelDelete(song.id, song.uri);
           onDelete(song.id);
         }}
         variant="destructive"

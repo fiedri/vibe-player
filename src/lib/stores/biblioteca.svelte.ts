@@ -1,7 +1,6 @@
 import {
   cargarBiblioteca,
   eliminarCanciones,
-  formatbiblioteca,
 } from "$lib/services/files";
 import { eliminarCancion } from "$lib/services/files";
 import { ensureThumbnail } from "$lib/services/artworks";
@@ -11,14 +10,20 @@ import {
   obtenerCache,
 } from "$lib/services/stores";
 import { Capacitor } from "@capacitor/core";
-import type { Song } from "$lib/types/songs";
+import {
+  displayTitle,
+  displayArtist,
+  displayAlbum,
+  displayImage,
+  type MediaFile,
+} from "$lib/types/songs";
 import { DialogType, ui } from "./ui.svelte";
 import { removeManySongFromAllPlaylists, removeSongFromAllPlaylists } from "$lib/db/db/querys";
 
 const LOTE_INICIAL = 1500;
 
 class BibliotecaStore {
-  songs = $state<Song[]>([]);
+  songs = $state<MediaFile[]>([]);
   loading = $state(false);
   error = $state<string | null>(null);
   loaded = $state(false);
@@ -57,10 +62,10 @@ class BibliotecaStore {
 
       // 1. Cargar el primer lote inicial desde el dispositivo
       const rawInitial = await cargarBiblioteca(LOTE_INICIAL, 0);
-      const iniciales = formatbiblioteca(rawInitial);
 
-      // Mergear con lo que ya haya (caché) sin duplicar por audioUrl
-      this.#mergeSongs(iniciales);
+
+      // Mergear con lo que ya haya (caché) sin duplicar por id
+      this.#mergeSongs(rawInitial);
 
       this.loaded = true;
       this.loading = false;
@@ -86,7 +91,7 @@ class BibliotecaStore {
    * Mergea canciones nuevas evitando duplicados por id.
    * Devuelve cuántas canciones nuevas se agregaron.
    */
-  #mergeSongs(nuevas: Song[]): number {
+  #mergeSongs(nuevas: MediaFile[]): number {
     // Dedupe por id (raíz del each_key_duplicate en playlists). Dos objetos con
     // el mismo id no deben coexistir nunca en biblioteca.songs.
     const prevLen = this.songs.length;
@@ -95,7 +100,7 @@ class BibliotecaStore {
   }
 
   /** Devuelve un array sin duplicados por `id` (mantiene el primero). */
-  #dedupePorId(lista: Song[]): Song[] {
+  #dedupePorId(lista: MediaFile[]): MediaFile[] {
     const vistos = new Set<string>();
     return lista.filter((s) => {
       if (vistos.has(s.id)) return false;
@@ -117,8 +122,7 @@ class BibliotecaStore {
           break;
         }
 
-        const formateadas = formatbiblioteca(batch);
-        const agregadas = this.#mergeSongs(formateadas);
+        const agregadas = this.#mergeSongs(batch);
         currentOffset += batch.length;
 
         // Batch sin NINGÚN id nuevo: ya vimos todo el resto en una pasada
@@ -158,7 +162,7 @@ class BibliotecaStore {
     this.thumbnailsRunning = true;
     try {
       const unique = [
-        ...new Set(this.songs.map((s) => s.image).filter(Boolean)),
+        ...new Set(this.songs.map((s) => s.albumArtUri).filter(Boolean)),
       ];
       for (let i = 0; i < unique.length; i++) {
         await ensureThumbnail(unique[i]!);
@@ -175,9 +179,9 @@ class BibliotecaStore {
     const q = query.toLowerCase();
     return this.songs.filter(
       (s) =>
-        s.title?.toLowerCase().includes(q) ||
-        s.artists?.toLowerCase().includes(q) ||
-        s.album?.toLowerCase().includes(q),
+        displayTitle(s).toLowerCase().includes(q) ||
+        displayArtist(s).toLowerCase().includes(q) ||
+        displayAlbum(s).toLowerCase().includes(q),
     );
   }
   async deleteSong(songId: string, songUri: string) {
@@ -186,7 +190,7 @@ class BibliotecaStore {
       const result = await eliminarCancion(songUri);
       if (!result) return;
 
-      this.songs = this.songs.filter((el) => el.audioUrl !== songUri);
+      this.songs = this.songs.filter((el) => el.uri !== songUri);
       guardarCache(this.songs);
       await removeSongFromAllPlaylists(songId);
     } catch (error) {
@@ -200,7 +204,7 @@ class BibliotecaStore {
       const songsTodeleleUri = this.songs
         .filter((el) => songsIds.has(el.id))
         .map((el) => {
-          return el.audioUrl;
+          return el.uri;
         });
       const result = await eliminarCanciones(songsTodeleleUri);
       if (result.error) {

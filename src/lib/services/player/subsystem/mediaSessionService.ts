@@ -1,7 +1,18 @@
 import { MediaSession } from "@capgo/capacitor-media-session";
 import { Capacitor } from "@capacitor/core";
 import { artworkCache } from "$lib/services/artworks";
-import type { Song } from "$lib/types/songs";
+import { DEFAULT_COVER } from "$lib/types/songs";
+
+export interface MediaMetadata {
+  id?: string;
+  title?: string;
+  artist?: string;
+  album?: string;
+  albumArtUri?: string;
+  image?: string;
+  duration?: number | string;
+}
+
 export class MediaSessionService {
   public onPlayRequest?: () => void;
   public onPreviousTrackRequest?: () => void;
@@ -66,17 +77,16 @@ export class MediaSessionService {
         {
           id: "default",
           title: "Vibe",
-          artists: "",
+          artist: "",
           album: "",
-          image: "/default-cover.png",
-          audioUrl: "",
+          albumArtUri: DEFAULT_COVER,
         },
         defaulImg,
       );
       void defaulImg;
     }
   }
-  public async setMetadata(song: Song, artworkSrc: string) {
+  public async setMetadata(song: MediaMetadata, artworkSrc: string) {
     if (!song) return;
     if (!this.handlersInitialized) {
       void this.initMediaSessionHandlers();
@@ -84,13 +94,21 @@ export class MediaSessionService {
 
     if (!Capacitor.isNativePlatform()) return;
 
-    const title = song.title || "Sin título";
-    const artist = Array.isArray(song.artists)
-      ? song.artists.join(", ")
-      : song.artists || "Artista desconocido";
-    const album = song.album || "Música";
+    const title =
+      song.title && song.title.trim() !== "" && song.title !== "Unknown"
+        ? song.title
+        : "Sin título";
+    const artist =
+      song.artist && song.artist.trim() !== "" && song.artist !== "Unknown"
+        ? song.artist
+        : "Artista desconocido";
+    const album =
+      song.album && song.album.trim() !== "" && song.album !== "Unknown"
+        ? song.album
+        : "Álbum desconocido";
 
-    const cached = song.image ? artworkCache.get(song.image) : undefined;
+    const coverKey = song.albumArtUri || song.image;
+    const cached = coverKey ? artworkCache.get(coverKey) : undefined;
 
     try {
       MediaSession.setMetadata({
@@ -102,7 +120,7 @@ export class MediaSessionService {
           : [{ src: "", sizes: "512x512" }],
       });
 
-      if (!cached && song.image) {
+      if (!cached && coverKey) {
         const src = artworkSrc;
         if (src && src !== "") {
           MediaSession.setMetadata({
@@ -133,7 +151,10 @@ export class MediaSessionService {
    * (PLAYING + posición stale) siga extrapolando mientras el nuevo src carga.
    * La barra solo se reactiva cuando onplay/handleLoadedMetadata re-anclan.
    */
-  public resetNativePosition(song: Song | null, elementDuration: number = 0) {
+  public resetNativePosition(
+    song: MediaMetadata | null,
+    elementDuration: number = 0,
+  ) {
     if (!Capacitor.isNativePlatform()) return;
 
     this.syncNativePlaybackState(false);

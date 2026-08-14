@@ -1,6 +1,6 @@
 import * as db from "$lib/db/db/querys";
 import { biblioteca } from "./biblioteca.svelte";
-import type { Song } from "$lib/types/songs";
+import type { MediaFile } from "$lib/types/songs";
 import { DialogType, ui } from "./ui.svelte";
 interface Playlists {
   name: string;
@@ -15,7 +15,7 @@ class playlist {
   error = $state<string | null | unknown>(null);
 
   currentPlaylistId = $state<number | null>(null);
-  currentPlaylistSongs = $state<Song[]>([]);
+  currentPlaylistSongs = $state<MediaFile[]>([]);
 
   public async loadPlaylist() {
     try {

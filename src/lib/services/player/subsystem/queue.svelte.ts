@@ -1,5 +1,6 @@
 import { biblioteca } from "$lib/stores/biblioteca.svelte";
-import type { Song } from "$lib/types/songs";
+import type { MediaFile } from "$lib/types/songs";
+import { displayImage } from "$lib/types/songs";
 import { ModeState } from "../states/modeState";
 export enum ContextType {
   InPlaylist = "playlists",
@@ -12,8 +13,8 @@ export class QueueManager {
   private state!: ModeState;
   isShuffle = $state<boolean>(false);
   context = $state<ContextType | null>(null);
-  playlistSongs = $state<Song[]>([]);
-  currentSong = $state<Song | null>(null);
+  playlistSongs = $state<MediaFile[]>([]);
+  currentSong = $state<MediaFile | null>(null);
   //findLastIndex no es una buena solucion, ya que si la cancion esta despues de la que se esta reproduciendo actualmente
   //al agregarla a la siguiente, siempre buscara la ultima, no la que acabamos de agregar que aparecera amtes
   currentSongIndex = $state<number | null>(null);
@@ -25,7 +26,7 @@ export class QueueManager {
     this.state = state;
     this.state.setContext(this);
   }
-  public setContext(context: ContextType, songs?: Song[]) {
+  public setContext(context: ContextType, songs?: MediaFile[]) {
     if (context === ContextType.InPlaylist && songs) {
       this.playlistSongs = [...songs];
       this.queue = [...songs];
@@ -37,11 +38,11 @@ export class QueueManager {
     if (this.isShuffle) this.aplicarShuffle();
     this.calculateIndex()
   }
-  public setCurrentSong(song: Song) {
+  public setCurrentSong(song: MediaFile) {
     this.currentSong = song;
     this.calculateIndex(song);
   }
-  private calculateIndex(song?: Song) {
+  private calculateIndex(song?: MediaFile) {
     const index = this.queue.findIndex((item) => {
       return this.currentSong?.id == item.id || song?.id == item.id;
     });
@@ -64,7 +65,7 @@ export class QueueManager {
     }
   }
 
-  public shuffle(array: Song[]): Song[] {
+  public shuffle(array: MediaFile[]): MediaFile[] {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -90,8 +91,10 @@ export class QueueManager {
     let next = null;
 
     if (this.currentSongIndex !== null && this.currentSongIndex !== -1) {
-      previous = this.queue[this.currentSongIndex - 1]?.image ?? null;
-      next = this.queue[this.currentSongIndex + 1]?.image ?? null;
+      const prevSong = this.queue[this.currentSongIndex - 1];
+      const nextSong = this.queue[this.currentSongIndex + 1];
+      previous = prevSong ? displayImage(prevSong) : null;
+      next = nextSong ? displayImage(nextSong) : null;
     }
 
     return { previous, next };
@@ -103,14 +106,14 @@ export class QueueManager {
   public next() {
     this.state.next();
   }
-  public handleTrackEndednext(): Song | null {
+  public handleTrackEndednext(): MediaFile | null {
     return this.state.handleTrackEndednext();
   }
   public fillqueue() {
     this.queue = this.rawSource;
     this.calculateIndex()
   }
-  public setNextSong(song: Song) {
+  public setNextSong(song: MediaFile) {
     if (this.currentSongIndex !== null) {
       this.queue.splice(this.currentSongIndex + 1, 0, song);
     }

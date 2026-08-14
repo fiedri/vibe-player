@@ -16,12 +16,19 @@
   } from "carbon-icons-svelte";
   import { Capacitor } from "@capacitor/core";
   import { playerService } from "$lib/services/player/PlayerFacade";
+  import {
+    displayTitle,
+    displayArtist,
+    displayAlbum,
+    displayImage,
+    DEFAULT_COVER,
+  } from "$lib/types/songs";
   import Button from "../button/button.svelte";
   import MarqueeText from "../wrapper/marqueeText.svelte";
   import { DialogType, ui } from "$lib/stores/ui.svelte";
   import { formatearMS } from "$lib/utils";
-    import { favorites } from "$lib/stores/favorites.svelte";
-    import PlayerMenu from "../menus/playerMenu.svelte";
+  import { favorites } from "$lib/stores/favorites.svelte";
+  import PlayerMenu from "../menus/playerMenu.svelte";
   let audioElement = $state<HTMLAudioElement | null>(null);
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
@@ -156,8 +163,8 @@ let isOpenMenu = $state(false)
 {#if playerService.currentSong}
   <audio
     bind:this={audioElement}
-    src={playerService.currentSong?.audioUrl
-      ? Capacitor.convertFileSrc(playerService.currentSong.audioUrl)
+    src={playerService.currentSong?.uri
+      ? Capacitor.convertFileSrc(playerService.currentSong.uri)
       : ""}
     bind:volume={playerService.volume}
     onloadedmetadata={() => playerService.handleLoadedMetadata()}
@@ -193,28 +200,27 @@ let isOpenMenu = $state(false)
       <div class="flex items-center gap-3 w-[50%]">
         {#if playerService.currentSong}
           <img
-            // @ts-ignore
-            src={Capacitor.convertFileSrc(playerService.currentSong.image)}
+            src={Capacitor.convertFileSrc(displayImage(playerService.currentSong))}
             loading="lazy"
-            alt={playerService.currentSong.title}
+            alt={displayTitle(playerService.currentSong)}
             class="w-14 h-14 border border-border object-cover"
             onerror={(e) => {
               const target = e.target as HTMLImageElement;
               if (
                 target.src !==
-                window.location.origin + "/default-cover.png"
+                window.location.origin + DEFAULT_COVER
               ) {
-                target.src = "/default-cover.png";
+                target.src = DEFAULT_COVER;
               }
             }}
           />
           <div class="flex flex-col overflow-hidden">
             <MarqueeText
-              text={playerService.currentSong?.title}
+              text={displayTitle(playerService.currentSong)}
               class="pr-14 text-white font-black"
             />
             <span class="text-xs text-muted-foreground truncate"
-              >{playerService.currentSong?.artists}</span
+              >{displayArtist(playerService.currentSong)}</span
             >
           </div>
         {:else}
@@ -277,9 +283,9 @@ let isOpenMenu = $state(false)
         <Button
           variant="ghost"
           class="active:scale-90 transition-transform m-0 p-2"
-          onclick={() => favorites.toggleFavorite(playerService.currentSong?.id)}
+          onclick={() => playerService.currentSong?.id && favorites.toggleFavorite(playerService.currentSong.id)}
         >
-        {#if favorites.songsIds.has(playerService.currentSong.id)}
+        {#if playerService.currentSong?.id && favorites.songsIds.has(playerService.currentSong.id)}
           
         <FavoriteFilled class="size-6"/>
         {:else}
@@ -302,34 +308,33 @@ let isOpenMenu = $state(false)
     <div >
       <figure>
         <img
-          // @ts-ignore
-          src={Capacitor.convertFileSrc(playerService.currentSong.image)}
+          src={Capacitor.convertFileSrc(displayImage(playerService.currentSong))}
           loading="lazy"
-          alt={playerService.currentSong?.title}
+          alt={displayTitle(playerService.currentSong)}
           class="w-full aspect-square border-2 border-border object-cover shadow-2xl"
           style="filter: brightness(0.82) saturate(0.9); box-shadow: 0 0 80px 12px color-mix(in oklab, var(--primary) 50%, transparent);"
           onerror={(e) => {
             const target = e.target as HTMLImageElement;
-            if (target.src !== window.location.origin + "/default-cover.png") {
-              target.src = "/default-cover.png";
+            if (target.src !== window.location.origin + DEFAULT_COVER) {
+              target.src = DEFAULT_COVER;
             }
           }}
         />
         <figcaption class="mt-5 px-5 mb-5 flex flex-col gap-3">
           <h3 class=" text-xl font-extrabold">
             <MarqueeText
-              text={playerService.currentSong?.title}
+              text={displayTitle(playerService.currentSong)}
               class="pr-14 text-white font-black"
             />
           </h3>
           <p class="text-muted-foreground text-xs truncate">
-            {playerService.currentSong?.artists}
+            {displayArtist(playerService.currentSong)}
           </p>
           <p
             class="text-muted-foreground text-xs truncate animate-seamless-marquee"
           >
             <MarqueeText
-              text={playerService.currentSong?.album}
+              text={displayAlbum(playerService.currentSong)}
               class="pr-14 text-white font-medium"
             />
           </p>

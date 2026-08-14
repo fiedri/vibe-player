@@ -5,7 +5,7 @@
   import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
     import { playerService as player } from "$lib/services/player/PlayerFacade";
 
-  let selectedIds = $derived(ui.dialogPayload as Set<string | number>);
+  let selectedIds = $derived(ui.dialogPayload as Set<string>);
   let count = $derived(selectedIds?.size ?? 0);
 
   function handleCancel() {

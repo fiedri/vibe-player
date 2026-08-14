@@ -15,6 +15,8 @@
 
 
 
+  import { displayImage, DEFAULT_COVER } from "$lib/types/songs";
+
   let playlistId = $derived.by(() => {
     const match = $page.url.pathname.match(/^\/playlist\/(\d+)$/);
     return match ? Number(match[1]) : null;
@@ -63,9 +65,10 @@ selection.avaiblesIds = songs.map(el => el.id)
     return Math.floor(Math.random() * (songs.length - 1 - 0 + 1)) + 0;
   }
 
-  // Ejemplo: Generar un entero entre 1 y 10
   const randomImg = $derived(
-    songs.length > 0 ? songs[getRandomIndex()]?.image : undefined,
+    songs.length > 0 && songs[getRandomIndex()]
+      ? displayImage(songs[getRandomIndex()])
+      : DEFAULT_COVER,
   );
   const FADE_RANGE = 200;
   let fade = $derived(Math.min(scrollTop / FADE_RANGE, 1));
@@ -104,9 +107,7 @@ selection.avaiblesIds = songs.map(el => el.id)
   <div
     class="album-card w-full flex items-end"
     style:background-image="linear-gradient(to bottom, rgba(0,0,0,0.2) 20%,
-    rgba(0,0,0,0.5) 85%,rgba(0,0,0,0.9) 100%), url('{randomImg
-      ? Capacitor.convertFileSrc(randomImg)
-      : '/default-cover.png'}')"
+    rgba(0,0,0,0.5) 85%,rgba(0,0,0,0.9) 100%), url('{Capacitor.convertFileSrc(randomImg)}')"
     style:opacity={1 - fade}
   >
     <div class="w-[80%] mb-3 ml-2.5 flex flex-col gap-1">
