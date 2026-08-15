@@ -22,7 +22,7 @@ export async function guardarCache(data: any[]) {
     });
 
     await Filesystem.writeFile({
-      path: CACHE_TIMESTAMP_KEY,
+      path: `${CACHE_TIMESTAMP_KEY}.json`,
       data: String(Date.now()),
       directory: Directory.Data,
       encoding: Encoding.UTF8,
@@ -94,6 +94,28 @@ export async function cargarEstadoReproductor(): Promise<
     return JSON.parse(value);
   } catch (e) {
     console.error("Error al parsear el estado del reproductor", e);
+    return;
+  }
+}
+const OrderByKey = "orderByPreferences";
+export enum Item{
+  Songs= "songs",
+  Albums = "Albums",
+  Artists = "Artistas",
+  Playlist = "Playlist"
+}
+export async function guardarParametrosDeOrdenamiento(data, item: Item) {
+  await Preferences.set({ key: `OrderByKey-${item}`, value: JSON.stringify(data) });
+}
+export async function cargarParametrosDeOrdenamiento(item: Item) {
+  const { value } = await Preferences.get({ key: `OrderByKey-${item}` });
+  console.log("cargando", value);
+  if (!value) return;
+
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    console.error("Error", e);
     return;
   }
 }

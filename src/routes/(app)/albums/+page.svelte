@@ -20,11 +20,11 @@ ui.query = ""
   <VirtualGrid items={filteredAlbums} columns={3} rowHeight={170} gap={3} overscan={3}>
     {#snippet children(album)}
 
-      <a href="album/{album.name}">
+      <a href="album/{album.title}">
         <ThumbnailCard
           width="w-28"
           height="h-28"
-          title={album.name}
+          title={album.title}
           img={Capacitor.convertFileSrc(album.image)}
           subtitle={album.artist}
                   />

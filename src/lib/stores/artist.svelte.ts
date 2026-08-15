@@ -1,6 +1,9 @@
 import { biblioteca } from "./biblioteca.svelte";
 import { albumes } from "./albumes.svelte";
 import { displayArtist, displayImage, DEFAULT_COVER } from "$lib/types/songs";
+import type { SortableStore } from "$lib/types/sortable";
+import { Item } from "$lib/services/stores";
+import { SortStrategies } from "./strategy/sortBy/strategy";
 
 export interface artist {
   image: string;
@@ -8,7 +11,14 @@ export interface artist {
   songCount: number;
 }
 
-class ArtistStore {
+class ArtistStore implements SortableStore {
+  itemType: Item = Item.Artists;
+  availableSortOptions: { value: string; label: string }[] = [
+    { value: "name", label: "Nombre" },
+    { value: "songCount", label: "N. Canciones" },
+  ];
+
+  currentSort = $state<string>("");
   artists = $derived(this.#buildArtists());
 
   get loaded() {
@@ -39,8 +49,9 @@ class ArtistStore {
       }
       entry.songCount++;
     }
+    const strategy = SortStrategies[this.currentSort] ?? SortStrategies.nameAsc;
 
-    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+    return [...map.values()].sort(strategy);
   }
 
   search(query: string): artist[] {
@@ -56,6 +67,10 @@ class ArtistStore {
       albums,
       songs,
     };
+  }
+  async sort(sortBy: string) {
+    if (sortBy == this.currentSort) return;
+    this.currentSort = sortBy;
   }
 }
 

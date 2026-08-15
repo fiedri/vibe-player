@@ -1,14 +1,27 @@
 import { biblioteca } from "./biblioteca.svelte.ts";
-import { displayAlbum, displayArtist, displayImage, DEFAULT_COVER } from "$lib/types/songs";
-
+import {
+  displayAlbum,
+  displayArtist,
+  displayImage,
+  DEFAULT_COVER,
+} from "$lib/types/songs";
+import type { SortableStore } from "$lib/types/sortable.ts";
+import { SortStrategies } from "./strategy/sortBy/strategy.ts";
+import { Item } from "$lib/services/stores.js";
 export interface AlbumInfo {
-  name: string;
+  title: string;
   artist: string;
   image: string;
   songCount: number;
 }
 
-class AlbumesStore {
+class AlbumesStore implements SortableStore {
+  itemType: Item = Item.Albums;
+  availableSortOptions: { value: string; label: string }[] = [
+    { value: "title", label: "Título" },
+    { value: "artist", label: "Artista" },
+  ];
+  currentSort: string = $state("");
   albums = $derived(this.#buildAlbums());
 
   get loaded() {
@@ -26,7 +39,7 @@ class AlbumesStore {
       let entry = map.get(key);
       if (!entry) {
         entry = {
-          name: albumName,
+          title: albumName,
           artist: artistName,
           image: displayImage(song),
           songCount: 0,
@@ -44,26 +57,31 @@ class AlbumesStore {
 
       entry.songCount++;
     }
-
-    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+    const strategy = SortStrategies[this.currentSort] ?? SortStrategies.titleAsc;
+    return [...map.values()].sort(strategy);
   }
 
   search(query: string): AlbumInfo[] {
     const q = query.toLowerCase();
     return this.albums.filter(
       (a) =>
-        a.name.toLowerCase().includes(q) ||
-        a.artist.toLowerCase().includes(q),
+        a.title.toLowerCase().includes(q) || a.artist.toLowerCase().includes(q),
     );
   }
 
   getAlbumInfo(albumName: string) {
-    const albums = this.albums.filter((el) => el.name === albumName);
-    const songs = biblioteca.songs.filter((el) => displayAlbum(el) === albumName);
+    const albums = this.albums.filter((el) => el.title === albumName);
+    const songs = biblioteca.songs.filter(
+      (el) => displayAlbum(el) === albumName,
+    );
     return {
       albums,
       songs,
     };
+  }
+  async sort(sortBy: string) {
+    if (sortBy == this.currentSort) return;
+    this.currentSort = sortBy;
   }
 }
 

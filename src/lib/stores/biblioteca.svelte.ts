@@ -1,12 +1,10 @@
-import {
-  cargarBiblioteca,
-  eliminarCanciones,
-} from "$lib/services/files";
+import { cargarBiblioteca, eliminarCanciones } from "$lib/services/files";
 import { eliminarCancion } from "$lib/services/files";
 import { ensureThumbnail } from "$lib/services/artworks";
 import {
   esCacheBibliotecaFresco,
   guardarCache,
+  Item,
   obtenerCache,
 } from "$lib/services/stores";
 import { Capacitor } from "@capacitor/core";
@@ -18,28 +16,29 @@ import {
   type MediaFile,
 } from "$lib/types/songs";
 import { DialogType, ui } from "./ui.svelte";
-import { removeManySongFromAllPlaylists, removeSongFromAllPlaylists } from "$lib/db/db/querys";
+import {
+  removeManySongFromAllPlaylists,
+  removeSongFromAllPlaylists,
+} from "$lib/db/db/querys";
+import { SortStrategies } from "./strategy/sortBy/strategy";
+import type { SortableStore } from "$lib/types/sortable";
 
 const LOTE_INICIAL = 1500;
 
-class BibliotecaStore {
+class BibliotecaStore implements SortableStore {
+  itemType: Item = Item.Songs;
+  availableSortOptions: { value: string; label: string }[] = [
+    { value: "title", label: "Título" },
+    { value: "date", label: "Fecha de añadido" },
+    { value: "duration", label: "Duración" },
+  ];
   songs = $state<MediaFile[]>([]);
   loading = $state(false);
   error = $state<string | null>(null);
   loaded = $state(false);
   permissionDenied = $state<boolean>(false);
   songCount = $derived(this.songs.length);
-
-  /**
-   * Carga la biblioteca. Devuelve true si escaneó el device completo,
-   * false si usó la caché fresca (o no hizo nada).
-   *
-   * Si la caché local sigue fresca (< 24h) NO re-escaneamos: el scan nativo
-   * satura el hilo único de Capacitor durante minutos y congela el
-   * MediaSession. La caché ya viene poblada en +layout.ts vía obtenerCache().
-   * Tradeoff: las canciones nuevas aparecen recién en el próximo refresh()
-   * manual o pasadas las 24h de frescura.
-   */
+  currentSort = $state<string>("");
   async load(forceScan = false): Promise<boolean> {
     if (this.loaded || this.loading) return false;
 
@@ -60,9 +59,7 @@ class BibliotecaStore {
         return false;
       }
 
-      // 1. Cargar el primer lote inicial desde el dispositivo
       const rawInitial = await cargarBiblioteca(LOTE_INICIAL, 0);
-
 
       // Mergear con lo que ya haya (caché) sin duplicar por id
       this.#mergeSongs(rawInitial);
@@ -87,19 +84,15 @@ class BibliotecaStore {
     }
   }
 
-  /**
-   * Mergea canciones nuevas evitando duplicados por id.
-   * Devuelve cuántas canciones nuevas se agregaron.
-   */
   #mergeSongs(nuevas: MediaFile[]): number {
-    // Dedupe por id (raíz del each_key_duplicate en playlists). Dos objetos con
-    // el mismo id no deben coexistir nunca en biblioteca.songs.
     const prevLen = this.songs.length;
-    this.songs = this.#dedupePorId([...this.songs, ...nuevas]);
+    const deduped = this.#dedupePorId([...this.songs, ...nuevas]);
+    const strategy =
+      SortStrategies[this.currentSort] ?? SortStrategies.titleAsc;
+    this.songs = deduped.sort(strategy);
     return this.songs.length - prevLen;
   }
 
-  /** Devuelve un array sin duplicados por `id` (mantiene el primero). */
   #dedupePorId(lista: MediaFile[]): MediaFile[] {
     const vistos = new Set<string>();
     return lista.filter((s) => {
@@ -186,7 +179,6 @@ class BibliotecaStore {
   }
   async deleteSong(songId: string, songUri: string) {
     try {
-
       const result = await eliminarCancion(songUri);
       if (!result) return;
 
@@ -200,7 +192,7 @@ class BibliotecaStore {
   }
   async deleteManySongs(songsIds: Set<string>) {
     try {
-      const ids = Array.from(songsIds)
+      const ids = Array.from(songsIds);
       const songsTodeleleUri = this.songs
         .filter((el) => songsIds.has(el.id))
         .map((el) => {
@@ -211,14 +203,20 @@ class BibliotecaStore {
         console.log(result.error);
         return;
       }
-      this.songs = this.songs.filter((el)=> !songsIds.has(el.id));
+      this.songs = this.songs.filter((el) => !songsIds.has(el.id));
       guardarCache(this.songs);
-      await removeManySongFromAllPlaylists(ids)
-      console.log("cancion borrada con exito")
+      await removeManySongFromAllPlaylists(ids);
+      console.log("cancion borrada con exito");
     } catch (error) {
       console.error(error);
       ui.openDialog(DialogType.Error, error);
     }
+  }
+  async sort(sortBy: string) {
+    if (sortBy == this.currentSort) return;
+    this.currentSort = sortBy;
+    const strategy = SortStrategies[sortBy] ?? SortStrategies.titleAsc;
+    this.songs = [...this.songs].sort(strategy);
   }
 }
 

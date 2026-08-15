@@ -9,21 +9,13 @@
   } from "carbon-icons-svelte";
   import { crossfade } from "svelte/transition";
   import { cubicInOut } from "svelte/easing";
-  import { ui } from "$lib/stores/ui.svelte";
-  import { biblioteca } from "$lib/stores/biblioteca.svelte";
+  import MainMenu from "../menus/mainMenu.svelte";
+    import { getSortableStoreByPath } from "$lib/services/storeRegistry";
   let tabs = [
     { href: "/", tab: "Canciones" },
     { href: "/albums", tab: "Álbumes" },
     { href: "/artist", tab: "Artistas" },
     { href: "/playlist", tab: "Playlist" },
-  ];
-  let overflowMenu = [
-    {
-      title: "Actualizar Biblioteca",
-      action: () => {
-        biblioteca.refresh();
-      },
-    },
   ];
 
   let activeTab = $derived($page.url.pathname);
@@ -40,7 +32,9 @@
   function closeMenu() {
     menuOpen = false;
   }
-
+  function onCloseOverflowMenu() {
+    overflowMenuOpen = false;
+  }
   // Cierra el menú al tocar fuera del wrapper (botón + panel)
   function clickOutside(node: Element) {
     function onPointerDown(e: PointerEvent) {
@@ -51,6 +45,7 @@
       document.removeEventListener("pointerdown", onPointerDown, true);
     };
   }
+  const store = $derived(getSortableStoreByPath(activeTab))
 </script>
 
 <!-- Cerrar con Escape (útil en desktop/dev) -->
@@ -94,10 +89,9 @@
 
     <h1 class="uppercase text-center text-2xl">Vibe</h1>
     <div class="relative">
-      <Button variant="ghost"
-        class="px-1"
-        href="/search"
-      ><Search class="size-6" /></Button>
+      <Button variant="ghost" class="px-1" href="/search"
+        ><Search class="size-6" /></Button
+      >
       <Button
         variant="ghost"
         class="px-0"
@@ -116,31 +110,11 @@
           aria-label="Cerrar menú"
         >
         </button>
-        <div
-          class="absolute top-full w-50 right-4 h-auto bg-popover border border-border z-[9999]"
-        >
-          {#each overflowMenu as options}
-            <button
-              class="p-2"
-              onclick={() => {
-                options.action();
-                overflowMenuOpen = false;
-              }}
-            >
-              {options.title}
-            </button>
-          {/each}
-        </div>
+        
       {/if}
+      <MainMenu isOpen={overflowMenuOpen} onClose={onCloseOverflowMenu} activeStore={store}/>
     </div>
   </div>
-  <!--<input
-      class="appearance-none border-2 bg-input hover:border-border/70 transition-colors w-full py-3 px-3 leading-tight focus:outline-none focus:ring-ring focus:border-border focus:shadow-outline border-border"
-      id="username"
-      type="text"
-      placeholder="Search..."
-      bind:value={ui.query}
-    />-->
 
   <nav>
     <ul class="flex flex-row relative overflow-x-auto justify-center">
