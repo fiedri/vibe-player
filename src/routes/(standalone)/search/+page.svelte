@@ -84,10 +84,10 @@
       <div class="pl-4">
         <HorizontalContainer>
           {#each filteredAlbums as album}
-            <a href="/album/{album.name}">
+            <a href="/album/{album.title}">
               <ThumbnailCard
                 img={Capacitor.convertFileSrc(album.image)}
-                title={album.name}
+                title={album.title}
                 height={"h-28"}
                 width={"w-28"}
               />
