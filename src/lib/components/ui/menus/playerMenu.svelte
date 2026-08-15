@@ -2,11 +2,21 @@
   import Button from "../button/button.svelte";
   import { ui, DialogType } from "$lib/stores/ui.svelte";
   import { biblioteca } from "$lib/stores/biblioteca.svelte";
+  import { Information } from "carbon-icons-svelte";
   import { onDestroy } from "svelte";
   import type { MediaFile } from "$lib/types/songs";
 
   let { onClose, song }: { onClose: () => void; song: MediaFile } = $props();
   let options = [
+    {
+      text: "Información",
+      variant: "ghost",
+      action: () => {
+        ui.openDialog(DialogType.InfoSong, song);
+        onClose()
+      },
+      icon: Information
+    },
     {
       text: "Agregar a playlist",
       variant: "ghost",
@@ -36,7 +46,7 @@
       variant={option.variant}
       onclick={option.action}
     >
-      <span class="w-full text-left">{option.text}</span>
+      <span class="w-full text-left flex flex-row items-center gap-3">{#if option.icon}<option.icon/>{/if}{option.text}</span>
     </Button>
   {/each}
 </div>

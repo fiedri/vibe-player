@@ -6,20 +6,24 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 
 ---
 ## [unreleased]
-### Changed
-- Migracion de cache a filesystem
-## [0.5.0] - 2026-08-13
+## [0.5.0] - 2026-08-15
 
 ### Added
 - Gestion de canciones favoritas
 - Eliminacion de duplicados en Playlists
 - Opcion para agregar a siguiente en la cola
 - seleccionar todos en la Multiseleccion
+- Opciones de ordenamiento para canciones, albumes y artistas
+
 ### Fixed
 - Seleccion multiple
 
 ### Changed
-- La busqueda se ahora se realiza en una ruta dedicada.
+- La busqueda ahora se realiza en una ruta dedicada.
+- Migracion de cache a filesystem
+
+### Deleted
+- Vista de inicio
 
 ## [0.4.0] - 2026-08-10
 

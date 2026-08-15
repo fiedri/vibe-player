@@ -9,6 +9,7 @@
     DEFAULT_COVER,
   } from "$lib/types/songs";
   import { formatearMS } from "$lib/utils";
+  import { copyToClipboard } from "$lib/utils/clipboard";
   import Button from "../button/button.svelte";
   import {
     Music,
@@ -18,8 +19,9 @@
     Copy,
     Checkmark,
   } from "carbon-icons-svelte";
+    import { Capacitor } from "@capacitor/core";
 
-  let info = $derived((ui.dialogPayload) as MediaFile | null);
+  let info = $derived(ui.dialogPayload as MediaFile | null);
 
   let copied = $state(false);
   let copyTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -28,7 +30,7 @@
   async function handleCopyPath() {
     if (!info?.uri) return;
     try {
-      await navigator.clipboard.writeText(info.uri);
+      await copyToClipboard(info.uri);
       copied = true;
       if (copyTimeout) clearTimeout(copyTimeout);
       copyTimeout = setTimeout(() => {
@@ -61,7 +63,6 @@
       return "Desconocida";
     }
   }
-
   function formatBitrate(bitrate?: number): string | null {
     if (!bitrate || bitrate <= 0) return null;
     const kbps =
@@ -106,7 +107,7 @@
         class="relative size-20 shrink-0 overflow-hidden bg-card border border-border flex items-center justify-center shadow-md"
       >
         <img
-          src={imgError ? DEFAULT_COVER : displayImage(info)}
+          src={imgError ?  DEFAULT_COVER : Capacitor.convertFileSrc(info.albumArtUri)}
           alt={displayTitle(info)}
           class="h-full w-full object-cover"
           onerror={() => (imgError = true)}
@@ -247,8 +248,7 @@
 
         <div class="flex flex-col gap-0.5">
           <span class="text-muted-foreground font-medium">Tamaño:</span>
-          <span class="text-foreground font-mono"
-            >{formatBytes(info.size)}</span
+          <span class="text-foreground font-mono">{formatBytes(info.size)}</span
           >
         </div>
 
@@ -293,7 +293,7 @@
       </h3>
 
       <div
-        class="flex flex-col gap-2 text-xs bg-card/60  p-3 border border-border/40"
+        class="flex flex-col gap-2 text-xs bg-card/60 p-3 border border-border/40"
       >
         <div class="flex flex-col gap-0.5">
           <span class="text-muted-foreground font-medium"
@@ -305,9 +305,7 @@
         </div>
 
         <div class="flex flex-col gap-0.5 border-t border-border/20 pt-2">
-          <span class="text-muted-foreground font-medium"
-            >Almacenamiento:</span
-          >
+          <span class="text-muted-foreground font-medium">Almacenamiento:</span>
           <span class="text-foreground font-mono">
             {info.isExternal
               ? "Tarjeta SD / Externo"
@@ -365,4 +363,3 @@
     </div>
   </div>
 {/if}
-
