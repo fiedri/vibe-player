@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# Reglas para Google ErrorProne y Tink Crypto
+-dontwarn com.google.errorprone.annotations.**
+-dontwarn javax.annotation.**
+-keepattributes *Annotation*

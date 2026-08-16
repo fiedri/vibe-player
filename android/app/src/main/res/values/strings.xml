@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Vibe</string>
     <string name="title_activity_main">Vibe</string>
-    <string name="package_name">com.vibe.app</string>
-    <string name="custom_url_scheme">com.vibe.app</string>
+    <string name="package_name">dev.fiedri.vibe</string>
+    <string name="custom_url_scheme">dev.fiedri.vibe</string>
 </resources>

@@ -35,3 +35,7 @@ capacitor.config.dev.ts
 .roo/
 .vscode/
 /sdd
+
+
+*.jks
+*.keystore

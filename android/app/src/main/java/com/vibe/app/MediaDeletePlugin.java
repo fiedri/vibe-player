@@ -1,4 +1,4 @@
-package com.vibe.app;
+package dev.fiedri.vibe;
 
 import android.app.Activity;
 import android.app.PendingIntent;

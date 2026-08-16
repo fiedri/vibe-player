@@ -1,8 +1,8 @@
-package com.vibe.app;
+package dev.fiedri.vibe;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
-import com.vibe.app.MediaDeletePlugin;
+import dev.fiedri.vibe.MediaDeletePlugin;
 
 public class MainActivity extends BridgeActivity {
 

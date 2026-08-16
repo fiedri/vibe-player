@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 const isDev = process.env.CAP_ENV === 'dev';
 const config: CapacitorConfig = {
-  appId: "com.vibe.app",
+  appId: "dev.fiedri.vibe",
   appName: "Vibe",
   webDir: "build",
   server: isDev ? {
