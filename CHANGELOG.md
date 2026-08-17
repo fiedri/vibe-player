@@ -6,6 +6,11 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 
 ---
 ## [unreleased]
+
+## [0.5.1] - 2026-08-17
+### Added
+- Reinicio de cancion al presionar previus despues de 3s
+
 ## [0.5.0] - 2026-08-15 (beta)
 > **Nota de la versión:** Esta entrega marca el paso de Alpha a Beta Pública. La aplicación ya cuenta con el conjunto core de funcionalidades estable.
 
