@@ -26,3 +26,26 @@
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn javax.annotation.**
 -keepattributes *Annotation*
+
+# --- Capacitor R8/ProGuard rules (REQUIRED when minifyEnabled true) ---
+# Keep Capacitor framework classes and annotations so the JS↔Native bridge survives minification
+-keep class com.getcapacitor.** { *; }
+-keep @com.getcapacitor.annotation.CapacitorPlugin class *
+-keepclassmembers class * { @com.getcapacitor.PluginMethod <methods>; }
+-keep public class * extends com.getcapacitor.Plugin
+-keep class com.getcapacitor.BridgeActivity { *; }
+-keep class com.getcapacitor.Bridge { *; }
+-keep class com.getcapacitor.Plugin { *; }
+-keep class com.getcapacitor.PluginCall { *; }
+-keep class com.getcapacitor.JSObject { *; }
+-keep class com.getcapacitor.JSArray { *; }
+-keep class com.getcapacitor.annotation.** { *; }
+# Keep Capacitor Community plugins
+-keep class com.getcapacitor.community.** { *; }
+# Keep Cordova plugin adapters used by Capacitor
+-keep class com.getcapacitor.adapters.** { *; }
+# --- Project-specific plugins ---
+-keep class dev.fiedri.vibe.** { *; }
+-keep class dev.fiedri.vibe.MediaDeletePlugin { *; }
+# Keep MediaScanner / AndroidX Activity Result contracts used by plugins
+-keep class androidx.activity.result.contract.ActivityResultContracts$* { *; }

@@ -209,7 +209,6 @@ export class PlayerFacade {
   public previous() {
     let song
   if(this.audioEngine.currentTime >= 3){
-    console.log(`hola`)
     this.seekTo(0)
     return
   }
