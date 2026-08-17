@@ -25,36 +25,47 @@ class ArtistStore implements SortableStore {
     return biblioteca.loaded;
   }
 
-  #buildArtists(): artist[] {
-    const map = new Map<string, artist>();
+#buildArtists(): artist[] {
+  const map = new Map<string, artist>();
 
-    for (const song of biblioteca.songs) {
-      const artistName = displayArtist(song);
-      const key = artistName;
+  for (const song of biblioteca.songs) {
+    const fullArtist = displayArtist(song);
+    
+    const rawArtists = fullArtist.split(/ feat\.?| ft\.?| & |,|\//i);
+    
+    const uniqueArtistsInSong = new Set(
+      rawArtists.map(a => a.trim()).filter(Boolean)
+    );
+
+    for (const artistName of uniqueArtistsInSong) {
+      const key = artistName.toLowerCase();
 
       let entry = map.get(key);
       if (!entry) {
         entry = {
-          name: artistName,
+          name: artistName, 
           image: displayImage(song),
           songCount: 0,
         };
         map.set(key, entry);
       }
+
       if (entry.image === DEFAULT_COVER) {
         const cover = displayImage(song);
         if (cover !== DEFAULT_COVER) {
           entry.image = cover;
         }
       }
+
       entry.songCount++;
     }
-    const strategy = SortStrategies[this.currentSort] ?? SortStrategies.nameAsc;
-
-    return [...map.values()].sort(strategy);
   }
 
-  search(query: string): artist[] {
+  const strategy = SortStrategies[this.currentSort] ?? SortStrategies.nameAsc;
+  return [...map.values()].sort(strategy);
+} 
+
+search(query: string): artist[] {
     const q = query.toLowerCase();
     return this.artists.filter((a) => a.name.toLowerCase().includes(q));
   }

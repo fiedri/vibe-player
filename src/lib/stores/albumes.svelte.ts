@@ -33,14 +33,16 @@ class AlbumesStore implements SortableStore {
 
     for (const song of biblioteca.songs) {
       const albumName = displayAlbum(song);
-      const artistName = displayArtist(song);
-      const key = `${albumName}||${artistName}`;
+      const fullArtist = displayArtist(song);
+      // el primer artista antes de: feat, ft, & y coma
+      const mainArtist = fullArtist.split(/ feat\.?| ft\.?| & |,|\//i)[0].trim();
+      const key = `${albumName.toLowerCase()}||${mainArtist.toLowerCase()}`;
 
       let entry = map.get(key);
       if (!entry) {
         entry = {
           title: albumName,
-          artist: artistName,
+          artist: mainArtist,
           image: displayImage(song),
           songCount: 0,
         };
