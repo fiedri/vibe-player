@@ -11,6 +11,7 @@
   import { DEFAULT_COVER } from "$lib/types/songs";
   import type { MediaFile } from "$lib/types/songs";
   import VirtualList from "$lib/components/ui/virtualList.svelte";
+
   let artistName = $derived(page.params.name ?? "");
   let artistInfo = $derived(
     artists.artists.find((el) => el.name === artistName),
@@ -54,6 +55,23 @@
     }
     return SONG_HEIGHT;
   }
+  
+  let artistImage = $derived(artistInfo?.image);
+  let resolvedImageSrc = $state(artistImage);
+
+  $effect(() => {
+
+    const src = Capacitor.convertFileSrc(artistImage);
+    const img = new Image();
+    img.onload = () => {
+      resolvedImageSrc = src;
+    };
+    img.onerror = () => {
+      resolvedImageSrc = '/default-artist.png';
+    };
+    img.src = src;
+  });
+
 </script>
 
 <section class="h-dvh w-screen relative overflow-hidden">
@@ -73,7 +91,7 @@
           <div
             class="album-card w-full flex items-end"
             style:background-image="linear-gradient(to bottom, rgba(0,0,0,0.2) 20%,
-            rgba(0,0,0,0.5) 85%,rgba(0,0,0,0.9) 100%), url('{artistImg}')"
+            rgba(0,0,0,0.5) 85%,rgba(0,0,0,0.9) 100%), url('{resolvedImageSrc}')"
             style:opacity={1 - fade}
           >
             <h2 class="text-4xl font-bold w-[80%] mb-3 ml-2.5">{artistName}</h2>

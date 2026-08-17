@@ -10,12 +10,26 @@
   import { page } from "$app/state";
   import { albumes } from "$lib/stores/albumes.svelte";
   import { DEFAULT_COVER } from "$lib/types/songs";
-
+  import type { MediaFile } from "$lib/types/songs";
+  import VirtualList from "$lib/components/ui/virtualList.svelte";
   let albumName = $derived(page.params.name ?? "");
   let albumData = $derived(albumes.getAlbumInfo(albumName));
   let songs = $derived(albumData.songs);
   let totalDuration = $derived(formatearDuracionTotal(songs));
   let albumImage = $derived(albumData.albums[0]?.image);
+  let resolvedImageSrc = $state(albumImage);
+
+  $effect(() => {
+    const src = Capacitor.convertFileSrc(albumImage);
+    const img = new Image();
+    img.onload = () => {
+      resolvedImageSrc = src;
+    };
+    img.onerror = () => {
+      resolvedImageSrc = DEFAULT_COVER;
+    };
+    img.src = src;
+  });
 
   let tight = $state(false);
   let scrollTop = $state(0);
@@ -48,6 +62,21 @@
 
   const FADE_RANGE = 200;
   let fade = $derived(Math.min(scrollTop / FADE_RANGE, 1));
+  const HEADER_HEIGHT = 250;
+  const SONG_HEIGHT = 56;
+  const BUTTONS_HEIGTH = 76;
+  type albumListItem = { kind: "button" } | { kind: "song"; song: MediaFile };
+  let listItems: albumListItem[] = $derived([
+    { kind: "button" },
+    ...songs.map((song): albumListItem => ({ kind: "song", song })),
+  ]);
+
+  function getItemHeight(index: number): number {
+    if (index === 0) {
+      return HEADER_HEIGHT + BUTTONS_HEIGTH;
+    }
+    return SONG_HEIGHT;
+  }
 </script>
 
 <section
@@ -66,60 +95,66 @@
       <ArrowLeft class="size-6" />
     </Button>
   </div>
+  <VirtualList bind:scrollTop items={listItems} itemHeight={getItemHeight}>
+    {#snippet children(entry, idx)}
+      {#if entry.kind === "button"}
+        <div class="w-full" style:height="{getItemHeight(0)}px">
+          <div
+            class="album-card w-full flex items-end"
+             style:background-image="linear-gradient(to bottom, rgba(0,0,0,0.2)
+             20%, rgba(0,0,0,0.5) 85%,rgba(0,0,0,0.9) 100%), url('{resolvedImageSrc}')"
+            style:opacity={1 - fade}
+          >
+            <div class="w-[80%] mb-3 ml-2.5 flex flex-col gap-1">
+              <span class="text-primary uppercase font-bold text-sm"
+                >Álbumes</span
+              >
+              <h2 class="text-4xl font-extrabold truncate">{albumName}</h2>
+              <div
+                class="flex items-center gap-3 *:uppercase text-muted-foreground font-bold"
+              >
+                <span>{songs.length} canciones</span>
+                <span>•</span>
+                <span>{totalDuration}</span>
+              </div>
+            </div>
+          </div>
 
-  <div
-    class="album-card w-full flex items-end"
-    style:background-image="linear-gradient(to bottom, rgba(0,0,0,0.2) 20%,
-    rgba(0,0,0,0.5) 85%,rgba(0,0,0,0.9) 100%), url('{albumImage
-      ? Capacitor.convertFileSrc(albumImage)
-      : DEFAULT_COVER}')"
-    style:opacity={1 - fade}
-  >
-    <div class="w-[80%] mb-3 ml-2.5 flex flex-col gap-1">
-      <span class="text-primary uppercase font-bold text-sm">Álbumes</span>
-      <h2 class="text-4xl font-extrabold truncate">{albumName}</h2>
-      <div class="flex items-center gap-3 *:uppercase text-muted-foreground font-bold">
-        <span>{songs.length} canciones</span>
-        <span>•</span>
-        <span>{totalDuration}</span>
-      </div>
-    </div>
-  </div>
-
-  {#if songs.length > 0}
-    <div class="flex gap-3 px-4 pt-5 pb-2 sticky top-5 bg-background">
-      <Button
-        class="h-12 flex-1 bg-white text-background font-semibold active:scale-95 transition-transform"
-        onclick={handlePlay}
-      >
-        <PlayFilledAlt />
-        Reproducir
-      </Button>
-      <Button
-        variant="outline"
-        class="h-12 flex-1 border-2 border-border font-semibold active:scale-95 transition-transform !bg-background"
-        onclick={handleShuffled}
-      >
-        <Shuffle />
-        Aleatorio
-      </Button>
-    </div>
-    <div>
-      {#each songs as song, idx (song.id)}
+        {#if songs.length > 0}
+          <div class="flex gap-3 px-4 pt-2 pb-2 sticky top-5 bg-background">
+            <Button
+              class="h-12 flex-1 bg-white text-background font-semibold active:scale-95 transition-transform"
+              onclick={handlePlay}
+            >
+              <PlayFilledAlt />
+              Reproducir
+            </Button>
+            <Button
+              variant="outline"
+              class="h-12 flex-1 border-2 border-border font-semibold active:scale-95 transition-transform !bg-background"
+              onclick={handleShuffled}
+            >
+              <Shuffle />
+              Aleatorio
+            </Button>
+          </div>
+        {:else}
+          <p class="text-center text-muted-foreground text-sm py-10">
+            Este álbum no tiene canciones
+          </p>
+        {/if}
+        </div>
+      {:else}
         <SongCard
-          {song}
-          {idx}
+          song={entry.song}
+          idx={idx - 1}
           context={ContextType.InPlaylist}
           contextSongs={songs}
           playlistId={undefined}
         />
-      {/each}
-    </div>
-  {:else}
-    <p class="text-center text-muted-foreground text-sm py-10">
-      Este álbum no tiene canciones
-    </p>
-  {/if}
+      {/if}
+    {/snippet}
+  </VirtualList>
 </section>
 
 <style>
