@@ -301,8 +301,8 @@ let isOpenMenu = $state(false)
         >
        {#if isOpenMenu}
         
-<PlayerMenu onClose={()=> isOpenMenu= false} song={playerService.currentSong}/>
-       {/if }
+ <PlayerMenu onClose={()=> isOpenMenu= false} song={playerService.currentSong!}/>
+        {/if }
       </div>
     </div>
     <div >
@@ -370,7 +370,7 @@ let isOpenMenu = $state(false)
           >{formatearMS(displayTime * 1000)}</span
         >
         <span class="text-[10px] text-muted-foreground">
-          {playerService.currentSongIndex + 1}/
+          {(playerService.currentSongIndex ?? 0) + 1}/
           {playerService.numberOfSongs}
         </span>
         <span class="text-sm text-muted-foreground"

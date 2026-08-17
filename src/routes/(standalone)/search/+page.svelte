@@ -10,6 +10,7 @@
   import HorizontalContainer from "$lib/components/ui/wrapper/horizontalContainer.svelte";
   import ThumbnailCard from "$lib/components/ui/Cards/thumbnailCard.svelte";
   import type { MediaFile } from "$lib/types/songs";
+  import { onMount } from "svelte";
   function goBack(e: MouseEvent) {
     if (window.history.length > 1) {
       e.preventDefault();
@@ -20,6 +21,11 @@
   let filteredSongs = $state<MediaFile[]>([]);
   let filteredAlbums = $state<any[]>([]);
   let filteredArtist = $state<any[]>([]);
+  let searchInput: HTMLInputElement;
+
+  onMount(() => {
+    searchInput?.focus();
+  });
 
   $effect(() => {
     const query = searchQuery;
@@ -57,7 +63,7 @@
       class="appearance-none border-1 bg-input hover:border-border/70 w-[90%] transition-colors py-3 leading-tight focus:outline-none focus:ring-ring focus:border-border focus:shadow-outline border-border"
       type="text"
       placeholder="Search..."
-      autofocus
+      bind:this={searchInput}
       bind:value={searchQuery}
     />
   </div>

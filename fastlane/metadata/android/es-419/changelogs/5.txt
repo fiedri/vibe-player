@@ -1,0 +1,13 @@
+Lanzamiento Beta Pública (v0.5.0)
+
+Vibe es un reproductor de música local minimalista y 100% offline.
+
+Funcionalidades de esta versión:
+- Reproducción local fluida.
+- Vistas organizadas por Canciones, Álbumes, Artistas y Playlists.
+- Gestión completa de Playlists: creación, edición y filtro de duplicados.
+- Copia de seguridad y restauración de listas de reproducción vía JSON.
+- Fila de reproducción inteligente, multiselección y ordenamiento.
+- Búsqueda dedicada y gestor de canciones favoritas.
+
+Probada y verificada en Android 10, 13 y 14.

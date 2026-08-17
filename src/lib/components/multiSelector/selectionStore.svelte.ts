@@ -6,7 +6,7 @@ class Selection {
   count: number = $derived(this.seletedIds.size);
   isSelectedAll = $state(false);
   avaiblesIds = $state<any[]>([])
-  toggleId(id) {
+  toggleId(id: string | number) {
     if (this.seletedIds.has(id)) {
       this.seletedIds.delete(id);
       if (this.seletedIds.size == 0) {

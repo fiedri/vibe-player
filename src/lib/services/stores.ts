@@ -104,16 +104,24 @@ export enum Item{
   Artists = "Artistas",
   Playlist = "Playlist"
 }
-export async function guardarParametrosDeOrdenamiento(data, item: Item) {
+export interface SortOrderParams {
+  parameter: string;
+  orderDir: string;
+}
+
+export async function guardarParametrosDeOrdenamiento(
+  data: SortOrderParams,
+  item: Item,
+) {
   await Preferences.set({ key: `OrderByKey-${item}`, value: JSON.stringify(data) });
 }
-export async function cargarParametrosDeOrdenamiento(item: Item) {
+export async function cargarParametrosDeOrdenamiento(item: Item): Promise<SortOrderParams | undefined> {
   const { value } = await Preferences.get({ key: `OrderByKey-${item}` });
   console.log("cargando", value);
   if (!value) return;
 
   try {
-    return JSON.parse(value);
+    return JSON.parse(value) as SortOrderParams;
   } catch (e) {
     console.error("Error", e);
     return;

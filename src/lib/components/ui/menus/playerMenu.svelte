@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from "../button/button.svelte";
+  import Button, { type ButtonVariant } from "../button/button.svelte";
   import { ui, DialogType } from "$lib/stores/ui.svelte";
   import { biblioteca } from "$lib/stores/biblioteca.svelte";
   import { Information } from "carbon-icons-svelte";
@@ -7,7 +7,13 @@
   import type { MediaFile } from "$lib/types/songs";
 
   let { onClose, song }: { onClose: () => void; song: MediaFile } = $props();
-  let options = [
+  type MenuOption = {
+    text: string;
+    variant: ButtonVariant;
+    action: () => void;
+    icon?: any;
+  };
+  let options: MenuOption[] = [
     {
       text: "Información",
       variant: "ghost",

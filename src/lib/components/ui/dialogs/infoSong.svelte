@@ -107,7 +107,7 @@
         class="relative size-20 shrink-0 overflow-hidden bg-card border border-border flex items-center justify-center shadow-md"
       >
         <img
-          src={imgError ?  DEFAULT_COVER : Capacitor.convertFileSrc(info.albumArtUri)}
+          src={imgError ?  DEFAULT_COVER : Capacitor.convertFileSrc(info.albumArtUri || "")}
           alt={displayTitle(info)}
           class="h-full w-full object-cover"
           onerror={() => (imgError = true)}

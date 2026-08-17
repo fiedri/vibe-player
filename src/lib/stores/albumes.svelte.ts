@@ -5,7 +5,7 @@ import {
   displayImage,
   DEFAULT_COVER,
 } from "$lib/types/songs";
-import type { SortableStore } from "$lib/types/sortable.ts";
+import type { SortableStore } from "$lib/types/sortable";
 import { SortStrategies } from "./strategy/sortBy/strategy.ts";
 import { Item } from "$lib/services/stores.js";
 export interface AlbumInfo {

@@ -17,7 +17,7 @@
   let songs = $derived(albumData.songs);
   let totalDuration = $derived(formatearDuracionTotal(songs));
   let albumImage = $derived(albumData.albums[0]?.image);
-  let resolvedImageSrc = $state(albumImage);
+  let resolvedImageSrc = $state("");
 
   $effect(() => {
     const src = Capacitor.convertFileSrc(albumImage);

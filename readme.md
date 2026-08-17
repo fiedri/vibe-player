@@ -1,8 +1,6 @@
 # Vibe
 
-Reproductor MP3 local para Android construido con Svelte 5 y Capacitor 8. Reproduce archivos MP3 almacenados en el dispositivo, permite buscar canciones y controlar la reproducción desde la notificación y la sesión de medios del sistema.
-
-Local MP3 player for Android built with Svelte 5 and Capacitor 8. Plays MP3 files stored on the device, supports song search, and playback control from the notification and the system media session.
+Reproductor de música para android
 
 ## Características / Features
 

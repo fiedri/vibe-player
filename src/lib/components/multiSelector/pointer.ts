@@ -2,7 +2,7 @@ import { selection } from "./selectionStore.svelte";
 export function longPress(node: HTMLElement, id: string | number) {
   const duration = 500;
   const SLOP = 10;
-  let timer;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   let startX = 0;
   let startY = 0;
   let longPressTriggered = false;

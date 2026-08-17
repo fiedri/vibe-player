@@ -13,7 +13,7 @@
 
   let loaded = $state(false);
   let failed = $state(false);
-  let currentImg = $state(img);
+  let currentImg = $state("");
 
   // Reinicia la carga si cambia la prop de la imagen
   $effect(() => {

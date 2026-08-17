@@ -109,6 +109,9 @@ export async function getDb(): Promise<Database> {
           await esperar(500 * Math.pow(2, intentos));
         }
       }
+      throw new Error(
+        `No se pudo inicializar la base de datos tras ${maxIntentos} intentos`,
+      );
     })();
   }
   return dbInitPromise;

@@ -18,8 +18,11 @@
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
-#-renamesourcefileattribute SourceFile
-# Reglas para Google ErrorProne y Tink Crypto
+# Reproducible build: deterministic R8 output
+# -dontobfuscate disables name obfuscation — REQUIRED for bit-exact reproducibility.
+# Re-enable obfuscation (comment this line) if APK size > reproducibility for your use case.
+-optimizationpasses 1
+-dontobfuscate
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn javax.annotation.**
 -keepattributes *Annotation*

@@ -57,10 +57,10 @@
   }
   
   let artistImage = $derived(artistInfo?.image);
-  let resolvedImageSrc = $state(artistImage);
+  let resolvedImageSrc = $state("");
 
   $effect(() => {
-
+    if (!artistImage) return;
     const src = Capacitor.convertFileSrc(artistImage);
     const img = new Image();
     img.onload = () => {

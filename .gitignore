@@ -39,3 +39,4 @@ capacitor.config.dev.ts
 
 *.jks
 *.keystore
+skills-lock.json

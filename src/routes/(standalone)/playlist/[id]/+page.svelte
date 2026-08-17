@@ -87,12 +87,12 @@
     }
     return SONG_HEIGHT;
   }
-  let randomImg = songs.length > 0 && songs[getRandomIndex()]
-      ? displayImage(songs[getRandomIndex()])
-      : DEFAULT_COVER;
-  let resolvedImageSrc = $state(randomImg);
+  let resolvedImageSrc = $state("");
 
   $effect(() => {
+    const randomImg = songs.length > 0 && songs[getRandomIndex()]
+      ? displayImage(songs[getRandomIndex()])
+      : DEFAULT_COVER;
     const src = Capacitor.convertFileSrc(randomImg);
     const img = new Image();
     img.onload = () => {
