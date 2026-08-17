@@ -207,8 +207,14 @@ export class PlayerFacade {
   }
 
   public previous() {
+    let song
+  if(this.audioEngine.currentTime >= 3){
+    console.log(`hola`)
+    this.seekTo(0)
+    return
+  }
     this.queueManager.previous();
-    const song = this.queueManager.currentSong;
+    song = this.queueManager.currentSong;
     if (song) {
       this.initSong(song);
       this.startPlayback();
