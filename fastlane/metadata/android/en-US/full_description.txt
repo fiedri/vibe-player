@@ -1,0 +1,11 @@
+<b>Vibe</b> is a local music player focused on fluidity, simplicity, and minimalist design. Built for those who prefer to carry their own audio files on the device without hassle, ads, or data collection.
+
+<b>Key features:</b>
+
+• <b>100% Offline and ad-free:</b> No internet connection required for any function.
+• <b>Playlist management:</b> Create, edit, and organize your playlists easily.
+• <b>Local backup:</b> Export and import your playlists in JSON format (to clipboard) so you never lose your lists when reinstalling.
+• <b>Dedicated navigation:</b> Individual views for albums and artists, plus a dedicated search section to find what you want instantly.
+• <b>Lightweight and efficient:</b> Designed with virtualized rendering to smoothly handle libraries with thousands of songs.
+
+<b>Open Source:</b> Vibe is free and open-source software licensed under GPL-3.0-or-later.

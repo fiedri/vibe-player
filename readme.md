@@ -59,6 +59,10 @@ Pendiente / Pending.
 
 ## Licencia / License
 
-Sin licencia especificada. Todos los derechos reservados.
+[Vibe](https://github.com/fiedri/vibe-player) es software libre y de código abierto, licenciado bajo GPL-3.0-or-later.
 
-No license specified. All rights reserved.
+[Vibe](https://github.com/fiedri/vibe-player) is free and open-source software, licensed under [GPL-3.0-or-later](LICENSE).
+
+Ver el archivo [LICENSE](LICENSE) para más detalles.
+
+See the [LICENSE](LICENSE) file for details.
