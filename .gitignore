@@ -13,7 +13,7 @@ node_modules
 # OS
 .DS_Store
 Thumbs.db
-
+/.atl
 # Env
 .env
 .env.*
