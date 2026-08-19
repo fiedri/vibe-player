@@ -1,0 +1,43 @@
+Categories:
+  - Multimedia
+License: GPL-3.0-or-later
+AuthorName: fiedri
+AuthorEmail: ruizfriedrich904@gmail.com
+AuthorWebSite: https://friedrichruiz.netlify.app/
+SourceCode: https://github.com/fiedri/vibe-player
+IssueTracker: https://github.com/fiedri/vibe-player/issues
+Changelog: https://github.com/fiedri/vibe-player/blob/HEAD/CHANGELOG.md
+
+AutoName: Vibe
+
+RepoType: git
+Repo: https://github.com/fiedri/vibe-player.git
+Binaries: https://github.com/fiedri/vibe-player/releases/download/v%v/app-release.apk
+
+Builds:
+  - versionName: 0.5.1
+    versionCode: 6
+    commit: 6fec4cf83633209eeba763141684f38a55d75135
+    subdir: android/app
+    sudo:
+      - echo "deb https://deb.debian.org/debian forky main" > /etc/apt/sources.list.d/forky.list
+      - apt-get update
+      - apt-get install -y -t forky nodejs npm
+      - npm install -g pnpm@9
+    init:
+      - cd ../..
+      - pnpm install --no-frozen-lockfile
+      - BUILD_ID=$$COMMIT$$ pnpm build
+      - npx cap sync android
+      - find node_modules -type f \( -name "*.node" -o -name "*.so*" -o -name "*.wasm"
+        -o -name "*.tar.gz" -o -name "*.jar" -o -name "esbuild" -o -name ".jekyll-metadata"
+        \) -delete
+    gradle:
+      - yes
+
+AllowedAPKSigningKeys: c99bcb4ede3f6bd244af57785293e008928d1266f622675fe8b1715ada87cf72
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 0.5.1
+CurrentVersionCode: 6

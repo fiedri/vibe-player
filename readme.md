@@ -61,7 +61,10 @@ pnpm dev:android
 
 ## Capturas / Screenshots
 
-Pendiente / Pending.
+![Songs View](./fastlane/metadata/android/es-419/images/phoneScreenshots/1.jpeg)
+![Playlist View](./fastlane/metadata/android/es-419/images/phoneScreenshots/2.jpeg)
+![Player View](./fastlane/metadata/android/es-419/images/phoneScreenshots/4.jpeg)
+
 
 ## Licencia / License
 
