@@ -16,7 +16,7 @@
 		"db:studio": "drizzle-kit studio",
 		"dev:android": "CAP_ENV=dev npx cap sync android && CAP_ENV=dev npx cap run android",
 		"sync:dev": "CAP_ENV=dev npx cap sync android",
-		"build:android": "BUILD_ID=$(git rev-parse --short HEAD) pnpm build && npx cap sync android",
+		"build:android": "BUILD_ID=$(git rev-parse HEAD) pnpm build && npx cap sync android",
 		"build:reproducible": "bash scripts/reproducible-build.sh"
 	},
 	"devDependencies": {

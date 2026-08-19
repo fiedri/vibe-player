@@ -42,8 +42,8 @@ pnpm install
 # Probar en el navegador / Run in the browser
 pnpm dev
 
-# Sincronizar cambios web al proyecto Android / Sync web changes to the Android project
-npx cap sync android
+# Compilar y sincronizar cambios web al proyecto Android / build and Sync web changes to the Android project
+pnpm build:android
 
 # Abrir el proyecto en Android Studio / Open the project in Android Studio
 npx cap open android
@@ -52,6 +52,12 @@ npx cap open android
 Para generar el APK, usar Android Studio (Build > Generate Signed Bundle / APK) o Gradle desde la carpeta `android/`.
 
 To build the APK, use Android Studio (Build > Generate Signed Bundle / APK) or Gradle from the `android/` folder.
+
+> Nota para desarrollo en Android: Si prefieres probar directamente los cambios en un dispositivo físico o emulador usando el entorno de desarrollo, puedes ejecutar:
+> Note for Android development: If you prefer to test changes directly on a physical device or emulator using the dev environment, you can run:
+```bash
+pnpm dev:android
+```
 
 ## Capturas / Screenshots
 
