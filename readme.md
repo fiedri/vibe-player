@@ -60,11 +60,12 @@ pnpm dev:android
 ```
 
 ## Capturas / Screenshots
-
-![Songs View](./fastlane/metadata/android/es-419/images/phoneScreenshots/1.jpeg)
-![Playlist View](./fastlane/metadata/android/es-419/images/phoneScreenshots/2.jpeg)
-![Player View](./fastlane/metadata/android/es-419/images/phoneScreenshots/4.jpeg)
-
+<p align="center">
+  <img src="./fastlane/metadata/android/es-419/images/phoneScreenshots/1.jpeg" alt="Main screen" width="280">
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="./fastlane/metadata/android/es-419/images/phoneScreenshots/2.jpeg" alt="Playlist view" width="280">
+    <img src="./fastlane/metadata/android/es-419/images/phoneScreenshots/4.jpeg" alt="Playlist view" width="280">
+</p>
 
 ## Licencia / License
 
