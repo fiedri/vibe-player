@@ -1,9 +1,8 @@
-<b>Vibe</b> es un reproductor de música local enfocado en la fluidez, la simplicidad y el diseño minimalista. Desarrollado para quienes prefieren llevar sus propios archivos de audio en el dispositivo sin complicaciones, anuncios ni recolección de datos.
-
-<b>Características principales:</b>
-
-• <b>100% Offline y sin anuncios:</b> No requiere conexión a internet para ninguna de sus funciones.
-• <b>Gestión de Playlists:</b> Creá, editá y organizá tus listas fácilmente.
-• <b>Copia de seguridad local:</b> Exportá e importá tus playlists en formato JSON (al portapapeles) para no perder tus listas al reinstalar.
-• <b>Navegación dedicada:</b> Vistas individuales para álbumes y artistas, con una sección de búsqueda independiente para encontrar lo que querés al instante.
-• <b>Ligero y eficiente:</b> Diseñado con renderizado virtualizado para manejar bibliotecas con miles de canciones de forma fluida.
+<b>Vibe</b> es un reproductor de música local minimalista, fluido y 100%
+offline, libre de anuncios y rastreo.<br /><br /><b
+  >Características principales:</b
+><br /><br />• <b>100% Offline:</b> Sin anuncios ni conexión a internet.<br />•
+<b>Playlists y Backup:</b> Creá, editá y exportá/importá tus listas en JSON
+fácilmente.<br />• <b>Navegación ágil:</b> Vistas por álbumes, artistas y
+búsqueda rápida.<br />• <b>Rendimiento optimizado:</b> Manejo fluido de miles de
+canciones.
