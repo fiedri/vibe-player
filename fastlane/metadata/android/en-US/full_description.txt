@@ -9,3 +9,4 @@
 • <b>Lightweight and efficient:</b> Designed with virtualized rendering to smoothly handle libraries with thousands of songs.
 
 <b>Open Source:</b> Vibe is free and open-source software licensed under GPL-3.0-or-later.
+<b>Note: The app user interface is currently available only in Spanish.</b>

@@ -1,7 +1,6 @@
 import { getDb } from ".";
-import { eq, count, min, notInArray, sql, and, inArray } from "drizzle-orm";
+import { eq, like, min, notInArray, sql, and, inArray } from "drizzle-orm";
 import { playlists, playlistsSongs } from "./schema";
-import { throws } from "assert";
 
 export async function getPlaylists() {
   const db = await getDb();
@@ -18,13 +17,29 @@ export async function getPlaylists() {
 
 export async function createPlaylist(name: string) {
   if (name.toLowerCase() === "favoritos") {
-    throw Error("No puedes crear otra playlists llamada 'Favoritos'");
+    throw new Error("No puedes crear otra playlist llamada 'Favoritos'");
   }
   const db = await getDb();
+  const existing = await db
+    .select({ name: playlists.name })
+    .from(playlists)
+    .where(like(playlists.name, `${name}%`));
+
+  const existingNames = new Set(existing.map((p) => p.name.toLowerCase()));
+
+  let playlistName = name;
+  let counter = 1;
+
+  while (existingNames.has(playlistName.toLowerCase())) {
+    playlistName = `${name} (${counter})`;
+    counter++;
+  }
+
   const [result] = await db
     .insert(playlists)
-    .values({ name })
-    .returning({ id: playlists.id });
+    .values({ name: playlistName })
+    .returning();
+
   return result;
 }
 
@@ -144,4 +159,36 @@ export async function deleteDuplicates(playlistId: number) {
   } catch (e) {
     console.error(e);
   }
+}
+
+export async function addNoExistingSongs(
+  playlistId: number,
+  songsId: string[],
+) {
+  if (songsId.length === 0) return;
+
+  const db = await getDb();
+  const existingSongs = await db
+    .select({ id: playlistsSongs.songId })
+    .from(playlistsSongs)
+    .where(
+      and(
+        eq(playlistsSongs.playlistId, playlistId),
+        inArray(playlistsSongs.songId, songsId),
+      ),
+    );
+  const existingIds = new Set(existingSongs.map((e) => e.id));
+  const idToInsert = songsId.filter((id) => !existingIds.has(id));
+  if (idToInsert.length > 0) {
+    const valuesToInsert = idToInsert.map((id) => ({
+      playlistId,
+      songId: id,
+    }));
+    await db.insert(playlistsSongs).values(valuesToInsert);
+  }
+}
+
+export async function getPlaylistByName(name: string) {
+  const db = await getDb();
+  return db.select().from(playlists).where(eq(playlists.name, name)).get()
 }

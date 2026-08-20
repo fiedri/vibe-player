@@ -1,20 +1,13 @@
 import * as db from "./db/querys";
 import { playlistStore } from "$lib/stores/playlist.svelte";
+import { favorites } from "$lib/stores/favorites.svelte";
 
 export interface PlaylistBackup {
   formatVersion: 1;
   exportedAt: string;
-  playlists: { name: string; songIds: string[] }[];
+  playlists: { name: string; id: number; songIds: string[] }[];
 }
 
-/**
- * Genera un backup en JSON de las playlists (guarda los id de las canciones,
- * no su contenido binario).
- *
- * Razón de existir: Android Auto-Backup quedó desactivado (fix del
- * "CapacitorSQLitePlugin: null"), así las playlists no se restauran solas al
- * reinstalar. Este backup el usuario lo copia/guarda y lo importa después.
- */
 export async function exportPlaylistsBackup(): Promise<string> {
   const playlists = await db.getPlaylists();
 
@@ -22,7 +15,7 @@ export async function exportPlaylistsBackup(): Promise<string> {
   for (const p of playlists) {
     const detail = await db.getPlaylistSongs(p.id);
     const songIds = detail ? detail.playlistsSongs.map((s) => s.songId) : [];
-    entries.push({ name: p.name, songIds });
+    entries.push({ name: p.name, id: p.id, songIds });
   }
 
   const payload: PlaylistBackup = {
@@ -34,12 +27,6 @@ export async function exportPlaylistsBackup(): Promise<string> {
   return JSON.stringify(payload, null, 2);
 }
 
-/**
- * Restaura las playlists desde un JSON de backup. Crea cada playlist y le
- * asigna sus canciones. Al terminar refresca el store para actualizar la UI.
- *
- * @returns cantidad de playlists importadas
- */
 export async function importPlaylistsBackup(jsonStr: string): Promise<number> {
   let raw: unknown;
   try {
@@ -56,15 +43,23 @@ export async function importPlaylistsBackup(jsonStr: string): Promise<number> {
   ) {
     throw new Error("Formato de backup inválido.");
   }
-
   const backup = raw as PlaylistBackup;
+
   for (const item of backup.playlists) {
-    const { id } = await db.createPlaylist(item.name);
-    for (const songId of item.songIds) {
-      await db.addSongToPlaylist(id, songId);
+    let targetId: number = item.id;
+    const isFavorite = item.name === "favoritos" && targetId == 1;
+    if (!isFavorite) {
+
+      const existing = await db.getPlaylistByName(item.name);
+      if (!existing) {
+        await db.createPlaylist(item.name);
+      }
     }
+
+    await db.addNoExistingSongs(targetId, item.songIds);
   }
 
   await playlistStore.loadPlaylist();
   return backup.playlists.length;
 }
+

@@ -34,11 +34,11 @@ class playlist {
   }
   public async add(playlistsName: string, firstSong?: string) {
     try {
-      const resultId = await db.createPlaylist(playlistsName.trim());
-      if (!resultId) throw Error("Error al crear la playlist");
+      const result = await db.createPlaylist(playlistsName.trim());
+      if (!result) throw Error("Error al crear la playlist");
       this.playlists.unshift({
-        name: playlistsName,
-        id: resultId.id,
+        name: result.name,
+        id: result.id,
         songsCount: 0,
       });
     } catch (e) {

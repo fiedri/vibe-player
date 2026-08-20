@@ -7,6 +7,15 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 ---
 ## [unreleased]
 
+## [0.5.2] - 2026-08-20
+
+### Fixed
+- [Error: No puedes crear otra playlista llamada favoritos] al restaurar playlists mediante JSON
+- Bug visual del miniplayer con scroll infinito aunque el texto entrara en pantalla
+
+### Changed
+- Removidos permisos no necesarios para las funcionalidades
+
 ## [0.5.1] - 2026-08-17
 ### Added
 - Reinicio de cancion al presionar previus despues de 3s

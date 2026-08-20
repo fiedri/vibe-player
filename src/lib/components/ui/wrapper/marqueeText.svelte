@@ -3,14 +3,31 @@
 
   let containerWidth = $state(0);
   let textWidth = $state(0);
+  let horizontalPadding = $state(0);
 
-  let isOverflowing = $derived(textWidth > containerWidth);
+  let textRef = $state();
+
+  $effect(() => {
+    const el = textRef;
+    if (!el) return;
+    const style = getComputedStyle(el);
+    horizontalPadding =
+      parseFloat(style.paddingLeft || "0") + parseFloat(style.paddingRight || "0");
+  });
+
+  let isOverflowing = $derived(
+    textWidth - horizontalPadding > containerWidth,
+  );
 </script>
 
 <div class="w-full overflow-hidden block" bind:clientWidth={containerWidth}>
   <div class={isOverflowing ? "animate-seamless-marquee flex w-max" : "truncate block"}>
     
-    <span bind:clientWidth={textWidth} class="inline-block w-max {extraClass}">
+    <span
+      bind:clientWidth={textWidth}
+      bind:this={textRef}
+      class="inline-block w-max {extraClass}"
+    >
       {text || ""}
     </span>
 

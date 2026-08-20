@@ -39,7 +39,6 @@
     }
   });
 
-
   let previousPlayTrigger = 0;
   $effect(() => {
     const trigger = playerService.playTrigger;
@@ -139,16 +138,16 @@
     one: { next: "all", msg: "Repetir todas" },
     all: { next: "off", msg: "Repetición desactivada" },
   };
-let repeatMode = $state(playerService.mode);
+  let repeatMode = $state(playerService.mode);
   function handleChangeRepeatMode() {
     const { next, msg } =
-     REPEAT_TRANSITIONS[playerService.mode as keyof typeof REPEAT_TRANSITIONS];
-   playerService.switchMode(next);
-   repeatMode = next
+      REPEAT_TRANSITIONS[playerService.mode as keyof typeof REPEAT_TRANSITIONS];
+    playerService.switchMode(next);
+    repeatMode = next;
     showNotificacion(msg);
   }
 
-let isOpenMenu = $state(false)
+  let isOpenMenu = $state(false);
   let needNotify = $state(false);
   let notification = $state("");
   function showNotificacion(Message: string) {
@@ -196,29 +195,30 @@ let isOpenMenu = $state(false)
         class="w-full h-1 cursor-pointer appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:appearance-none"
       />
     </div>
-    <div class="w-full flex justify-between items-center h-20 px-3">
-      <div class="flex items-center gap-3 w-[50%]">
+    <div class="w-full flex justify-between gap-3 items-center h-20 px-3">
+      <div class="flex flex-1 items-center gap-3 w-[50%]">
         {#if playerService.currentSong}
           <img
-            src={Capacitor.convertFileSrc(displayImage(playerService.currentSong))}
+            src={Capacitor.convertFileSrc(
+              displayImage(playerService.currentSong),
+            )}
             loading="lazy"
             alt={displayTitle(playerService.currentSong)}
             class="w-14 h-14 border border-border object-cover"
             onerror={(e) => {
               const target = e.target as HTMLImageElement;
-              if (
-                target.src !==
-                window.location.origin + DEFAULT_COVER
-              ) {
+              if (target.src !== window.location.origin + DEFAULT_COVER) {
                 target.src = DEFAULT_COVER;
               }
             }}
           />
           <div class="flex flex-col overflow-hidden">
-            <MarqueeText
-              text={displayTitle(playerService.currentSong)}
-              class="pr-14 text-white font-black"
-            />
+            <div>
+              <MarqueeText
+                text={displayTitle(playerService.currentSong)}
+                class="pr-14 text-white font-black"
+              />
+            </div>
             <span class="text-xs text-muted-foreground truncate"
               >{displayArtist(playerService.currentSong)}</span
             >
@@ -283,32 +283,36 @@ let isOpenMenu = $state(false)
         <Button
           variant="ghost"
           class="active:scale-90 transition-transform m-0 p-2"
-          onclick={() => playerService.currentSong?.id && favorites.toggleFavorite(playerService.currentSong.id)}
+          onclick={() =>
+            playerService.currentSong?.id &&
+            favorites.toggleFavorite(playerService.currentSong.id)}
         >
-        {#if playerService.currentSong?.id && favorites.songsIds.has(playerService.currentSong.id)}
-          
-        <FavoriteFilled class="size-6"/>
-        {:else}
-
-          <Favorite class="size-6" />
-        {/if}
+          {#if playerService.currentSong?.id && favorites.songsIds.has(playerService.currentSong.id)}
+            <FavoriteFilled class="size-6" />
+          {:else}
+            <Favorite class="size-6" />
+          {/if}
         </Button>
         <Button
           variant="ghost"
           class="active:scale-90 transition-transform m-0 p-2"
-          onclick={() => isOpenMenu = !isOpenMenu}
+          onclick={() => (isOpenMenu = !isOpenMenu)}
           ><EllipsisVertical class="size-6" /></Button
         >
-       {#if isOpenMenu}
-        
- <PlayerMenu onClose={()=> isOpenMenu= false} song={playerService.currentSong!}/>
-        {/if }
+        {#if isOpenMenu}
+          <PlayerMenu
+            onClose={() => (isOpenMenu = false)}
+            song={playerService.currentSong!}
+          />
+        {/if}
       </div>
     </div>
-    <div >
+    <div>
       <figure>
         <img
-          src={Capacitor.convertFileSrc(displayImage(playerService.currentSong))}
+          src={Capacitor.convertFileSrc(
+            displayImage(playerService.currentSong),
+          )}
           loading="lazy"
           alt={displayTitle(playerService.currentSong)}
           class="w-full aspect-square border-2 border-border object-cover shadow-2xl"
@@ -330,9 +334,7 @@ let isOpenMenu = $state(false)
           <p class="text-muted-foreground text-xs truncate">
             {displayArtist(playerService.currentSong)}
           </p>
-          <p
-            class="text-muted-foreground text-xs truncate animate-seamless-marquee"
-          >
+          <p class="text-muted-foreground text-xs truncate">
             <MarqueeText
               text={displayAlbum(playerService.currentSong)}
               class="pr-14 text-white font-medium"
@@ -386,7 +388,9 @@ let isOpenMenu = $state(false)
     >
       <button
         onclick={handleShuffle}
-        class={playerService.isShuffle ? "text-primary transition-all duration-150" : "text-muted-foreground transition-all duration-150"}
+        class={playerService.isShuffle
+          ? "text-primary transition-all duration-150"
+          : "text-muted-foreground transition-all duration-150"}
       >
         <Shuffle size={20} />
       </button>
@@ -416,13 +420,16 @@ let isOpenMenu = $state(false)
       </button>
       <button
         onclick={handleChangeRepeatMode}
-        class={repeatMode !== "off" ? "text-primary transition-all duration-150" : "text-muted-foreground transition-all duration-150"}
+        class={repeatMode !== "off"
+          ? "text-primary transition-all duration-150"
+          : "text-muted-foreground transition-all duration-150"}
       >
         {#if repeatMode == "one"}
           <RepeatOne size={20} />
         {:else}
           <Repeat size={20} />
         {/if}
-      </button>    </div>
+      </button>
+    </div>
   </div>
 {/if}

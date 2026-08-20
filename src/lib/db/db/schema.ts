@@ -12,4 +12,5 @@ export const playlistsSongs = sqliteTable("playlists_songs", {
     onDelete: "cascade",
   }),
   songId: text("song_id").notNull(),
+
 });
