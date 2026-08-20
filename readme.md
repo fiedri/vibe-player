@@ -22,45 +22,54 @@ Reproductor de música para android
 
 ### Usuarios / Users
 
-Descargá el último APK desde la sección [Releases](https://github.com/fiedri/vibe-player/releases) de GitHub.
+* **ES:** Descargá el último APK desde la sección [Releases](https://github.com/fiedri/vibe-player/releases).
+* **EN:** Download the latest APK from the [Releases](https://github.com/fiedri/vibe-player/releases) section.
 
-Download the latest APK from the [Releases](https://github.com/fiedri/vibe-player/releases) section on GitHub.
+---
 
-### Desarrollo / Development
+### Desarrolladores / Developers
 
-Tecnologías utilizadas / Technologies used:
+#### Prerrequisitos / Prerequisites
+* [Node.js](https://nodejs.org/) (>= 22.0.0)
+* [pnpm](https://pnpm.io/) (recomendado / recommended) o npm
 
-| Tecnología / Technology | Propósito / Purpose |
-| --- | --- |
-| Svelte 5 | Framework UI |
-| Capacitor 8 | Runtime nativo / Native runtime |
-| SQLite (Drizzle ORM) | Persistencia local / Local persistence |
-| Tailwind CSS 4 | Estilos / Styling |
-
-Pasos para instalar dependencias y probar / Steps to install dependencies and run:
+#### Pasos de instalación / Setup
 
 ```bash
-# Instalar dependencias / Install dependencies
+# 1. Clona el repositorio / Clone repository
+git clone https://github.com/fiedri/vibe-player.git
+
+# 2. Navega al directorio / Navigate to directory
+cd vibe-player
+
+# 3. Instala dependencias / Install dependencies
 pnpm install
-
-# Probar en el navegador / Run in the browser
-pnpm dev
-
-# Compilar y sincronizar cambios web al proyecto Android / build and Sync web changes to the Android project
-pnpm build:android
-
-# Abrir el proyecto en Android Studio / Open the project in Android Studio
-npx cap open android
 ```
 
-Para generar el APK, usar Android Studio (Build > Generate Signed Bundle / APK) o Gradle desde la carpeta `android/`.
-
-To build the APK, use Android Studio (Build > Generate Signed Bundle / APK) or Gradle from the `android/` folder.
-
-> Nota para desarrollo en Android: Si prefieres probar directamente los cambios en un dispositivo físico o emulador usando el entorno de desarrollo, puedes ejecutar:
-> Note for Android development: If you prefer to test changes directly on a physical device or emulator using the dev environment, you can run:
+### Ejecución y pruebas / How to run
+- **Modo Web (Navegador) / Web Mode (Browser)**
 ```bash
+pnpm run dev
+```
+
+- **Modo Desarrollo en Dispositivo / Live Reload on Device**:
+* **ES:**Conectá tu teléfono por USB con depuración activa y ejecutá:
+* **EN:**Connect your phone via USB with debugging enabled and run:
+```bash
+# Levanta el servidor/ Raise the server
+pnpm run dev --host
+
+# Sincronizar Capacitor y levantar en Android/ sync capacitor and open in Android
 pnpm dev:android
+```
+
+- **Compilar e instalar en dispositivo / Build and run on Device:**
+```bash
+# Construye el frontend y sincroniza capacitor/ Build the frontend and synchronize capacitor
+pnpm build:android
+
+# Compila y ejecuta la app / Compile and run the app
+npx cap run android
 ```
 
 ## Capturas / Screenshots
