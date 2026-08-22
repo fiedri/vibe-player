@@ -1,6 +1,7 @@
 import { getDb } from ".";
 import { eq, like, min, notInArray, sql, and, inArray } from "drizzle-orm";
 import { playlists, playlistsSongs } from "./schema";
+import { error } from "console";
 
 export async function getPlaylists() {
   const db = await getDb();
@@ -34,13 +35,16 @@ export async function createPlaylist(name: string) {
     playlistName = `${name} (${counter})`;
     counter++;
   }
+  try {
+    const [result] = await db
+      .insert(playlists)
+      .values({ name: playlistName })
+      .returning();
 
-  const [result] = await db
-    .insert(playlists)
-    .values({ name: playlistName })
-    .returning();
-
-  return result;
+    return result;
+  } catch (err) {
+   throw new Error("ha habido un error al crear playlist", err) 
+  }
 }
 
 export async function deletePlaylist(id: number) {
@@ -190,5 +194,5 @@ export async function addNoExistingSongs(
 
 export async function getPlaylistByName(name: string) {
   const db = await getDb();
-  return db.select().from(playlists).where(eq(playlists.name, name)).get()
+  return db.select().from(playlists).where(eq(playlists.name, name)).get();
 }

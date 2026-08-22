@@ -1,6 +1,5 @@
 import * as db from "./db/querys";
 import { playlistStore } from "$lib/stores/playlist.svelte";
-import { favorites } from "$lib/stores/favorites.svelte";
 
 export interface PlaylistBackup {
   formatVersion: 1;
@@ -48,11 +47,15 @@ export async function importPlaylistsBackup(jsonStr: string): Promise<number> {
   for (const item of backup.playlists) {
     let targetId: number = item.id;
     const isFavorite = item.name === "favoritos" && targetId == 1;
-    if (!isFavorite) {
-
+    if(isFavorite){
+      targetId = 1
+    }else{
       const existing = await db.getPlaylistByName(item.name);
-      if (!existing) {
-        await db.createPlaylist(item.name);
+      if(!existing?.id){
+        const newPlaylist = await db.createPlaylist(item.name);
+        targetId = newPlaylist.id
+      }else{
+        targetId = existing.id
       }
     }
 
@@ -62,4 +65,3 @@ export async function importPlaylistsBackup(jsonStr: string): Promise<number> {
   await playlistStore.loadPlaylist();
   return backup.playlists.length;
 }
-

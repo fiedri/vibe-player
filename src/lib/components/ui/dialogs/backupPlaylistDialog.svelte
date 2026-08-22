@@ -35,7 +35,7 @@
       const count = await importPlaylistsBackup(importText);
       status = {
         ok: true,
-        message: `Restauradas ${count} playlist${count === 1 ? "" : "s"}.`,
+        message: `Restauradas playlist${count === 1 ? "" : "s"}.`,
       };
       importText = "";
     } catch (err) {

@@ -9,7 +9,6 @@
   import { App } from "@capacitor/app";
   import { playerService } from "$lib/services/player/PlayerFacade";
   import { Capacitor } from "@capacitor/core";
-  import { LocalNotifications } from "@capacitor/local-notifications";
   import Dialog from "$lib/components/ui/dialogs/dialog.svelte";
   import UnImplementedDialog from "$lib/components/ui/dialogs/unImplementedDialog.svelte";
   import CreatePlaylistsDialog from "$lib/components/ui/dialogs/createPlaylistsDialog.svelte";
@@ -32,11 +31,9 @@
           console.log("[back] pressed", event);
           if (ui.playerIsOpen) {
             ui.playerIsOpen = false;
-            console.log("this is working");
             return;
           }
           if (selection.isActive) {
-            console.log("this is working");
             selection.clear();
             return;
           }
@@ -47,7 +44,6 @@
             App.exitApp();
           }
         });
-        console.log("[back] listener registrado");
       } catch (err) {
         console.error("[back] fallo al registrar listener:", err);
       }
@@ -106,17 +102,7 @@
       }
     }, 2000);
 
-    if (Capacitor.isNativePlatform()) {
-      try {
-        const check = await LocalNotifications.checkPermissions();
-        if (check.display !== "granted") {
-          const req = await LocalNotifications.requestPermissions();
-          console.log("Resultado del permiso nativo:", req.display);
-        }
-      } catch (err) {
-        console.error("Error al solicitar permisos:", err);
-      }
-    }
+
     window.addEventListener("unhandledrejection", (event) => {
       console.error("Promesa rechazada no manejada:", event.reason);
 
