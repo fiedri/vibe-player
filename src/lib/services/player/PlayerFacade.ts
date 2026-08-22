@@ -16,14 +16,13 @@ import { displayImage } from "$lib/types/songs";
 import type { ContextType } from "./types";
 export class PlayerFacade {
   protected audioEngine: AudioEngine;
-  mode: string = "off";
   protected queueManager: QueueManager;
   protected artworkServices: ArtworkService = new ArtworkService();
   protected mediaSessionService: MediaSessionService =
     new MediaSessionService();
   constructor(audioEngine: AudioEngine) {
     this.audioEngine = audioEngine;
-    this.audioEngine.onEndedRequest = ()=> this.handleTrackEnded();
+    this.audioEngine.onEndedRequest = () => this.handleTrackEnded();
     this.queueManager = new QueueManager(new RepeatOffmode());
 
     this.mediaSessionService.onPauseRequest = () => this.pause();
@@ -51,10 +50,7 @@ export class PlayerFacade {
       adyacentsSongImage.next,
       this.currentSong ? displayImage(this.currentSong) : undefined,
     );
-    this.mediaSessionService.resetNativePosition(
-      song,
-      this.duration ?? 0,
-    );
+    this.mediaSessionService.resetNativePosition(song, this.duration ?? 0);
     const img = await this.artworkServices.getArtworkSrc(displayImage(song));
     void this.mediaSessionService.setMetadata(song, img);
   }
@@ -86,6 +82,9 @@ export class PlayerFacade {
   get isShuffle() {
     return this.queueManager.isShuffle;
   }
+  get mode() {
+    return this.queueManager.mode;
+  }
   get isSuppressingNativePause() {
     return this.mediaSessionService.isSuppressingNativePause;
   }
@@ -104,33 +103,35 @@ export class PlayerFacade {
   public switchMode(mode: string) {
     switch (mode) {
       case "off":
-        this.mode = "off";
         this.queueManager.transitionTo(new RepeatOffmode());
         break;
       case "one":
-        this.mode = "one";
         this.queueManager.transitionTo(new RepeatOneMode());
         break;
       case "all":
-        this.mode = "all";
         this.queueManager.transitionTo(new RepeatAllMode());
         break;
       default:
         break;
     }
   }
+  public cycleRepeatMode(): string {
+    const order = ["off", "one", "all"];
+    const next = order[(order.indexOf(this.mode) + 1) % order.length]!;
+    this.switchMode(next);
+    return next;
+  }
   public handleLoadedMetadata() {
     if (!this.currentSong) return;
 
     this.mediaSessionService.endNativePauseSuppression();
     this.mediaSessionService.updatePositionState(
-      this.currentTime??0,
-      this.duration??0,
+      this.currentTime ?? 0,
+      this.duration ?? 0,
       true,
     );
   }
   public syncPlaybackPosition() {
- 
     this.mediaSessionService.updatePositionState(
       this.currentTime,
       this.duration,
@@ -149,8 +150,11 @@ export class PlayerFacade {
     this.mediaSessionService.beginNativePauseSuppression();
     this.audioEngine.restoreLoadPosition(lastState.position);
     this.queueManager.setCurrentSong(restoredSong);
+    console.log(lastState.mode)
     const mode = lastState.mode || "off";
-    this.audioEngine.setUrl(restoredSong.uri)
+
+    this.switchMode(mode);
+    this.audioEngine.setUrl(restoredSong.uri);
     this.queueManager.fillqueue();
     const img = await this.artworkServices.getArtworkSrc(
       displayImage(restoredSong),
@@ -175,7 +179,6 @@ export class PlayerFacade {
     }
   }
 
-
   private startPlayback() {
     this.isPlaying = true;
     this.play();
@@ -184,13 +187,13 @@ export class PlayerFacade {
 
   public setSong(song: MediaFile) {
     this.queueManager.setCurrentSong(song);
-    this.audioEngine.setUrl(this.queueManager.currentSong?.uri)
+    this.audioEngine.setUrl(this.queueManager.currentSong?.uri);
     this.initSong(song);
     this.startPlayback();
   }
   public play() {
     this.audioEngine.play();
-    this.isPlaying = true
+    this.isPlaying = true;
     this.endNativePauseSuppression();
     this.syncNativePlaybackState(true);
   }
@@ -203,8 +206,6 @@ export class PlayerFacade {
     this.syncNativePlaybackState(false);
   }
 
-
-
   public previous() {
     let song;
     if (this.audioEngine.currentTime >= 3) {
@@ -213,8 +214,8 @@ export class PlayerFacade {
     }
     this.queueManager.previous();
     song = this.queueManager.currentSong;
-    if(song){
-   this.setSong(song) 
+    if (song) {
+      this.setSong(song);
     }
   }
   public setNextSong(song: MediaFile) {
@@ -223,9 +224,9 @@ export class PlayerFacade {
   public next() {
     this.queueManager.next();
     const song = this.queueManager.currentSong;
-    this.syncPlaybackPosition()
+    this.syncPlaybackPosition();
     if (song) {
-     this.setSong(song) 
+      this.setSong(song);
     }
   }
   public togglePlay() {

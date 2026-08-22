@@ -11,6 +11,7 @@ export class QueueManager {
   queue = $state([...biblioteca.songs]);
   private rawSource = $derived([...biblioteca.songs]);
   private state!: ModeState;
+  mode = $state<string>("off");
   isShuffle = $state<boolean>(false);
   context = $state<ContextType | null>(null);
   playlistSongs = $state<MediaFile[]>([]);
@@ -25,6 +26,7 @@ export class QueueManager {
     console.log(`Context: Transition to ${(<any>state).constructor.name}.`);
     this.state = state;
     this.state.setContext(this);
+    this.mode = state.modeName;
   }
   public setContext(context: ContextType, songs?: MediaFile[]) {
     if (context === ContextType.InPlaylist && songs) {

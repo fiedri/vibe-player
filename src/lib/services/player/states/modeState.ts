@@ -4,6 +4,8 @@ import type { MediaFile } from "$lib/types/songs";
 export abstract class ModeState {
   protected queueContext!: QueueManager;
 
+  public abstract get modeName(): string;
+
   public setContext(context: QueueManager) {
     this.queueContext = context;
   }
@@ -43,6 +45,9 @@ export abstract class ModeState {
 }
 
 export class RepeatOffmode extends ModeState {
+  public get modeName(): string {
+    return "off";
+  }
   public next(): MediaFile | null {
     return this.nextHelper();
   }
@@ -55,6 +60,9 @@ export class RepeatOffmode extends ModeState {
 }
 
 export class RepeatOneMode extends ModeState {
+  public get modeName(): string {
+    return "one";
+  }
   public next(): MediaFile | null {
     return this.nextHelper();
   }
@@ -67,6 +75,9 @@ export class RepeatOneMode extends ModeState {
 }
 
 export class RepeatAllMode extends ModeState {
+  public get modeName(): string {
+    return "all";
+  }
   public next(): MediaFile | null {
     if (
       this.queueContext.currentSongIndex !== null &&

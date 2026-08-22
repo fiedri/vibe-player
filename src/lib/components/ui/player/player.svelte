@@ -91,18 +91,16 @@
       showNotificacion("Modo Aleatorio (desactivado)");
     }
   }
-  const REPEAT_TRANSITIONS = {
-    off: { next: "one", msg: "Repetir una" },
-    one: { next: "all", msg: "Repetir todas" },
-    all: { next: "off", msg: "Repetición desactivada" },
+  const REPEAT_MESSAGES = {
+    one: "Repetir una",
+    all: "Repetir todas",
+    off: "Repetición desactivada",
   };
-  let repeatMode = $state(playerService.mode);
   function handleChangeRepeatMode() {
-    const { next, msg } =
-      REPEAT_TRANSITIONS[playerService.mode as keyof typeof REPEAT_TRANSITIONS];
-    playerService.switchMode(next);
-    repeatMode = next;
-    showNotificacion(msg);
+    const nextMode = playerService.cycleRepeatMode();
+    showNotificacion(
+      REPEAT_MESSAGES[nextMode as keyof typeof REPEAT_MESSAGES],
+    );
   }
 
   let isOpenMenu = $state(false);
@@ -363,11 +361,11 @@
       </button>
       <button
         onclick={handleChangeRepeatMode}
-        class={repeatMode !== "off"
+        class={playerService.mode !== "off"
           ? "text-primary transition-all duration-150"
           : "text-muted-foreground transition-all duration-150"}
       >
-        {#if repeatMode == "one"}
+        {#if playerService.mode == "one"}
           <RepeatOne size={20} />
         {:else}
           <Repeat size={20} />
