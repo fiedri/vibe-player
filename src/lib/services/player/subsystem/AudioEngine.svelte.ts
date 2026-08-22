@@ -1,50 +1,47 @@
-export class AudioEngine {
-  currentTime = $state<number>(0);
-  duration = $state<number>(0);
-  volume = $state<number>(1);
-  isPlaying = $state<boolean>(false);
-
-  playTrigger = $state<number>(0);
-  audioElement: HTMLAudioElement | null = null;
-
-  private pendingLoadPosition: number | null = null;
-
-  public incrementPlayRequest() {
-    this.playTrigger++;
-  }
-
-  public restoreLoadPosition(position: number) {
-    this.pendingLoadPosition = position;
-    this.currentTime = position;
-  }
-
-  public bindElement(audioElement: HTMLAudioElement) {
-    this.audioElement = audioElement;
-    this.audioElement.ontimeupdate = () => {
-      this.currentTime = this.audioElement?.currentTime ?? 0;
-    };
-
-    this.audioElement.onloadedmetadata = () => {
-      const element = this.audioElement;
-      if (!element) return;
-      this.duration = element.duration ?? 0;
-
-      if (this.pendingLoadPosition !== null) {
-        element.currentTime = this.pendingLoadPosition;
-        this.currentTime = this.pendingLoadPosition;
-        this.pendingLoadPosition = null;
+import { Capacitor } from "@capacitor/core";
+export abstract class AudioEngine {
+  public currentTime = $state<number>(0);
+  public duration = $state<number>(0);
+  public volume = $state<number>(1);
+  public isPlaying = $state<boolean>(false);
+  public onEndedRequest?: () => void;
+  abstract setUrl(songUrl: string): void;
+  abstract restoreLoadPosition(position: number): void;
+  abstract setVolume(val: number): void;
+  abstract seek(time: number): void;
+  abstract play(): void;
+  abstract pause(): void;
+}
+export class WebAudioEngine extends AudioEngine {
+  private audioElement: HTMLAudioElement = new Audio();
+  constructor() {
+    super();
+    const updateDuration = () => {
+      if (!isNaN(this.audioElement.duration)) {
+        this.duration = this.audioElement.duration;
       }
     };
 
-    this.audioElement.onplay = () => {
-      this.isPlaying = true;
+    this.audioElement.addEventListener("loadedmetadata", updateDuration);
+    this.audioElement.addEventListener("durationchange", updateDuration);
+    this.audioElement.ontimeupdate = () => {
+      this.currentTime = this.audioElement?.currentTime ?? 0;
     };
-
-    this.audioElement.onpause = () => {
-      this.isPlaying = false;
+    this.audioElement.onloadedmetadata = () => {
+      this.duration = this.audioElement.duration ?? 0;
+      this.audioElement.currentTime = this.currentTime;
+    };
+    this.audioElement.onended = () => {
+      this.onEndedRequest?.();
     };
   }
 
+  public restoreLoadPosition(position: number) {
+    this.currentTime = position;
+  }
+  public setUrl(songUrl: string) {
+    this.audioElement.src = Capacitor.convertFileSrc(songUrl);
+  }
   public play() {
     if (!this.audioElement) return;
 
@@ -67,7 +64,7 @@ export class AudioEngine {
   }
 
   public pause() {
-    this.audioElement?.pause();
+    this.audioElement.pause();
     this.isPlaying = false;
   }
 

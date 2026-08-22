@@ -29,40 +29,17 @@
   import { formatearMS } from "$lib/utils";
   import { favorites } from "$lib/stores/favorites.svelte";
   import PlayerMenu from "../menus/playerMenu.svelte";
-  let audioElement = $state<HTMLAudioElement | null>(null);
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
 
-  $effect(() => {
-    if (audioElement) {
-      playerService.attachElement(audioElement);
-    }
-  });
 
-  let previousPlayTrigger = 0;
-  $effect(() => {
-    const trigger = playerService.playTrigger;
-    if (!audioElement) return;
-    const song = playerService.currentSong;
-    if (trigger <= previousPlayTrigger || !song) return;
-    previousPlayTrigger = trigger;
 
-    const playPromise = audioElement.play();
-    if (playPromise !== undefined) {
-      playPromise.catch((error) => {
-        if (error.name !== "AbortError") {
-          console.error("Error al reproducir audio:", error);
-          playerService.pause();
-        }
-      });
-    }
-  });
+
 
   let displayTime = $derived(isSeeking ? seekValue : playerService.currentTime);
   let progressPercent = $derived(
     playerService.duration ? (displayTime / playerService.duration) * 100 : 0,
   );
-
   function handleSeekChange(e: Event) {
     const target = e.target as HTMLInputElement;
     const newTime = parseFloat(target.value);
@@ -70,25 +47,6 @@
     playerService.seekTo(newTime);
     isSeeking = false;
   }
-
-  function handlePlay() {
-    playerService.isPlaying = true;
-    playerService.endNativePauseSuppression();
-    playerService.syncNativePlaybackState(true);
-  }
-
-  function handlePause() {
-    if (playerService.isSuppressingNativePause) {
-      return;
-    }
-    playerService.isPlaying = false;
-    playerService.syncNativePlaybackState(false);
-  }
-
-  function handleEnded() {
-    playerService.handleTrackEnded();
-  }
-
   function handleError(e: Event) {
     console.error("Error en elemento audio:", e);
     playerService.pause();
@@ -159,21 +117,6 @@
   }
 </script>
 
-{#if playerService.currentSong}
-  <audio
-    bind:this={audioElement}
-    src={playerService.currentSong?.uri
-      ? Capacitor.convertFileSrc(playerService.currentSong.uri)
-      : ""}
-    bind:volume={playerService.volume}
-    onloadedmetadata={() => playerService.handleLoadedMetadata()}
-    ontimeupdate={() => playerService.syncPlaybackPosition()}
-    onplay={handlePlay}
-    onpause={handlePause}
-    onended={handleEnded}
-    onerror={handleError}
-  ></audio>
-{/if}
 {#if !ui.playerIsOpen}
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -185,7 +128,7 @@
       <input
         type="range"
         min="0"
-        max={playerService.duration || 100}
+        max={playerService.duration}
         value={displayTime}
         onpointerdown={handleSeekStart}
         oninput={handleSeekInput}

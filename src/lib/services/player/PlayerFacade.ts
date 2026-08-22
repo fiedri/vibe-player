@@ -1,4 +1,5 @@
-import { AudioEngine } from "./subsystem/AudioEngine.svelte";
+import type { AudioEngine } from "./subsystem/AudioEngine.svelte";
+import { WebAudioEngine } from "./subsystem/AudioEngine.svelte";
 import { QueueManager } from "./subsystem/queue.svelte";
 import { MediaSessionService } from "./subsystem/mediaSessionService";
 import { ArtworkService } from "./subsystem/arworkServices";
@@ -14,15 +15,15 @@ import type { MediaFile } from "$lib/types/songs";
 import { displayImage } from "$lib/types/songs";
 import type { ContextType } from "./types";
 export class PlayerFacade {
-  protected audioEngine: AudioEngine = new AudioEngine();
-  /** Modo de repetición (off|one|all). Estado de configuración, no reactivo
-   *  en UI: se persiste y restaura, pero la UI de repeat hoy está comentada. */
+  protected audioEngine: AudioEngine;
   mode: string = "off";
   protected queueManager: QueueManager;
   protected artworkServices: ArtworkService = new ArtworkService();
   protected mediaSessionService: MediaSessionService =
     new MediaSessionService();
-  constructor() {
+  constructor(audioEngine: AudioEngine) {
+    this.audioEngine = audioEngine;
+    this.audioEngine.onEndedRequest = ()=> this.handleTrackEnded();
     this.queueManager = new QueueManager(new RepeatOffmode());
 
     this.mediaSessionService.onPauseRequest = () => this.pause();
@@ -50,13 +51,9 @@ export class PlayerFacade {
       adyacentsSongImage.next,
       this.currentSong ? displayImage(this.currentSong) : undefined,
     );
-    // Reset determinista del ancla nativa en CADA cambio de track. No
-    // empujamos PLAYING acá todavía: el src nuevo aún no arrancó, y PLAYING
-    // con la posición stale previa es exactamente lo que extrapola la barra
-    // en el nativo mientras cargamos. PAUSED (posición ~0) congela el bar.
     this.mediaSessionService.resetNativePosition(
       song,
-      this.audioEngine.audioElement?.duration ?? 0,
+      this.duration ?? 0,
     );
     const img = await this.artworkServices.getArtworkSrc(displayImage(song));
     void this.mediaSessionService.setMetadata(song, img);
@@ -67,9 +64,6 @@ export class PlayerFacade {
   }
   set currentSong(song: MediaFile | null) {
     this.queueManager.currentSong = song;
-  }
-  get playTrigger() {
-    return this.audioEngine.playTrigger;
   }
   get queue() {
     return this.queueManager.queue;
@@ -129,20 +123,17 @@ export class PlayerFacade {
     if (!this.currentSong) return;
 
     this.mediaSessionService.endNativePauseSuppression();
-    const el = this.audioEngine.audioElement;
     this.mediaSessionService.updatePositionState(
-      el?.currentTime ?? 0,
-      el?.duration ?? 0,
+      this.currentTime??0,
+      this.duration??0,
       true,
     );
   }
   public syncPlaybackPosition() {
-    const el = this.audioEngine.audioElement;
-    if (!el) return;
+ 
     this.mediaSessionService.updatePositionState(
-      el.currentTime,
-      el.duration,
-      // sin force — el throttle de 2s del service filtra
+      this.currentTime,
+      this.duration,
     );
   }
   public async loadLastSavedState() {
@@ -159,9 +150,11 @@ export class PlayerFacade {
     this.audioEngine.restoreLoadPosition(lastState.position);
     this.queueManager.setCurrentSong(restoredSong);
     const mode = lastState.mode || "off";
-    this.switchMode(mode);
+    this.audioEngine.setUrl(restoredSong.uri)
     this.queueManager.fillqueue();
-    const img = await this.artworkServices.getArtworkSrc(displayImage(restoredSong));
+    const img = await this.artworkServices.getArtworkSrc(
+      displayImage(restoredSong),
+    );
 
     if (Capacitor.isNativePlatform()) {
       this.mediaSessionService.syncNativePlaybackState(false);
@@ -182,41 +175,46 @@ export class PlayerFacade {
     }
   }
 
-  /** Incrementa el trigger que dispara la reproducción real en el <audio>
-   *  (ver $effect en player.svelte) y además manda play() al AudioEngine por si
-   *  el elemento ya está bindeado (siguiente/anterior con el miniplayer vivo). */
+
   private startPlayback() {
-    this.audioEngine.incrementPlayRequest();
-    this.audioEngine.play();
+    this.isPlaying = true;
+    this.play();
+    this.syncNativePlaybackState(true);
   }
 
   public setSong(song: MediaFile) {
     this.queueManager.setCurrentSong(song);
+    this.audioEngine.setUrl(this.queueManager.currentSong?.uri)
     this.initSong(song);
     this.startPlayback();
   }
   public play() {
     this.audioEngine.play();
+    this.isPlaying = true
+    this.endNativePauseSuppression();
+    this.syncNativePlaybackState(true);
   }
   public pause() {
     this.audioEngine.pause();
+    if (this.isSuppressingNativePause) {
+      return;
+    }
+    this.isPlaying = false;
+    this.syncNativePlaybackState(false);
   }
 
-  public attachElement(audioElement: HTMLAudioElement) {
-    this.audioEngine.bindElement(audioElement);
-  }
+
 
   public previous() {
-    let song
-  if(this.audioEngine.currentTime >= 3){
-    this.seekTo(0)
-    return
-  }
+    let song;
+    if (this.audioEngine.currentTime >= 3) {
+      this.seekTo(0);
+      return;
+    }
     this.queueManager.previous();
     song = this.queueManager.currentSong;
-    if (song) {
-      this.initSong(song);
-      this.startPlayback();
+    if(song){
+   this.setSong(song) 
     }
   }
   public setNextSong(song: MediaFile) {
@@ -225,16 +223,16 @@ export class PlayerFacade {
   public next() {
     this.queueManager.next();
     const song = this.queueManager.currentSong;
+    this.syncPlaybackPosition()
     if (song) {
-      this.initSong(song);
-      this.startPlayback();
+     this.setSong(song) 
     }
   }
   public togglePlay() {
     if (this.audioEngine.isPlaying) {
-      this.audioEngine.pause();
+      this.pause();
     } else {
-      this.audioEngine.play();
+      this.play();
     }
   }
   public toggleShuffle() {
@@ -249,7 +247,7 @@ export class PlayerFacade {
 
     if (cancion) {
       if (cancion !== cancionAnterior) {
-        this.initSong(cancion);
+        this.setSong(cancion);
       }
       this.startPlayback();
     } else {
@@ -283,4 +281,4 @@ export class PlayerFacade {
   }
 }
 
-export const playerService = new PlayerFacade();
+export const playerService = new PlayerFacade(new WebAudioEngine());
