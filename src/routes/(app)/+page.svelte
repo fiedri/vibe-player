@@ -5,7 +5,10 @@
   import { ui } from "$lib/stores/ui.svelte";
     import { onMount, onDestroy } from "svelte";
     import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
-
+    import Button from "$lib/components/ui/button/button.svelte";
+    import { Shuffle } from "carbon-icons-svelte";
+import { playerService } from "$lib/services/player/PlayerFacade";
+import { ContextType } from "$lib/services/player/types";
   onMount(()=>{
 ui.query = ""
   })
@@ -15,12 +18,13 @@ selection.clear()
   $effect(()=>{
 selection.avaiblesIds = biblioteca.songs.map(el => el.id)
   })
-  let searchQuery = $derived(ui.query);
 
-  let filteredSongs = $derived(
-    searchQuery ? biblioteca.search(searchQuery) : biblioteca.songs,
-  );
-
+function handleShuffled() {
+    if (biblioteca.songs.length === 0) return;
+    const songShuffled = playerService.shuffle(biblioteca.songs);
+    playerService.setContext(ContextType.InPlaylist, songShuffled);
+    playerService.setSong(playerService.queue[0]);
+  }
 </script>
  
 <div class="biblioteca h-full w-full">
@@ -44,19 +48,16 @@ selection.avaiblesIds = biblioteca.songs.map(el => el.id)
         Reintentar
       </button>
     </div>
-  {:else if filteredSongs.length === 0}
-    <div class="p-4 text-center text-zinc-400">
-      {#if searchQuery}
-        <p>No se encontraron resultados para "{searchQuery}"</p>
-      {:else}
-        <p>No hay canciones en el dispositivo</p>
-      {/if}
-    </div>
+
   {:else}
-    <VirtualList items={filteredSongs} itemHeight={52}>
+    <VirtualList items={biblioteca.songs} itemHeight={52}>
       {#snippet children(song, idx)}
         <SongCard {song} {idx} playlistId={undefined}/>
       {/snippet}
     </VirtualList>
   {/if}
+</div>
+<div class="absolute right-3 bottom-25 z-10">
+
+<Button class="aspect-square size-12 animate_slideUp" onclick={handleShuffled}><Shuffle/></Button>
 </div>

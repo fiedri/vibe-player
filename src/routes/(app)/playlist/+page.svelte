@@ -10,7 +10,6 @@
   import { ui, DialogType } from "$lib/stores/ui.svelte";
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { animateTyping } from "$lib/animations";
-  import { longPress } from "$lib/components/multiSelector/pointer";
   import { goto } from "$app/navigation";
   import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
   import { onDestroy, onMount } from "svelte";
