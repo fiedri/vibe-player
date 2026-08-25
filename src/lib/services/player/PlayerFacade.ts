@@ -132,10 +132,12 @@ export class PlayerFacade {
     );
   }
   public syncPlaybackPosition() {
+    if (!this.duration || !Number.isFinite(this.duration)) return;
+
     this.mediaSessionService.updatePositionState(
       this.currentTime,
       this.duration,
-    );
+      false,     );
   }
   public async loadLastSavedState() {
     const lastState = await cargarEstadoReproductor();
@@ -150,7 +152,7 @@ export class PlayerFacade {
     this.mediaSessionService.beginNativePauseSuppression();
     this.audioEngine.restoreLoadPosition(lastState.position);
     this.queueManager.setCurrentSong(restoredSong);
-    console.log(lastState.mode)
+    console.log(lastState.mode);
     const mode = lastState.mode || "off";
 
     this.switchMode(mode);
@@ -182,7 +184,11 @@ export class PlayerFacade {
   private startPlayback() {
     this.isPlaying = true;
     this.play();
-    this.syncNativePlaybackState(true);
+    this.mediaSessionService.syncNativePlaybackState(
+      this.isPlaying,
+      0,
+      this.duration,
+    );
   }
 
   public setSong(song: MediaFile) {
@@ -195,15 +201,24 @@ export class PlayerFacade {
     this.audioEngine.play();
     this.isPlaying = true;
     this.endNativePauseSuppression();
-    this.syncNativePlaybackState(true);
+    this.mediaSessionService.syncNativePlaybackState(
+      true,
+      this.currentTime,
+      this.duration,
+    );
   }
   public pause() {
     this.audioEngine.pause();
+
     if (this.isSuppressingNativePause) {
       return;
     }
     this.isPlaying = false;
-    this.syncNativePlaybackState(false);
+    this.mediaSessionService.syncNativePlaybackState(
+      false,
+      this.currentTime,
+      this.duration,
+    );
   }
 
   public previous() {
@@ -256,12 +271,14 @@ export class PlayerFacade {
     }
   }
   public seekTo(time: number) {
+    const validDuration =
+      this.duration && Number.isFinite(this.duration) ? this.duration : 0;
+
     this.audioEngine.seek(time);
-    this.mediaSessionService.updatePositionState(
-      time,
-      this.audioEngine.duration,
-      this.audioEngine.isPlaying,
-    );
+
+    if (validDuration > 0) {
+      this.mediaSessionService.updatePositionState(time, validDuration, true);
+    }
   }
   public setContext(context: ContextType, songs: MediaFile[]) {
     this.queueManager.setContext(context, songs);
@@ -283,3 +300,4 @@ export class PlayerFacade {
 }
 
 export const playerService = new PlayerFacade(new WebAudioEngine());
+

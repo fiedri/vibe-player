@@ -22,6 +22,7 @@ export class MediaSessionService {
   private handlersInitialized = false;
   private suppressNativePausePush = false;
   private lastPositionSync = 0;
+  private isSeeking = false;
   public onStopTrackRequest?: () => void;
   public get isSuppressingNativePause(): boolean {
     return this.suppressNativePausePush;
@@ -135,22 +136,32 @@ export class MediaSessionService {
       console.warn("Error metadata nativo:", e);
     }
   }
-  syncNativePlaybackState(isPlaying: boolean) {
+public syncNativePlaybackState(
+    isPlaying: boolean,
+    currentPosition?: number,
+    duration?: number
+  ) {
     if (Capacitor.isNativePlatform()) {
       try {
         MediaSession.setPlaybackState({
           playbackState: isPlaying ? "playing" : "paused",
         });
-      } catch (e) {}
+
+        if (
+          currentPosition !== undefined &&
+          duration !== undefined &&
+          Number.isFinite(duration) &&
+          duration > 0
+        ) {
+          this.updatePositionState(currentPosition, duration, true);
+        }
+      } catch (e) {
+        console.warn("Error sync state:", e);
+      }
     }
   }
 
-  /**
-   * Invalida el ancla nativa en CADA cambio de track: congela la barra en ~0
-   * (PAUSED + posición epsilon) en vez de dejar que el PlaybackState viejo
-   * (PLAYING + posición stale) siga extrapolando mientras el nuevo src carga.
-   * La barra solo se reactiva cuando onplay/handleLoadedMetadata re-anclan.
-   */
+
   public resetNativePosition(
     song: MediaMetadata | null,
     elementDuration: number = 0,
@@ -190,32 +201,36 @@ export class MediaSessionService {
     return 0;
   }
 
-  updatePositionState(
+  public updatePositionState(
     position: number,
     duration: number,
     force: boolean = false,
   ) {
     if (
-      duration <= 0 ||
-      position < 0 ||
-      position > duration ||
       !Number.isFinite(duration) ||
-      !Number.isFinite(position)
-    )
+      !Number.isFinite(position) ||
+      duration <= 0 ||
+      position < 0
+    ) {
       return;
+    }
+
+    const safePosition = Math.min(position, duration);
 
     const now = Date.now();
-    if (!force && now - this.lastPositionSync < 2000) return;
+    if (!force && now - this.lastPositionSync < 1500) return;
     this.lastPositionSync = now;
 
     if (Capacitor.isNativePlatform()) {
       try {
         MediaSession.setPositionState({
-          position,
+          position: safePosition,
           duration,
           playbackRate: 1.0,
         });
-      } catch (e) {}
+      } catch (e) {
+        console.warn("Error setting position state:", e);
+      }
     }
   }
 }
