@@ -20,22 +20,25 @@ export function longPress(node: HTMLElement, id: string | number) {
     }, duration);
   };
 
-  const limpiarContador = () => {
+  const limpiarContador = (e?) => {
+    if(e) e.stopPropagation()
     if (timer) {
       clearTimeout(timer);
     }
   };
 
   const handlePointerMove = (e: Event) => {
+    e.stopPropagation()
     const pe = e as PointerEvent;
     const dx = pe.clientX - startX;
     const dy = pe.clientY - startY;
     if (Math.hypot(dx, dy) > SLOP) {
-      limpiarContador();
+      limpiarContador(e);
     }
   };
 
   const handleContextMenu = (e: Event) => {
+    e.stopPropagation()
     e.preventDefault();
   };
 

@@ -29,6 +29,7 @@
   import { formatearMS } from "$lib/utils";
   import { favorites } from "$lib/stores/favorites.svelte";
   import PlayerMenu from "../menus/playerMenu.svelte";
+    import Queue from "./queue.svelte";
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
 
@@ -324,7 +325,7 @@
       </div>
     </div>
     <div
-      class="flex flex-row justify-between w-full items-center px-5 flex-1"
+      class="flex flex-row justify-between w-full items-center px-5 flex-1 mb-20"
       id="controles"
     >
       <button
@@ -372,5 +373,7 @@
         {/if}
       </button>
     </div>
+
+  <Queue/>
   </div>
 {/if}

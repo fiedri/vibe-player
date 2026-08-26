@@ -71,7 +71,8 @@
 
 <div
   use:longPress={song.id}
-  onclick={() => {
+  onclick={(e) => {
+  e.stopPropagation()
     handleOnclick(song.id);
   }}
   onkeydown={(e) =>
