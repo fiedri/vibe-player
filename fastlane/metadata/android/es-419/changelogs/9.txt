@@ -1,4 +1,4 @@
-Lanzamiento Beta Pública (v0.5.3)
+Primera version Publica (v0.6.0)
 
 Vibe es un reproductor de música local minimalista y 100% offline.
 
