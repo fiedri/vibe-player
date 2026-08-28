@@ -6,6 +6,11 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 
 ---
 ## [unreleased]
+## [0.6.0] - 2026-08-27
+### Added
+- Gestion de cola de reproducción
+- Boton para iniciar reproducción aleatoria desde la vista song
+
 
 ## [0.5.2] - 2026-08-20
 

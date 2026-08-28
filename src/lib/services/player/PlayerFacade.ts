@@ -44,6 +44,7 @@ export class PlayerFacade {
   }
 
   private async initSong(song: MediaFile) {
+    this.audioEngine.setUrl(this.queueManager.currentSong?.uri);
     const adyacentsSongImage = this.queueManager.getAdyacentsSongImage();
     this.artworkServices.prewarmArtworkAdyacente(
       adyacentsSongImage.previous,
@@ -63,6 +64,9 @@ export class PlayerFacade {
   }
   get queue() {
     return this.queueManager.queue;
+  }
+  set queue(songs: MediaFile[]) {
+    this.queueManager.queue = songs;
   }
   get currentSongIndex() {
     return this.queueManager.currentSongIndex;
@@ -137,7 +141,11 @@ export class PlayerFacade {
     this.mediaSessionService.updatePositionState(
       this.currentTime,
       this.duration,
-      false,     );
+      false,
+    );
+  }
+  public moveInQueue(from: number, to: number){
+    this.queueManager.moveInQueue(from, to)
   }
   public async loadLastSavedState() {
     const lastState = await cargarEstadoReproductor();
@@ -193,7 +201,7 @@ export class PlayerFacade {
 
   public setSong(song: MediaFile) {
     this.queueManager.setCurrentSong(song);
-    this.audioEngine.setUrl(this.queueManager.currentSong?.uri);
+
     this.initSong(song);
     this.startPlayback();
   }
@@ -230,7 +238,8 @@ export class PlayerFacade {
     this.queueManager.previous();
     song = this.queueManager.currentSong;
     if (song) {
-      this.setSong(song);
+      this.initSong(song);
+      this.startPlayback();
     }
   }
   public setNextSong(song: MediaFile) {
@@ -241,7 +250,8 @@ export class PlayerFacade {
     const song = this.queueManager.currentSong;
     this.syncPlaybackPosition();
     if (song) {
-      this.setSong(song);
+      this.initSong(song);
+      this.startPlayback();
     }
   }
   public togglePlay() {
@@ -300,4 +310,3 @@ export class PlayerFacade {
 }
 
 export const playerService = new PlayerFacade(new WebAudioEngine());
-

@@ -154,3 +154,16 @@
 </Dialog>
 
 <SelectionMode />
+
+<!--
+// Escuchar cambios en los dispositivos de entrada/salida de audio
+navigator.mediaDevices.ondevicechange = async (event) => {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  const audioOutputs = devices.filter(d => d.kind === 'audiooutput');
+  
+  console.log('Cambio en dispositivos de audio detectado:', audioOutputs);
+  // Aquí puedes verificar si la salida activa cambió y pausar la música
+};
+navigator.mediaDevices.ondevicechange
+
+-->

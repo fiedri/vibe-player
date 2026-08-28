@@ -38,7 +38,7 @@ export class QueueManager {
     }
     this.context = context;
     if (this.isShuffle) this.aplicarShuffle();
-    this.calculateIndex()
+    this.calculateIndex();
   }
   public setCurrentSong(song: MediaFile) {
     this.currentSong = song;
@@ -86,7 +86,7 @@ export class QueueManager {
           ? [...this.playlistSongs]
           : [...this.rawSource];
     }
-    this.calculateIndex()
+    this.calculateIndex();
   }
   public getAdyacentsSongImage() {
     let previous = null;
@@ -113,11 +113,33 @@ export class QueueManager {
   }
   public fillqueue() {
     this.queue = this.rawSource;
-    this.calculateIndex()
+    this.calculateIndex();
   }
   public setNextSong(song: MediaFile) {
     if (this.currentSongIndex !== null) {
       this.queue.splice(this.currentSongIndex + 1, 0, song);
     }
+  }
+  public moveInQueue(from: number, to: number): void {
+    if (
+      from < 0 ||
+      from > this.queue.length - 1 ||
+      to > this.queue.length - 1 ||
+      to < 0
+    ) {
+      throw new Error("Parametros fuera del rango permitido");
+    }
+    if (from === to || this.currentSongIndex == null) return;
+    if (from === this.currentSongIndex) {
+      this.currentSongIndex = to;
+    }
+    else if (from < this.currentSongIndex && to >= this.currentSongIndex) {
+      this.currentSongIndex--;
+    } else if(from > this.currentSongIndex && this.currentSongIndex >= to) {
+      this.currentSongIndex++;
+    }
+
+    const [item] = this.queue.splice(from, 1);
+    this.queue.splice(to, 0, item);
   }
 }

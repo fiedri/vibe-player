@@ -6,13 +6,15 @@
     itemHeight = 56,
     overscan = 5,
     children,
-    scrollTop = $bindable(0), // ← lo movemos a prop bindable
+    scrollTop = $bindable(0), 
+    scrollELement = $bindable(null),
   }: {
     items: T[];
     itemHeight?: number | ((index: number) => number);
     overscan?: number;
     children: Snippet<[T, number]>;
     scrollTop?: number;
+    scrollELement: HTMLElement | null
   } = $props();
 
   let containerHeight = $state(0); // altura visible
@@ -96,6 +98,7 @@
 <div
   use:setupResize
   onscroll={handleScroll}
+  bind:this={scrollELement}
   class="h-full w-full overflow-y-auto contain-strict"
 >
   <div style="height: {totalHeight}px; width: 100%; position: relative;">
