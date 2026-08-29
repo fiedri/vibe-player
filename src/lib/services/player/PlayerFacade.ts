@@ -23,6 +23,8 @@ export class PlayerFacade {
   constructor(audioEngine: AudioEngine) {
     this.audioEngine = audioEngine;
     this.audioEngine.onEndedRequest = () => this.handleTrackEnded();
+    this.audioEngine.onLoadedMetadata = () => this.handleLoadedMetadata();
+    this.audioEngine.onSeeked = () => this.handleSeeked();
     this.queueManager = new QueueManager(new RepeatOffmode());
 
     this.mediaSessionService.onPauseRequest = () => this.pause();
@@ -135,14 +137,14 @@ export class PlayerFacade {
       true,
     );
   }
-  public syncPlaybackPosition() {
-    if (!this.duration || !Number.isFinite(this.duration)) return;
-
-    this.mediaSessionService.updatePositionState(
-      this.currentTime,
-      this.duration,
-      false,
-    );
+  public handleSeeked() {
+    if (this.duration && Number.isFinite(this.duration)) {
+      this.mediaSessionService.updatePositionState(
+        this.currentTime,
+        this.duration,
+        true,
+      );
+    }
   }
   public moveInQueue(from: number, to: number){
     this.queueManager.moveInQueue(from, to)
@@ -248,7 +250,6 @@ export class PlayerFacade {
   public next() {
     this.queueManager.next();
     const song = this.queueManager.currentSong;
-    this.syncPlaybackPosition();
     if (song) {
       this.initSong(song);
       this.startPlayback();

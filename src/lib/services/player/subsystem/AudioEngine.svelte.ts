@@ -5,6 +5,8 @@ export abstract class AudioEngine {
   public volume = $state<number>(1);
   public isPlaying = $state<boolean>(false);
   public onEndedRequest?: () => void;
+  public onLoadedMetadata?: () => void;
+  public onSeeked?: () => void;
   abstract setUrl(songUrl: string): void;
   abstract restoreLoadPosition(position: number): void;
   abstract setVolume(val: number): void;
@@ -14,6 +16,9 @@ export abstract class AudioEngine {
 }
 export class WebAudioEngine extends AudioEngine {
   private audioElement: HTMLAudioElement = new Audio();
+  private pendingPosition: number | null = null;
+  public onLoadedMetadata?: () => void;
+  public onSeeked?: () => void;
   constructor() {
     super();
     const updateDuration = () => {
@@ -22,14 +27,24 @@ export class WebAudioEngine extends AudioEngine {
       }
     };
 
-    this.audioElement.addEventListener("loadedmetadata", updateDuration);
     this.audioElement.addEventListener("durationchange", updateDuration);
     this.audioElement.ontimeupdate = () => {
       this.currentTime = this.audioElement?.currentTime ?? 0;
     };
     this.audioElement.onloadedmetadata = () => {
       this.duration = this.audioElement.duration ?? 0;
-      this.audioElement.currentTime = this.currentTime;
+      if (this.pendingPosition !== null) {
+        this.audioElement.currentTime = this.pendingPosition;
+        this.currentTime = this.pendingPosition;
+        this.pendingPosition = null;
+      } else {
+        this.currentTime = 0;
+      }
+      this.onLoadedMetadata?.();
+    };
+    this.audioElement.onseeked = () => {
+      this.currentTime = this.audioElement.currentTime;
+      this.onSeeked?.();
     };
     this.audioElement.onended = () => {
       this.onEndedRequest?.();
@@ -37,9 +52,12 @@ export class WebAudioEngine extends AudioEngine {
   }
 
   public restoreLoadPosition(position: number) {
-    this.currentTime = position;
+    this.pendingPosition = position;
   }
   public setUrl(songUrl: string) {
+    this.currentTime = 0;
+    this.duration = 0;
+    this.isPlaying = false;
     this.audioElement.src = Capacitor.convertFileSrc(songUrl);
   }
   public play() {
@@ -71,7 +89,6 @@ export class WebAudioEngine extends AudioEngine {
   public seek(time: number) {
     if (this.audioElement) {
       this.audioElement.currentTime = time;
-      this.currentTime = time;
     }
   }
 

@@ -180,9 +180,8 @@ public syncNativePlaybackState(
     }
     if (!(finiteDuration > 0)) return;
 
-    // 0.001 → 1ms nativo: vence el equality-guard del servicio (position !=
-    // newPosition) aunque el ancla vieja esté exactamente en 0.
-    this.updatePositionState(0.001, finiteDuration, true);
+    // Ancla en 0: el plugin siempre propaga setPositionState; reset nativo.
+    this.updatePositionState(0, finiteDuration, true);
   }
 
   /** Song.duration es ms (número) o "mm:ss" (string). Devuelve segundos. */
