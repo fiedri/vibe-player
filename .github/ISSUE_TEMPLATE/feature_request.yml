@@ -1,0 +1,58 @@
+name: Feature request
+description: Suggest an idea for this project.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an idea. Fill out the form below.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem does this feature solve? Describe the current friction.
+      placeholder: I can't organize my tracks by folders...
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: A clear and concise description of what you want to happen.
+      placeholder: Add a folder view in the library tab.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds or alternative solutions you tried.
+      placeholder: Manually creating playlists.
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the app does this affect?
+      multiple: true
+      options:
+        - Playback
+        - Library
+        - Playlists
+        - UI / Design
+        - Performance
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Confirmations
+      description: Before submitting, confirm the following.
+      options:
+        - label: I have searched for existing issues and this is not a duplicate.
+          required: true
+        - label: I have described why this feature is valuable.
+          required: true

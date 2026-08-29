@@ -1,0 +1,93 @@
+name: Bug report
+description: Report a found bug.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this bug. Fill out the form below.
+  - type: textarea
+    id: describe
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: When I play a track, the app crashes...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Exact steps to trigger the bug.
+      placeholder: |
+        1. Open the app
+        2. Select a track
+        3. Press play
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+      placeholder: The track should start playing.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened instead?
+      placeholder: The app crashes with a black screen.
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      description: What device did you test on?
+      multiple: true
+      options:
+        - Pixel
+        - Samsung
+        - Motorola
+        - Xiaomi
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Android version
+      description: e.g. 14, 15, 16
+      placeholder: "14"
+    validations:
+      required: true
+  - type: input
+    id: app_version
+    attributes:
+      label: App version
+      description: Version shown in the app info screen.
+      placeholder: e.g. 1.0.0
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Stack trace
+      description: Paste any relevant logs or crash stack trace.
+      render: shell
+    validations:
+      required: false
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Confirmations
+      description: Before submitting, confirm the following.
+      options:
+        - label: I have searched for existing issues and this is not a duplicate.
+          required: true
+        - label: I can reproduce the bug consistently.
+          required: true
