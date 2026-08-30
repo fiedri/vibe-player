@@ -1,0 +1,1 @@
+Corregida la sincronización del progreso entre la notificación y la reproducción (v0.6.1).

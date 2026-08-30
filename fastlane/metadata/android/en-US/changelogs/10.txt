@@ -1,0 +1,1 @@
+Fixed progress synchronization between the media notification and playback: accurate seeking and correct position on pause (v0.6.1).

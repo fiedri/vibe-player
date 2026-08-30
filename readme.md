@@ -1,5 +1,16 @@
 https://github.com/user-attachments/assets/bb9c6b3d-9a11-46e1-8010-32d19ab609bc
 
+<p align="center">
+  <a href="https://f-droid.org/packages/dev.fiedri.vibe/">
+    <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" 
+         alt="Consíguelo en F-Droid" 
+         height="80">
+  </a>
+</p>
+
+---
+# Vibe
+
 # Vibe
 
 Music player for Android.

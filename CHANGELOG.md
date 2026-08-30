@@ -1,115 +1,119 @@
 # Changelog
 
-Todas las novedades y cambios notables de **Vibe** se documentarán en este archivo.
+All notable changes and new features of **Vibe** will be documented in this file.
 
-El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 ## [unreleased]
+## [0.6.1] - 2026-08-29
+### Fixed
+- Progress synchronization between the playback notification and the audio: precise seeking and correct position when pausing
+
 ## [0.6.0] - 2026-08-27
 ### Added
-- Vista de cola de reproducción
-- Reordenamiento de cola de reproducción
-- Boton para iniciar reproducción aleatoria desde la vista song
+- Playback queue view
+- Playback queue reordering
+- Button to start shuffle playback from the Song view
 
 ## [0.5.3] - 2026-08-23
 ### Fixed
-- Restauración de playlists
+- Playlist restoration
 
 ## [0.5.2] - 2026-08-20
 
 ### Fixed
-- [Error: No puedes crear otra playlista llamada favoritos] al restaurar playlists mediante JSON
-- Bug visual del miniplayer con scroll infinito aunque el texto entrara en pantalla
+- [Error: You can't create another playlist named Favorites] when restoring playlists via JSON
+- Visual bug in the mini player with infinite scrolling even when the text fit on screen
 
 ### Changed
-- Removidos permisos no necesarios para las funcionalidades
+- Removed permissions that were not necessary for the features
 
 ## [0.5.1] - 2026-08-17
 ### Added
-- Reinicio de cancion al presionar previus despues de 3s
+- Song restarts when pressing previous after 3 seconds
 
 ## [0.5.0] - 2026-08-15 (beta)
-> **Nota de la versión:** Esta entrega marca el paso de Alpha a Beta Pública. La aplicación ya cuenta con el conjunto core de funcionalidades estable.
+> **Release note:** This release marks the transition from Alpha to Public Beta. The app already has the stable core feature set.
 
 ### Added
-- Gestion de canciones favoritas
-- Eliminacion de duplicados en Playlists
-- Opcion para agregar a siguiente en la cola
-- seleccionar todos en la Multiseleccion
-- Opciones de ordenamiento para canciones, albumes y artistas
+- Favorite songs management
+- Deletion of duplicates in playlists
+- Option to add a song as next in the queue
+- Select all in multi-select
+- Sorting options for songs, albums and artists
 
 ### Fixed
-- Seleccion multiple
+- Multi-select
 
 ### Changed
-- La busqueda ahora se realiza en una ruta dedicada.
-- Migracion de cache a filesystem
+- Search now runs on a dedicated route.
+- Migration of cache to filesystem
 
 ### Deleted
-- Vista de inicio
+- Home view
 
 ## [0.4.0] - 2026-08-10
 
 ### Added
-- Vistas individuales para albums y artistas.
+- Individual views for albums and artists.
 ### Changed
-- Estetica de la vista individual de playlist y el reproductor
+- Aesthetics of the individual playlist view and the player
 
 ## [0.3.0] - 2026-08-06
 
 ### Added
-- Eliminacion de canciones del almacenamiento local.
-- Seleccion multiple de canciones.
+- Deletion of songs from local storage.
+- Multi-select of songs.
 
 # Fixed
-- Comportamiento del modo repeat-one: ahora solo repite al terminar la cancion
+- Repeat-one mode behavior: now it only repeats when the song finishes
 
 # [0.2.4] - 2026-08-05
-- Dialog para mostrar errores al usuario en tiempo de ejecucion
+- Dialog to show errors to the user at runtime
 
 
 ## [0.2.3] - 2026-08-05
 
 ### Fixed
-- Error al abrir algunas playlists que contenían la misma canción repetida (aparecía una pantalla de error al entrar). Las canciones repetidas ahora se filtran correctamente y la playlist abre normal.
-- Error al reabrir la app con una canción en reproducción: el estado del reproductor ya no falla al restaurarse.
+- Error when opening some playlists that contained the same song repeated (an error screen appeared when entering). Repeated songs are now filtered correctly and the playlist opens normally.
+- Error when reopening the app with a song playing: the player state no longer fails when being restored.
 
 ## [0.2.2] - 2026-08-04
 
 ### Fixed
-- Error al abrir Vibe tras una **instalación limpia** en algunos dispositivos Android (pantalla de error en lugar del reproductor). La causa era el auto-backup de Android: al reinstalar, restauraba el estado interno del almacenamiento local en una condición rota. Se desactiva el backup para evitarlo.
+- Error opening Vibe after a **clean install** on some Android devices (error screen instead of the player). The cause was Android's auto-backup: when reinstalling, it restored the internal state of local storage in a broken condition. Backup is disabled to avoid this.
 
 ### Added
-- **Backup y restauración de playlists**: exportá tus listas a un JSON (se copia al portapapeles) y volvé a importarlas pegándolo después. Útil al reinstalar la app o cambiar de dispositivo, ya que el auto-backup quedó desactivado.
+- **Playlist backup and restoration**: export your lists to a JSON (it's copied to the clipboard) and import them again later by pasting it. Useful when reinstalling the app or switching devices, since auto-backup has been disabled.
 
 ## [0.2.0] - 2026-08-04
 
 ### Added
-- Opción para actualizar la biblioteca de medios manualmente.
-- Submenú de opciones por canción (para acciones rápidas como agregar a playlists).
-- Soporte completo para playlists:
-  - Agregar y quitar canciones.
-  - Crear y eliminar playlists.
-  - Reproducción dedicada de playlists.
+- Option to update the media library manually.
+- Per-song options submenu (for quick actions such as adding to playlists).
+- Full support for playlists:
+  - Add and remove songs.
+  - Create and delete playlists.
+  - Dedicated playback of playlists.
 
 ### Changed
-- La cola de reproducción ahora restringe la navegación al contexto actual (playlist o biblioteca global).
+- The playback queue now restricts navigation to the current context (playlist or global library).
 
 ## [0.1.2] - 2026-08-01
 
 ### Fixed
-- Navegación `prev` / `next` en modo aleatorio ignoraba el orden real de la cola.
+- `prev` / `next` navigation in shuffle mode ignored the real queue order.
 
 ## [0.1.1] - 2026-07-31
 
 ### Added
-- Notificación al pulsar botones con funcionalidades aún no disponibles.
+- Notification when pressing buttons whose features are not yet available.
 
 ## [0.1.0] - 2026-07-31
 
 ### Added
-- Filtro de búsqueda individual para cada sección.
-- Renderizado virtual para listas largas de canciones y carga en caché.
-- Reproductor con estado persistente, controles (`play`, `pause`, `next`) y modos de reproducción (`shuffle`, `repeat-one`, `repeat-all`).
-- Vistas principales: Inicio, Playlists, Álbumes, Canciones y Artistas.
+- Individual search filter for each section.
+- Virtual rendering for long song lists and caching.
+- Player with persistent state, controls (`play`, `pause`, `next`) and playback modes (`shuffle`, `repeat-one`, `repeat-all`).
+- Main views: Home, Playlists, Albums, Songs and Artists.
