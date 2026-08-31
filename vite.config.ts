@@ -1,4 +1,5 @@
 import tailwindcss from "@tailwindcss/vite";
+import postcssPresetEnv from "postcss-preset-env";
 import adapter from "@sveltejs/adapter-static";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
@@ -21,6 +22,14 @@ function getVersion(): string {
 export default defineConfig({
 	build: {
 		sourcemap: false,
+		// Transpilar el bundle JS a ES2018: evita operadores ES2021 (??=, &&=)
+		// que rompen en System WebView < 85 (emuladores y teléfonos antiguos).
+		target: "es2020",
+	},
+	css: {
+		postcss: {
+			plugins: [postcssPresetEnv({ browsers: "Chrome >= 85" })]
+		}
 	},
 	plugins: [
 		tailwindcss(),
@@ -42,6 +51,7 @@ export default defineConfig({
 					config.include.push("../drizzle.config.ts");
 				}
 			},
+
 			// kit.version.name — MUST live here (in vite.config) because passing
 			// options to sveltekit() makes SvelteKit ignore svelte.config.ts entirely.
 			version: {
