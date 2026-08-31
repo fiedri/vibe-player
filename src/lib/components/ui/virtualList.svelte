@@ -14,7 +14,7 @@
     overscan?: number;
     children: Snippet<[T, number]>;
     scrollTop?: number;
-    scrollELement: HTMLElement | null
+    scrollELement?: HTMLElement | null
   } = $props();
 
   let containerHeight = $state(0); // altura visible

@@ -40,7 +40,7 @@
 </script>
 
 <section
-  class="h-dvh w-screen overflow-y-auto overscroll-y-contain"
+  class="h-screen w-screen overflow-y-auto overscroll-y-contain"
   id="error-view"
   onscroll={handleScroll}
 >

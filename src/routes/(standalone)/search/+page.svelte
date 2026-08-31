@@ -50,7 +50,7 @@
 </script>
 
 <section
-  class="h-dvh w-screen overflow-y-auto overscroll-y-contain flex flex-col [&_h2]:uppercase [&_h2]:font-black [&_h2]:tracking-wide [&_h2]:text-sm [&_h2]:text-muted-foreground [&_h2]:mb-3"
+  class="h-screen w-screen overflow-y-auto overscroll-y-contain flex flex-col [&_h2]:uppercase [&_h2]:font-black [&_h2]:tracking-wide [&_h2]:text-sm [&_h2]:text-muted-foreground [&_h2]:mb-3"
   id="playlists-view"
 >
   <div

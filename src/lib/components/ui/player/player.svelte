@@ -120,7 +120,7 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="bg-card w-full sticky z-[9999] overflow-hidden md:hidden"
+    class="bg-card w-full fixed bottom-0 left-0 right-0 z-[9999] overflow-hidden md:hidden"
     onclick={handleOpenAndClosePlayer}
   >
     <div class="flex items-center gap-2 w-full text-xs text-zinc-400">
@@ -133,7 +133,7 @@
         oninput={handleSeekInput}
         onchange={handleSeekChange}
         disabled={!playerService.currentSong}
-        style="background: linear-gradient(to right,oklch(0.424 0.199 265.638) {progressPercent}%, #3f3f46 {progressPercent}%);"
+        style="background: linear-gradient(to right, var(--primary) {progressPercent}%, #3f3f46 {progressPercent}%);"
         class="w-full h-1 cursor-pointer appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:appearance-none"
       />
     </div>

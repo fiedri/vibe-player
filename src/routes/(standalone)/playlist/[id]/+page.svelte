@@ -105,7 +105,7 @@
   });
 </script>
 
-<section class="h-dvh w-screen relative overflow-hidden">
+<section class="h-screen w-screen relative overflow-hidden">
   <div
     class="top-0 z-10 absolute w-full flex justify-between flex-row {tight
       ? 'bg-background'

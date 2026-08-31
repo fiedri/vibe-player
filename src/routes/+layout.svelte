@@ -126,9 +126,9 @@
   });
 </script>
 
-<div class="h-dvh flex flex-col justify-between border-r-0 overflow-hidden">
+<div class="h-screen flex flex-col justify-between border-r-0 overflow-hidden">
   {@render children()}
-  <footer>
+  <footer class="h-20 mt-1">
     <Player />
   </footer>
 </div>

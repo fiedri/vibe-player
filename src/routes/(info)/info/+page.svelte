@@ -94,7 +94,7 @@
     </section>
 
     <div
-      class="flex items-start gap-3 p-4 border border-destructive/30 bg-destructive/10 text-sm text-destructive"
+      class="flex items-start gap-3 p-4 border border-red-950 bg-red-300 text-sm text-red-950"
     >
       <TriangleAlert class="mt-0.5 size-4 shrink-0" />
       <p>

@@ -80,7 +80,7 @@
 </script>
 
 <section
-  class="h-dvh w-screen overflow-y-auto overscroll-y-contain {songs.length > 10
+  class="h-screen w-screen overflow-y-auto overscroll-y-contain {songs.length > 10
     ? ''
     : 'pb-10'}"
   id="album-view"
