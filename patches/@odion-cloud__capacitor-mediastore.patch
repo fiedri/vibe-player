@@ -1,5 +1,5 @@
 diff --git a/android/src/main/java/com/capacitor/mediastore/MediaStoreHelper.kt b/android/src/main/java/com/capacitor/mediastore/MediaStoreHelper.kt
-index 3bdf02e91ff6c5bb141157558bf5d0b2ff811963..74c9f93beaf6fffc3b57b83d394f6b45ea98d8df 100644
+index 3bdf02e91ff6c5bb141157558bf5d0b2ff811963..2d77d8bd08649fb15dc5b08b3103fd02c2db4082 100644
 --- a/android/src/main/java/com/capacitor/mediastore/MediaStoreHelper.kt
 +++ b/android/src/main/java/com/capacitor/mediastore/MediaStoreHelper.kt
 @@ -10,6 +10,7 @@ import android.graphics.BitmapFactory
@@ -241,7 +241,7 @@ index 3bdf02e91ff6c5bb141157558bf5d0b2ff811963..74c9f93beaf6fffc3b57b83d394f6b45
                          MediaStore.Audio.Media.ALBUM_ARTIST,
                          MediaStore.Audio.Media.COMPOSER,
                          MediaStore.Audio.Media.GENRE,
-@@ -497,9 +553,10 @@ class MediaStoreHelper(private val context: Context) {
+@@ -497,9 +553,12 @@ class MediaStoreHelper(private val context: Context) {
                          MediaStore.Audio.Media.BOOKMARK
                      )
                  } else {
@@ -249,13 +249,15 @@ index 3bdf02e91ff6c5bb141157558bf5d0b2ff811963..74c9f93beaf6fffc3b57b83d394f6b45
 -                    // Audio-specific columns will be handled in populateMediaObject by checking column existence
 -                    baseProjection
 +                    // Android 12 and below - use only universally available columns when querying Files URI.
++                    // DURATION is available in both Audio and Files URIs; populateMediaObject reads it
++                    // via getColumnIndex so it's safe to include here.
 +                    // ALBUM_ID is exposed by both the Audio and the Files content URI (the files table
 +                    // has an album_id column), so populateMediaObject can build albumArtUri without a sub-query.
-+                    baseProjection + arrayOf(MediaStore.Audio.Media.ALBUM_ID)
++                    baseProjection + arrayOf(MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.ALBUM_ID)
                  }
              }
              "video" -> baseProjection + arrayOf(
-@@ -552,6 +609,7 @@ class MediaStoreHelper(private val context: Context) {
+@@ -552,6 +611,7 @@ class MediaStoreHelper(private val context: Context) {
                  val genreColumn = cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
                  val trackColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TRACK)
                  val yearColumn = cursor.getColumnIndex(MediaStore.Audio.Media.YEAR)
@@ -263,7 +265,7 @@ index 3bdf02e91ff6c5bb141157558bf5d0b2ff811963..74c9f93beaf6fffc3b57b83d394f6b45
  
                  if (durationColumn >= 0) mediaObject.put("duration", cursor.getLong(durationColumn))
                  if (titleColumn >= 0) mediaObject.put("title", cursor.getString(titleColumn) ?: "Unknown")
-@@ -585,8 +643,9 @@ class MediaStoreHelper(private val context: Context) {
+@@ -585,8 +645,9 @@ class MediaStoreHelper(private val context: Context) {
                      }
                  }
  
@@ -275,7 +277,7 @@ index 3bdf02e91ff6c5bb141157558bf5d0b2ff811963..74c9f93beaf6fffc3b57b83d394f6b45
                  if (albumId != null) {
                      val albumArtUri = ContentUris.withAppendedId(
                          Uri.parse("content://media/external/audio/albumart"),
-@@ -688,27 +747,14 @@ class MediaStoreHelper(private val context: Context) {
+@@ -688,27 +749,14 @@ class MediaStoreHelper(private val context: Context) {
          return "$sortColumn $order"
      }
  

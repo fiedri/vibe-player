@@ -172,3 +172,11 @@
   touch-action: none;
   user-select: none;
 }
+
+.seek-slider {
+  background: linear-gradient(
+    to right,
+    var(--primary) var(--seek-progress, 0%),
+    var(--border) var(--seek-progress, 0%)
+  );
+}

@@ -89,6 +89,7 @@ export class WebAudioEngine extends AudioEngine {
   public seek(time: number) {
     if (this.audioElement) {
       this.audioElement.currentTime = time;
+      this.currentTime = time;
     }
   }
 

@@ -10,3 +10,11 @@
 
 <b>Open Source:</b> Vibe is free and open-source software licensed under GPL-3.0-or-later.
 <b>Note: The app user interface is currently available only in Spanish.</b>
+
+<b>Minimum requirements for a smooth experience:</b>
+
+• <b>Android 10 (API level 29)</b> or higher.
+• <b>System WebView (85 >=)</b>.
+
+Note: this does not mean older versions are incompatible — Android 10 with WebView 85 is simply the oldest environment we were able to test Vibe on.
+

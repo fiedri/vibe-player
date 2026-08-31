@@ -29,24 +29,25 @@
   import { formatearMS } from "$lib/utils";
   import { favorites } from "$lib/stores/favorites.svelte";
   import PlayerMenu from "../menus/playerMenu.svelte";
-    import Queue from "./queue.svelte";
+  import Queue from "./queue.svelte";
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
-
-
-
-
 
   let displayTime = $derived(isSeeking ? seekValue : playerService.currentTime);
   let progressPercent = $derived(
     playerService.duration ? (displayTime / playerService.duration) * 100 : 0,
   );
+
   function handleSeekChange(e: Event) {
     const target = e.target as HTMLInputElement;
     const newTime = parseFloat(target.value);
 
     playerService.seekTo(newTime);
     isSeeking = false;
+  }
+  function handleSeekCancel() {
+    isSeeking = false;
+    seekValue = playerService.currentTime;
   }
   function handleError(e: Event) {
     console.error("Error en elemento audio:", e);
@@ -99,9 +100,7 @@
   };
   function handleChangeRepeatMode() {
     const nextMode = playerService.cycleRepeatMode();
-    showNotificacion(
-      REPEAT_MESSAGES[nextMode as keyof typeof REPEAT_MESSAGES],
-    );
+    showNotificacion(REPEAT_MESSAGES[nextMode as keyof typeof REPEAT_MESSAGES]);
   }
 
   let isOpenMenu = $state(false);
@@ -120,7 +119,7 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="bg-card w-full fixed bottom-0 left-0 right-0 z-[9999] overflow-hidden md:hidden"
+    class="bg-card w-full sticky z-[9999] overflow-hidden md:hidden"
     onclick={handleOpenAndClosePlayer}
   >
     <div class="flex items-center gap-2 w-full text-xs text-zinc-400">
@@ -128,13 +127,15 @@
         type="range"
         min="0"
         max={playerService.duration}
+        step="any"
         value={displayTime}
         onpointerdown={handleSeekStart}
         oninput={handleSeekInput}
         onchange={handleSeekChange}
+        onpointercancel={handleSeekCancel}
         disabled={!playerService.currentSong}
-        style="background: linear-gradient(to right, var(--primary) {progressPercent}%, #3f3f46 {progressPercent}%);"
-        class="w-full h-1 cursor-pointer appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:appearance-none"
+        style="--seek-progress: {progressPercent}%; --seek-rest: #3f3f46;"
+        class="seek-slider w-full h-1 cursor-pointer appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:appearance-none"
       />
     </div>
     <div class="w-full flex justify-between gap-3 items-center h-20 px-3">
@@ -292,13 +293,15 @@
         type="range"
         min="0"
         max={playerService.duration || 100}
+        step="any"
         value={displayTime}
         onpointerdown={handleSeekStart}
         oninput={handleSeekInput}
         onchange={handleSeekChange}
+        onpointercancel={handleSeekCancel}
         disabled={!playerService.currentSong}
-        style="background: linear-gradient(to right, var(--primary) {progressPercent}%, var(--border) {progressPercent}%);"
-        class="w-full h-1 cursor-pointer appearance-none
+        style="--seek-progress: {progressPercent}%; --seek-rest: var(--border);"
+        class="seek-slider w-full h-1 cursor-pointer appearance-none
     [&::-webkit-slider-thumb]:appearance-none
     [&::-webkit-slider-thumb]:w-1.5
     [&::-webkit-slider-thumb]:h-4
@@ -374,6 +377,16 @@
       </button>
     </div>
 
-  <Queue/>
+    <Queue />
   </div>
 {/if}
+
+<style>
+  .seek-slider {
+    background: linear-gradient(
+      to right,
+      var(--primary) var(--seek-progress, 0%),
+      var(--seek-rest, var(--border)) var(--seek-progress, 0%)
+    );
+  }
+</style>

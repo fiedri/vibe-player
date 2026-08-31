@@ -6,3 +6,5 @@ offline, libre de anuncios y rastreo.<br /><br /><b
 fácilmente.<br />• <b>Navegación ágil:</b> Vistas por álbumes, artistas y
 búsqueda rápida.<br />• <b>Rendimiento optimizado:</b> Manejo fluido de miles de
 canciones.
+
+<b>Requerimientos minimos para un buen funcionamiento:</b><br /><br />• <b>Android 10 (nivel de API 29)</b> o superior.<br />• <b>System WebView (85>=)</b>.<br /><br />Nota: no es que las versiones anteriores sean incompatibles, sino que Android 10 con WebView 85 fue la versión más antigua en la que pudimos probar Vibe.

@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0
 
 ---
 ## [unreleased]
+
+## [0.6.2] - 2026-08-31
+### Fixed
+- compatibility with old webviews (>= 85)
+
 ## [0.6.1] - 2026-08-29
 ### Fixed
 - Progress synchronization between the playback notification and the audio: precise seeking and correct position when pausing
