@@ -1,4 +1,6 @@
 <script lang="ts">
+import { m } from "$lib/paraglide/messages.js";
+
   import { expand } from "$lib/uiUtils";
   import VirtualList from "../virtualList.svelte";
   import {
@@ -120,7 +122,7 @@
     <h2
       class="text-center uppercase font-bold leading-5 p-2 text-muted-foreground text-xs tracking-wider"
     >
-      Cola de Reproducción
+     {m["player.queue"]()} 
     </h2>
   </div>
 

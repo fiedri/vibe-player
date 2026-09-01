@@ -1,4 +1,5 @@
 <script>
+import {m} from '$lib/paraglide/messages.js';
   import ThumbnailCard from "$lib/components/ui/Cards/thumbnailCard.svelte";
   import VirtualGrid from "$lib/components/ui/VirtualGrid.svelte";
     import { albumes } from "$lib/stores/albumes.svelte";
@@ -26,11 +27,10 @@ ui.query = ""
         height="h-28"
         title={artist.name}
         img={Capacitor.convertFileSrc(artist.image)}
-        subtitle={`${artist.songCount} canciones`}
+        subtitle={m.songs({ count: artist.songCount })}
         onErrorImg={'/default-artist.png'}
 
       />
-
     </a> 
     {/snippet}
   </VirtualGrid>

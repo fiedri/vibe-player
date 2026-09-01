@@ -1,4 +1,6 @@
 <script lang="ts">
+
+import {m} from '$lib/paraglide/messages.js';
   import { artists } from "$lib/stores/artist.svelte";
   import { Capacitor } from "@capacitor/core";
   import { page } from "$app/state";
@@ -97,7 +99,7 @@
             <h2 class="text-4xl font-bold w-[80%] mb-3 ml-2.5">{artistName}</h2>
           </div>
           <div class="p-4">
-            <span class="uppercase font-bold text-xl">Albumes</span>
+            <span class="uppercase font-bold text-xl">{m.albums({count: allArtistsResources.albums.length})}</span>
             <div>
               <HorizontalContainer>
                 {#each allArtistsResources.albums as album}

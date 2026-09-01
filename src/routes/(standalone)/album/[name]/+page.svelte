@@ -1,4 +1,6 @@
 <script lang="ts">
+
+import {m} from '$lib/paraglide/messages.js';
   import { ArrowLeft } from "carbon-icons-svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { PlayFilledAlt, Shuffle } from "carbon-icons-svelte";
@@ -107,13 +109,13 @@
           >
             <div class="w-[80%] mb-3 ml-2.5 flex flex-col gap-1">
               <span class="text-primary uppercase font-bold text-sm"
-                >Álbumes</span
+                >{m.albums({count: 1})}</span
               >
               <h2 class="text-4xl font-extrabold truncate">{albumName}</h2>
               <div
                 class="flex items-center gap-3 *:uppercase text-muted-foreground font-bold"
               >
-                <span>{songs.length} canciones</span>
+                <span>{m.songs({count: songs.length})}</span>
                 <span>•</span>
                 <span>{totalDuration}</span>
               </div>
@@ -127,7 +129,7 @@
               onclick={handlePlay}
             >
               <PlayFilledAlt />
-              Reproducir
+             {m.play()} 
             </Button>
             <Button
               variant="outline"
@@ -135,7 +137,7 @@
               onclick={handleShuffled}
             >
               <Shuffle />
-              Aleatorio
+              {m.Shuffle()}
             </Button>
           </div>
         {:else}

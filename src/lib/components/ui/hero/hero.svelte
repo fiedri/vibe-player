@@ -1,4 +1,6 @@
 <script lang="ts">
+import { m } from "$lib/paraglide/messages.js";
+
   import Button from "../button/button.svelte";
   import { page } from "$app/stores";
   import {
@@ -12,9 +14,9 @@
   import MainMenu from "../menus/mainMenu.svelte";
     import { getSortableStoreByPath } from "$lib/services/storeRegistry";
   let tabs = [
-    { href: "/", tab: "Canciones" },
-    { href: "/albums", tab: "Álbumes" },
-    { href: "/artist", tab: "Artistas" },
+    { href: "/", tab: m["tabs.songs"]() },
+    { href: "/albums", tab: m["tabs.albums"]() },
+    { href: "/artist", tab: m["tabs.artists"]() },
     { href: "/playlist", tab: "Playlist" },
   ];
 

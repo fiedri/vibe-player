@@ -1,6 +1,8 @@
 import { cargarBiblioteca, eliminarCanciones } from "$lib/services/files";
 import { eliminarCancion } from "$lib/services/files";
 import { ensureThumbnail } from "$lib/services/artworks";
+
+import {m} from '$lib/paraglide/messages.js';
 import {
   esCacheBibliotecaFresco,
   guardarCache,
@@ -28,9 +30,9 @@ const LOTE_INICIAL = 1500;
 class BibliotecaStore implements SortableStore {
   itemType: Item = Item.Songs;
   availableSortOptions: { value: string; label: string }[] = [
-    { value: "title", label: "Título" },
-    { value: "date", label: "Fecha de añadido" },
-    { value: "duration", label: "Duración" },
+    { value: "title", label: m["menus.home_overflow_menu.order_by_options.title"]() },
+    { value: "date", label: m["menus.home_overflow_menu.order_by_options.date"]() },
+    { value: "duration", label: m["menus.home_overflow_menu.order_by_options.duration"]() },
   ];
   songs = $state<MediaFile[]>([]);
   loading = $state(false);

@@ -1,3 +1,4 @@
+import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import tailwindcss from "@tailwindcss/vite";
 import postcssPresetEnv from "postcss-preset-env";
 import adapter from "@sveltejs/adapter-static";
@@ -24,21 +25,19 @@ export default defineConfig({
 		sourcemap: false,
 		// Transpilar el bundle JS a ES2018: evita operadores ES2021 (??=, &&=)
 		// que rompen en System WebView < 85 (emuladores y teléfonos antiguos).
-		target: "es2020",
+		target: "es2020"
 	},
 	css: {
-		postcss: {
-			plugins: [postcssPresetEnv({ browsers: "Chrome >= 85" })]
-		}
+		postcss: { plugins: [postcssPresetEnv({ browsers: "Chrome >= 85" })] }
 	},
 	plugins: [
 		tailwindcss(),
 		sveltekit({
 			preprocess: vitePreprocess(),
 			compilerOptions: {
-				runes: ({ filename }) =>
-					filename.split(/[/\\]/).includes("node_modules") ? undefined : true
+				runes: ({ filename }) => filename.split(/[/\\]/).includes("node_modules") ? undefined : true
 			},
+
 			adapter: adapter({
 				pages: "build",
 				assets: "build",
@@ -46,18 +45,20 @@ export default defineConfig({
 				precompress: false,
 				strict: true
 			}),
+
 			typescript: {
 				config: (config) => {
 					config.include.push("../drizzle.config.ts");
 				}
 			},
+			version: { name: getVersion(), pollInterval: 0 },
 
-			// kit.version.name — MUST live here (in vite.config) because passing
-			// options to sveltekit() makes SvelteKit ignore svelte.config.ts entirely.
-			version: {
-				name: getVersion(),
-				pollInterval: 0
-			}
+		}),
+
+		paraglideVitePlugin({
+			project: "./project.inlang",
+			outdir: "./src/lib/paraglide",
+			emitTsDeclarations: true
 		})
 	]
 });

@@ -6,6 +6,7 @@
   import { onDestroy } from "svelte";
   import type { MediaFile } from "$lib/types/songs";
 
+  import { m } from "$lib/paraglide/messages.js";
   let { onClose, song }: { onClose: () => void; song: MediaFile } = $props();
   type MenuOption = {
     text: string;
@@ -15,16 +16,16 @@
   };
   let options: MenuOption[] = [
     {
-      text: "Información",
+      text: m["songs_options.info"](),
       variant: "ghost",
       action: () => {
         ui.openDialog(DialogType.InfoSong, song);
-        onClose()
+        onClose();
       },
-      icon: Information
+      icon: Information,
     },
     {
-      text: "Agregar a playlist",
+      text: m["songs_options.add_to_playlists"](),
       variant: "ghost",
       action: () => {
         ui.openDialog(DialogType.Playlist, song.id);
@@ -32,7 +33,7 @@
       },
     },
     {
-      text: "Borrar",
+      text: m["songs_options.delete"](),
       variant: "destructive",
       action: () => {
         biblioteca.deleteSong(song.id, song.uri);
@@ -52,7 +53,9 @@
       variant={option.variant}
       onclick={option.action}
     >
-      <span class="w-full text-left flex flex-row items-center gap-3">{#if option.icon}<option.icon/>{/if}{option.text}</span>
+      <span class="w-full text-left flex flex-row items-center gap-3"
+        >{#if option.icon}<option.icon />{/if}{option.text}</span
+      >
     </Button>
   {/each}
 </div>

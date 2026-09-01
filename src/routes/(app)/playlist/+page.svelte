@@ -1,4 +1,6 @@
 <script lang="ts">
+
+import {m} from '$lib/paraglide/messages.js';
   import {
     Playlist,
     AddLarge,
@@ -86,16 +88,16 @@
           <h2
             class="font-medium hover:underline text-white underline underline-offset-4 uppercase truncate text-primary"
           >
-            Favoritos
+           {m['playlist.favorites']()} 
           </h2>
         </div>
         <div class="mr-5 relative flex flex-row gap-3 items-center">
           <span class="text-xs text-muted-foreground hover:underline truncate"
-            >{favorito?.songsCount} songs</span
+            >{m.songs({count: favorito?.songsCount})}</span
           >
         </div>
       </a>
-      <h2 class="font-bold text-xl uppercase px-2">Mis Playlist</h2>
+      <h2 class="font-bold text-xl uppercase px-2">Playlist</h2>
 
       {@render buttonToCreate()}
       {#each playlists as playlist (playlist.id)}
@@ -149,7 +151,7 @@
       {:else}
         <div class="h-full w-full flex justify-center items-center">
           <p class="text-muted-foreground text-lg italic">
-            Aun no hay playlists disponibles...
+           {m['playlist.no_playlist']()} 
           </p>
         </div>
       {/each}

@@ -5,6 +5,7 @@ import type { SortableStore } from "$lib/types/sortable";
 import { Item } from "$lib/services/stores";
 import { SortStrategies } from "./strategy/sortBy/strategy";
 
+import {m} from '$lib/paraglide/messages.js';
 export interface artist {
   image: string;
   name: string;
@@ -14,8 +15,8 @@ export interface artist {
 class ArtistStore implements SortableStore {
   itemType: Item = Item.Artists;
   availableSortOptions: { value: string; label: string }[] = [
-    { value: "name", label: "Nombre" },
-    { value: "songCount", label: "N. Canciones" },
+    { value: "name", label: m["menus.home_overflow_menu.order_by_options.name"]() },
+    { value: "songCount", label: m["menus.home_overflow_menu.order_by_options.number_of_songs"]() },
   ];
 
   currentSort = $state<string>("");

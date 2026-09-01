@@ -1,5 +1,7 @@
 <script lang="ts">
   import { portal } from "$lib/uiUtils";
+  import { m } from "$lib/paraglide/messages.js";
+
   import { ContextType } from "$lib/services/player/types";
   import { playerService as player } from "$lib/services/player/PlayerFacade";
   import {
@@ -150,7 +152,7 @@
 openMenu =false
       }}
     >
-     <Information/> Informacion
+     <Information/>{m["songs_options.info"]()}
     </Button>
     <Button
       class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
@@ -160,7 +162,7 @@ player.setNextSong(song)
 openMenu =false
       }}
     >
-      Siguiente
+     {m["songs_options.next_in_queue"]()} 
     </Button>
     <Button
       class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
@@ -171,7 +173,7 @@ openMenu =false
       }}
       variant="ghost"
     >
-      Agregar a playlists
+     {m["songs_options.add_to_playlists"]()} 
     </Button>
     {#if context === ContextType.InPlaylist && playlistId}
       <Button
@@ -184,7 +186,7 @@ openMenu =false
         }}
         variant="ghost"
       >
-        Quitar de playlists</Button
+       {m["songs_options.add_to_playlists"]()}</Button
       >
     {:else}
       <Button
@@ -197,7 +199,7 @@ openMenu =false
         }}
         variant="destructive"
       >
-        Borrar</Button
+        {m["songs_options.delete"]()}</Button
       >
     {/if}
   </div>

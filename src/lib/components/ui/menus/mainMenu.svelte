@@ -1,4 +1,6 @@
 <script lang="ts">
+
+import {m} from '$lib/paraglide/messages.js';
   import {
     cargarParametrosDeOrdenamiento,
     guardarParametrosDeOrdenamiento,
@@ -69,7 +71,7 @@
 
   let overflowMenu = $derived([
     {
-      title: "Actualizar Biblioteca",
+      title: m['menus.home_overflow_menu.refresh_library'](),
       action: () => {
         biblioteca.refresh();
         onClose();
@@ -78,7 +80,7 @@
     },
 ...(activeStore?
     [{
-      title: "Ordenar Por:",
+      title: m['menus.home_overflow_menu.order_by'](),
       action: () => {
         openSortByMenu = !openSortByMenu;
       },
@@ -143,7 +145,7 @@
                 name="orderDir"
                 class="size-3"
                 bind:group={orderByObject.orderDir}
-              /><span>Ascendente</span>
+              /><span>{m['menus.home_overflow_menu.order_by_options.asc']()}</span>
             </label>
             <label
               for="descendente"
@@ -156,7 +158,7 @@
                 value="Desc"
                 class="size-3"
                 bind:group={orderByObject.orderDir}
-              /><span>Descendente</span>
+              /><span>{m['menus.home_overflow_menu.order_by_options.desc']()}</span>
             </label>
           </fieldset>
         </form>

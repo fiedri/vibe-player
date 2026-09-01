@@ -1,4 +1,5 @@
 <script lang="ts">
+import { m } from "$lib/paraglide/messages.js";
   import { fly } from "svelte/transition";
   import { cubicOut } from "svelte/easing";
   import {
@@ -32,7 +33,7 @@
   import Queue from "./queue.svelte";
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
-
+// m.["player.no_song"]()
   let displayTime = $derived(isSeeking ? seekValue : playerService.currentTime);
   let progressPercent = $derived(
     playerService.duration ? (displayTime / playerService.duration) * 100 : 0,
@@ -88,15 +89,15 @@
   function handleShuffle() {
     playerService.toggleShuffle();
     if (playerService.isShuffle) {
-      showNotificacion("Modo Aleatorio (activo)");
+      showNotificacion(m["player.shuffled.active"]());
     } else {
-      showNotificacion("Modo Aleatorio (desactivado)");
+      showNotificacion(m["player.shuffled.desabled"]());
     }
   }
   const REPEAT_MESSAGES = {
-    one: "Repetir una",
-    all: "Repetir todas",
-    off: "Repetición desactivada",
+    one: m["player.repeat_modes.one"](),
+    all: m["player.repeat_modes.all"](),
+    off: m["player.repeat_modes.off"](),
   };
   function handleChangeRepeatMode() {
     const nextMode = playerService.cycleRepeatMode();
@@ -167,7 +168,7 @@
             >
           </div>
         {:else}
-          <div class="text-xs text-zinc-500">Sin Canción</div>
+          <div class="text-xs text-zinc-500">{m["player.no_song"]()}</div>
         {/if}
       </div>
       <div class="flex items-center justify-between gap-5 *:text-white">
@@ -203,7 +204,7 @@
 {:else}
   {#if needNotify}
     <div
-      class="fixed bg-card/70 text-muted-foreground z-30 text-base px-5 py-2 bottom-8 left-[50%] translate-x-[-50%] animate_slideUp text-center"
+      class="fixed bg-card/70 text-muted-foreground z-30 text-base px-5 py-2 bottom-20 left-[50%] translate-x-[-50%] animate_slideUp text-center"
     >
       {notification}
     </div>

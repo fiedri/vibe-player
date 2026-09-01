@@ -40,3 +40,6 @@ capacitor.config.dev.ts
 *.jks
 *.keystore
 skills-lock.json
+# Paraglide
+src/lib/paraglide
+project.inlang/cache/

@@ -8,6 +8,8 @@ import {
 import type { SortableStore } from "$lib/types/sortable";
 import { SortStrategies } from "./strategy/sortBy/strategy.ts";
 import { Item } from "$lib/services/stores.js";
+
+import {m} from '$lib/paraglide/messages.js';
 export interface AlbumInfo {
   title: string;
   artist: string;
@@ -18,8 +20,8 @@ export interface AlbumInfo {
 class AlbumesStore implements SortableStore {
   itemType: Item = Item.Albums;
   availableSortOptions: { value: string; label: string }[] = [
-    { value: "title", label: "Título" },
-    { value: "artist", label: "Artista" },
+    { value: "title", label: m["menus.home_overflow_menu.order_by_options.name"]() },
+    { value: "artist", label: m["menus.home_overflow_menu.order_by_options.artist"]()},
   ];
   currentSort: string = $state("");
   albums = $derived(this.#buildAlbums());

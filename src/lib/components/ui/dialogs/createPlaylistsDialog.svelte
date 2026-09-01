@@ -1,4 +1,6 @@
 <script lang="ts">
+
+import {m} from '$lib/paraglide/messages.js';
   import Button from "../button/button.svelte";
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { DialogType, ui } from "$lib/stores/ui.svelte";
@@ -23,12 +25,12 @@
     for="playlist-name"
     class="font-medium text-foreground uppercase text-xl"
   >
-    Nueva Playlist
+  {m['playlist.add.new_playlist']()} 
   </label>
   <input
     id="playlist-name"
     type="text"
-    placeholder="Nombre de la playlist..."
+    placeholder="{m['playlist.add.placeholder']()}"
     class="w-full bg-background px-1 py-3 text-foreground border-0 border-b-2 border-primary outline-none focus:outline-none focus:ring-0 focus:border-primary"
     bind:value={playlistsName}
   />

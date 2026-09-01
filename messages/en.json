@@ -1,0 +1,74 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "songs": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "count=0, countPlural=*": "No Songs",
+        "count=*, countPlural=one": "1 Song",
+        "count=*, countPlural=other": "{count} Songs"
+      }
+    }
+  ],
+  "albums": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Album",
+        "countPlural=other": "{count} Albums"
+      }
+    }
+  ],
+  "tabs": {
+    "songs": "Songs",
+    "albums": "Albums",
+    "artists": "Artists"
+  },
+  "player": {
+    "no_song": "No Song Selected",
+    "queue": "queue",
+    "shuffled": {
+      "active": "Shuffle on",
+      "desabled": "Shuffle off"
+    },
+    "repeat_modes": {
+      "one": "Repeat One",
+      "all": "Repeat All",
+      "off": "Repetition disabled"
+    }
+  },
+  "songs_options": {
+    "info": "Info",
+    "next_in_queue": "Next in queue",
+    "add_to_playlists": "Add to playlists",
+    "delete": "Delete"
+  },
+  "play": "Play",
+  "Shuffle": "Shuffle",
+  "playlist": {
+    "favorites": "Favorites",
+    "no_playlist": "There is no playlist available...",
+    "add": {
+      "new_playlist": "New playlist",
+      "placeholder": "Playlist's Name..."
+    }
+  },
+    "menus": {
+    "home_overflow_menu": {
+      "refresh_library": "Rescan Library",
+      "order_by": "Order By:",
+      "order_by_options": {
+        "asc": "Ascending",
+        "desc": "Descending",
+        "title": "Title",
+        "date": "Date added",
+        "duration": "Duration",
+        "artist": "Artist",
+        "name": "Name",
+        "number_of_songs": "N. Songs"
+      }
+    }
+  }
+}
