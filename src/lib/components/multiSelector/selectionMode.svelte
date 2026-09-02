@@ -1,4 +1,6 @@
 <script lang="ts">
+
+import { m } from "$lib/paraglide/messages.js";
   import {
     ArrowLeft,
     OverflowMenuVertical,
@@ -42,7 +44,7 @@
       >
         <ArrowLeft class="size-8" />
       </Button>
-      <span>{selection.count} Seleccionados</span>
+      <span>{m["menus.multi_selection.selected"]({count: selection.count})}</span>
     </div>
     <div>
       <Button
@@ -80,7 +82,7 @@ selection.selectAll()
             ui.openDialog(DialogType.Playlist, selection.seletedIds);
           }}
         >
-          Agregar a playlist
+         {m["songs_options.add_to_playlists"]()} 
         </Button>
         {#if currentPlaylistId !== null}
           <Button
@@ -88,7 +90,7 @@ selection.selectAll()
             class="w-full justify-start text-sm active:bg-primary active:text-primary-foreground"
             onclick={removeFromPlaylist}
           >
-            Quitar de la playlist
+           {m["menus.multi_selection.remove_from_playlist"]()} 
           </Button>
         {/if}
         <Button
@@ -99,7 +101,7 @@ selection.selectAll()
             ui.openDialog(DialogType.ConfirmDelete, selection.seletedIds);
           }}
         >
-          Eliminar
+        {m["songs_options.delete"]()}
         </Button>
       </div>
     {/if}

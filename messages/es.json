@@ -46,12 +46,38 @@
   },
   "play": "Reproducir",
   "Shuffle": "Shuffle",
+  "cancel": "Cancelar",
+  "error": "Ocurrio un error inesperado",
+  "add": "Agregar",
   "playlist": {
     "favorites": "Favoritos",
     "no_playlist": "Aún no hay playlist disponibles...",
+    "no_songs": "Esta playlist no tiene canciones.",
     "add": {
       "new_playlist": "Nueva playlist",
-      "name_playlist": "Nombre de la playlist"
+      "name_playlist": "Nombre de la playlist",
+      "create": "Crear"
+    },
+    "backup": {
+      "explanation": "El auto-backup de Android esta desactivado para instalaciones limpias. Exporta las playlists como JSON y guardalo aparte; despues pega ese JSON aquí para restaurarlas",
+      "export": "Exportar",
+      "copy_json": "copia el JSON al portapapeles",
+      "copied": "Backup copiado al portapapeles.",
+      "restore": "Restaurar",
+      "placeholder": "Pegá el JSON del backup...",
+      "restore_result": [
+        {
+          "declarations": ["input count", "local countPlural = count: plural"],
+          "selectors": ["countPlural"],
+          "match": {
+            "countPlural=one": "Playlist restaurada",
+            "countPlural=other": "{count} Playlists restauradas"
+          }
+        }
+      ]
+    },
+    "menu": {
+      "remove_duplicate": "Eliminar duplicados"
     }
   },
   "menus": {
@@ -68,6 +94,125 @@
         "name": "Nombre",
         "number_of_songs": "N. Canciones"
       }
+    },
+    "multi_selection": {
+      "selected": [
+        {
+          "declarations": ["input count", "local countPlural = count: plural"],
+          "selectors": ["countPlural"],
+          "match": {
+            "countPlural=one": "{count} Seleccionado",
+            "countPlural=other": "{count} Seleccionados"
+          }
+        }
+      ],
+      "remove_from_playlist": "Quitar de la playlist"
+    },
+    "mainmenu": {
+      "instructions": "Instrucciones",
+      "settings": "Configuración"
     }
+  },
+  "dialogs": {
+    "confirm_delete": {
+      "title": "Eliminar canciones",
+      "paragraph": "¿Estás seguro que deseas eliminar {count} canciones?",
+      "delete": "Eliminar"
+    },
+    "accept": "Aceptar",
+    "info": {
+      "info": "Información de la canción",
+      "no_info": "No hay información disponible.",
+      "close": "Cerrar",
+      "title": "Título:",
+      "artist": "Artista:",
+      "album": "Álbum:",
+      "album_artist": "Artista del Álbum:",
+      "composer": "Compositor:",
+      "genre": "Género:",
+      "year": "Año:",
+      "track": "N.º de pista:",
+      "format_and_quality": {
+        "format_and_quality": "Formato y calidad",
+        "type": "Tipo MIME",
+        "size": "Tamaño",
+        "bitrate": "Tasa de bits",
+        "sample_rate": "Muestreo",
+        "channels": "Canales"
+      },
+      "file_and_path": {
+        "title": "Archivo y ubicación",
+        "file_name": "Nombre de archivo:",
+        "storage": "Almacenamiento",
+        "internal": "Almacenamiento Interno",
+        "external": "Tarjeta SD / Externo",
+        "date_modified": "Fecha de modificación",
+        "path": "Ruta / URI:",
+        "copy_action": "Copiar",
+        "copy_title": "Copiar ruta al portapapeles",
+        "copied": "¡Copiado!"
+      },
+      "unknown": "Desconocido",
+      "unknown_date": "Desconocida",
+      "copy_error": "Error al copiar la ruta",
+      "format": {
+        "mono": "Mono (1 ch)",
+        "stereo": "Estéreo (2 ch)",
+        "channels": "{count} canales",
+        "audio": "Audio",
+        "mp3": "Audio MP3",
+        "flac": "Audio FLAC",
+        "aac": "Audio AAC",
+        "ogg": "Audio OGG",
+        "wav": "Audio WAV"
+      }
+    }
+  },
+  "info_page": {
+    "title": "Instrucciones",
+    "intro_before": "Vibe usa un",
+    "foreground_service": "servicio en primer plano",
+    "intro_after": "para que la música siga sonando aunque dejes la app en segundo plano. En Android stock esto funciona sin que tengas que tocar nada. Sin embargo, algunas marcas —Xiaomi, Samsung, OnePlus, Huawei— traen optimizadores de batería tan agresivos que pueden cerrar Vibe. Acá te mostramos cómo permitirla en cada una.",
+    "generic": {
+      "title": "Android genérico",
+      "step_1_before": "Ajustes → Apps → Vibe → Batería → seleccioná",
+      "step_1_option": "\"Sin restricciones\"",
+      "step_1_after": "(o \"No optimizar\").",
+      "step_2": "Alternativa: Ajustes → Batería → Optimización de batería → buscá Vibe y desactivá la optimización."
+    },
+    "xiaomi": {
+      "title": "Xiaomi / MIUI / HyperOS",
+      "step_1": "Ajustes → Apps → Permisos de apps → Inicio automático en segundo plano → permití Vibe.",
+      "step_2_before": "Ajustes → Batería → seleccioná",
+      "step_2_option": "\"Sin restricciones\"",
+      "step_2_after": "para Vibe.",
+      "step_3_before": "En Opciones de desarrollador → desactivá la",
+      "step_3_option": "\"Optimización MIUI\"",
+      "step_3_after": "."
+    },
+    "samsung": {
+      "title": "Samsung (One UI)",
+      "step_1": "Ajustes → Batería → Límites de uso en segundo plano → Apps que nunca duermen → agregá Vibe."
+    },
+    "oneplus": {
+      "title": "OnePlus / OPPO (ColorOS)",
+      "step_1_before": "Ajustes → Batería → desactivá",
+      "step_1_option_a": "\"Batería adaptable\"",
+      "step_1_middle": "y/o",
+      "step_1_option_b": "\"Optimización profunda\"",
+      "step_1_after": ".",
+      "step_2": "Habilitá el Auto-inicio de Vibe.",
+      "step_3": "Fijá Vibe en el multitarea: abrí los Recents y bloqueá la tarjeta de Vibe (mantenela presionada y tocá el candado)."
+    },
+    "huawei": {
+      "title": "Huawei (EMUI / HarmonyOS)",
+      "step_1": "Ajustes → Batería → Inicio de apps → Administrar manualmente → permití Vibe (activá \"Permitir inicio automático\", \"Permitir actividad en segundo plano\" y \"Permitir ejecución en segundo plano\")."
+    },
+    "warning": "En OnePlus y otras marcas, la configuración puede revertirse con las actualizaciones del sistema. Si Vibe deja de sonar en segundo plano, volvé a revisar estos pasos."
+  },
+  "settings": {
+    "general": "Configuración general",
+    "language": "Idioma",
+    "language_auto": "Auto (sistema)"
   }
 }

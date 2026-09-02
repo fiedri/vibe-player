@@ -24,6 +24,7 @@
 	import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
 	import { favorites } from "$lib/stores/favorites.svelte";
 	import InfoSong from "$lib/components/ui/dialogs/infoSong.svelte";
+	import LanguageDialog from "$lib/components/ui/dialogs/settings/languageDialog.svelte";
 
 	let { children } = $props();
 	let backListener: any = null;
@@ -163,6 +164,8 @@
 			<ConfirmDeleteDialog />
 		{:else if dialogType == DialogType.InfoSong}
 			<InfoSong />
+		{:else if dialogType === DialogType.Language}
+			<LanguageDialog />
 		{/if}
 	{/snippet}
 </Dialog>

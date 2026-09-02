@@ -8,8 +8,10 @@ import { m } from "$lib/paraglide/messages.js";
     Information as Info,
     Menu,
     Search,
+    ArrowLeft,
+    Settings as SettingsIcon,
   } from "carbon-icons-svelte";
-  import { crossfade } from "svelte/transition";
+  import { crossfade, fly } from "svelte/transition";
   import { cubicInOut } from "svelte/easing";
   import MainMenu from "../menus/mainMenu.svelte";
     import { getSortableStoreByPath } from "$lib/services/storeRegistry";
@@ -73,9 +75,21 @@ import { m } from "$lib/paraglide/messages.js";
 
       {#if menuOpen}
         <div
-          class="absolute top-full left-0 mt-2 z-50 min-w-44 bg-card border border-border shadow-lg"
+          class="fixed inset-y-0 left-0 z-50 w-[70%] flex flex-col bg-card border-r border-border shadow-lg"
           role="menu"
+          transition:fly={{ x: -100, duration: 200 }}
         >
+          <div class="flex items-center p-3 border-b border-border">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Cerrar menú"
+              onclick={closeMenu}
+            >
+              <ArrowLeft class="size-6" />
+            </Button>
+          </div>
+
           <a
             href="/info"
             role="menuitem"
@@ -83,7 +97,17 @@ import { m } from "$lib/paraglide/messages.js";
             class="flex items-center gap-2 p-3 text-sm text-muted-foreground hover:text-white hover:bg-zinc-800/50"
           >
             <Info class="size-4 shrink-0" />
-            <span>Instrucciones</span>
+            <span>{m["menus.mainmenu.instructions"]()}</span>
+          </a>
+
+          <a
+            href="/settings"
+            role="menuitem"
+            onclick={closeMenu}
+            class="flex items-center gap-2 p-3 text-sm text-muted-foreground hover:text-white hover:bg-zinc-800/50"
+          >
+            <SettingsIcon class="size-4 shrink-0" />
+            <span>{m["menus.mainmenu.settings"]()}</span>
           </a>
         </div>
       {/if}

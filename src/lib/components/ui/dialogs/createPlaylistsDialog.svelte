@@ -30,14 +30,14 @@ import {m} from '$lib/paraglide/messages.js';
   <input
     id="playlist-name"
     type="text"
-    placeholder="{m['playlist.add.placeholder']()}"
+    placeholder="{m['playlist.add.name_playlist']()}"
     class="w-full bg-background px-1 py-3 text-foreground border-0 border-b-2 border-primary outline-none focus:outline-none focus:ring-0 focus:border-primary"
     bind:value={playlistsName}
   />
   <div class="flex justify-end gap-3">
     <Button variant="ghost" onclick={() => ui.closeDialog()} type="button"
-      >cancelar</Button
+      >{m.cancel()}</Button
     >
-    <Button type="submit" disabled={playlistsName.trim() === ""}>Crear</Button>
+    <Button type="submit" disabled={playlistsName.trim() === ""}>{m['playlist.add.create']()}</Button>
   </div>
 </form>

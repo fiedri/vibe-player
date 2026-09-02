@@ -5,9 +5,8 @@
       "declarations": ["input count", "local countPlural = count: plural"],
       "selectors": ["countPlural"],
       "match": {
-        "count=0, countPlural=*": "No Songs",
-        "count=*, countPlural=one": "1 Song",
-        "count=*, countPlural=other": "{count} Songs"
+        "countPlural=one": "1 song",
+        "countPlural=other": "{count} songs"
       }
     }
   ],
@@ -16,7 +15,7 @@
       "declarations": ["input count", "local countPlural = count: plural"],
       "selectors": ["countPlural"],
       "match": {
-        "countPlural=one": "Album",
+        "countPlural=one": "1 Album",
         "countPlural=other": "{count} Albums"
       }
     }
@@ -27,48 +26,184 @@
     "artists": "Artists"
   },
   "player": {
-    "no_song": "No Song Selected",
-    "queue": "queue",
+    "no_song": "No Song",
+    "queue": "Play Queue",
     "shuffled": {
-      "active": "Shuffle on",
-      "desabled": "Shuffle off"
+      "active": "Shuffle Mode (active)",
+      "desabled": "Shuffle Mode (disabled)"
     },
     "repeat_modes": {
       "one": "Repeat One",
       "all": "Repeat All",
-      "off": "Repetition disabled"
+      "off": "Repeat Off"
     }
   },
   "songs_options": {
-    "info": "Info",
-    "next_in_queue": "Next in queue",
-    "add_to_playlists": "Add to playlists",
+    "info": "Information",
+    "next_in_queue": "Play Next",
+    "add_to_playlists": "Add to Playlists",
     "delete": "Delete"
   },
   "play": "Play",
   "Shuffle": "Shuffle",
+  "cancel": "Cancel",
+  "error": "An unexpected error occurred",
+  "add": "Add",
   "playlist": {
     "favorites": "Favorites",
-    "no_playlist": "There is no playlist available...",
+    "no_playlist": "No playlists available yet...",
+    "no_songs": "This playlist has no songs.",
     "add": {
-      "new_playlist": "New playlist",
-      "placeholder": "Playlist's Name..."
+      "new_playlist": "New Playlist",
+      "name_playlist": "Playlist Name",
+      "create": "Create"
+    },
+    "backup": {
+      "explanation": "Android auto-backup is disabled for clean installs. Export playlists as JSON and save it separately; then paste that JSON here to restore them.",
+      "export": "Export",
+      "copy_json": "Copy JSON to clipboard",
+      "copied": "Backup copied to clipboard.",
+      "restore": "Restore",
+      "placeholder": "Paste backup JSON...",
+      "restore_result": [
+        {
+          "declarations": ["input count", "local countPlural = count: plural"],
+          "selectors": ["countPlural"],
+          "match": {
+            "countPlural=one": "Playlist restored",
+            "countPlural=other": "{count} Playlists restored"
+          }
+        }
+      ]
+    },
+    "menu": {
+      "remove_duplicate": "Remove Duplicates"
     }
   },
-    "menus": {
+  "menus": {
     "home_overflow_menu": {
-      "refresh_library": "Rescan Library",
-      "order_by": "Order By:",
+      "refresh_library": "Refresh Library",
+      "order_by": "Sort By:",
       "order_by_options": {
         "asc": "Ascending",
         "desc": "Descending",
-        "title": "Title",
-        "date": "Date added",
         "duration": "Duration",
+        "title": "Title",
+        "date": "Date Added",
         "artist": "Artist",
         "name": "Name",
-        "number_of_songs": "N. Songs"
+        "number_of_songs": "No. of Songs"
+      }
+    },
+    "multi_selection": {
+      "selected": "{count} Selected",
+         "remove_from_playlist": "Remove from playlist"
+    },
+    "mainmenu": {
+      "instructions": "Instructions",
+      "settings": "Settings"
+    }
+  },
+  "dialogs": {
+    "confirm_delete": {
+      "title": "Delete Songs",
+      "paragraph": "Are you sure you want to delete {count} songs?",
+      "delete": "Delete"
+    },
+    "accept": "Accept",
+    "info": {
+      "info": "Song Information",
+      "no_info": "No information available.",
+      "close": "Close",
+      "title": "Title:",
+      "artist": "Artist:",
+      "album": "Album:",
+      "album_artist": "Album Artist:",
+      "composer": "Composer:",
+      "genre": "Genre:",
+      "year": "Year:",
+      "track": "Track No.:",
+      "format_and_quality": {
+        "format_and_quality": "Format and Quality",
+        "type": "MIME Type",
+        "size": "Size",
+        "bitrate": "Bitrate",
+        "sample_rate": "Sample Rate",
+        "channels": "Channels"
+      },
+      "file_and_path": {
+        "title": "File and Location",
+        "file_name": "File Name:",
+        "storage": "Storage",
+        "internal": "Internal Storage",
+        "external": "SD Card / External",
+        "date_modified": "Date Modified",
+        "path": "Path / URI:",
+        "copy_action": "Copy",
+        "copy_title": "Copy path to clipboard",
+        "copied": "Copied!"
+      },
+      "unknown": "Unknown",
+      "unknown_date": "Unknown",
+      "copy_error": "Error copying path",
+      "format": {
+        "mono": "Mono (1 ch)",
+        "stereo": "Stereo (2 ch)",
+        "channels": "{count} channels",
+        "audio": "Audio",
+        "mp3": "MP3 Audio",
+        "flac": "FLAC Audio",
+        "aac": "AAC Audio",
+        "ogg": "OGG Audio",
+        "wav": "WAV Audio"
       }
     }
+  },
+  "info_page": {
+    "title": "Instructions",
+    "intro_before": "Vibe uses a",
+    "foreground_service": "foreground service",
+    "intro_after": "so the music keeps playing even when you leave the app in the background. On stock Android this works without you having to touch anything. However, some brands —Xiaomi, Samsung, OnePlus, Huawei— ship with such aggressive battery optimizers that they can kill Vibe. Here we show you how to allow it on each one.",
+    "generic": {
+      "title": "Generic Android",
+      "step_1_before": "Settings → Apps → Vibe → Battery → select",
+      "step_1_option": "\"Unrestricted\"",
+      "step_1_after": "(or \"Don't optimize\").",
+      "step_2": "Alternative: Settings → Battery → Battery optimization → find Vibe and disable optimization."
+    },
+    "xiaomi": {
+      "title": "Xiaomi / MIUI / HyperOS",
+      "step_1": "Settings → Apps → App permissions → Autostart in background → allow Vibe.",
+      "step_2_before": "Settings → Battery → select",
+      "step_2_option": "\"Unrestricted\"",
+      "step_2_after": "for Vibe.",
+      "step_3_before": "In Developer options → disable the",
+      "step_3_option": "\"MIUI optimization\"",
+      "step_3_after": "."
+    },
+    "samsung": {
+      "title": "Samsung (One UI)",
+      "step_1": "Settings → Battery → Background usage limits → Apps that never sleep → add Vibe."
+    },
+    "oneplus": {
+      "title": "OnePlus / OPPO (ColorOS)",
+      "step_1_before": "Settings → Battery → disable",
+      "step_1_option_a": "\"Adaptive battery\"",
+      "step_1_middle": "and/or",
+      "step_1_option_b": "\"Deep optimization\"",
+      "step_1_after": ".",
+      "step_2": "Enable Vibe's Auto-start.",
+      "step_3": "Pin Vibe in multitasking: open Recents and lock the Vibe card (press and hold it and tap the padlock)."
+    },
+    "huawei": {
+      "title": "Huawei (EMUI / HarmonyOS)",
+      "step_1": "Settings → Battery → App launch → Manage manually → allow Vibe (enable \"Allow auto-launch\", \"Allow secondary launch\", and \"Allow background activity\")."
+    },
+    "warning": "On OnePlus and other brands, the configuration can be reset with system updates. If Vibe stops playing in the background, go back and check these steps."
+  },
+  "settings": {
+    "general": "General Settings",
+    "language": "Language",
+    "language_auto": "Auto (system)"
   }
 }

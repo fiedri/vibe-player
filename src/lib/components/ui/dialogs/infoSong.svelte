@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { m } from "$lib/paraglide/messages.js";
+  import { getLocale } from "$lib/paraglide/runtime";
   import { ui } from "$lib/stores/ui.svelte";
   import type { MediaFile } from "@odion-cloud/capacitor-mediastore";
   import {
@@ -37,12 +39,12 @@
         copied = false;
       }, 2000);
     } catch (err) {
-      console.error("Error al copiar la ruta:", err);
+      console.error(m["dialogs.info.copy_error"](), err);
     }
   }
 
   function formatBytes(bytes?: number): string {
-    if (!bytes || bytes <= 0) return "Desconocido";
+    if (!bytes || bytes <= 0) return m["dialogs.info.unknown"]();
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -50,17 +52,17 @@
   }
 
   function formatDate(timestamp?: number): string {
-    if (!timestamp) return "Desconocida";
+    if (!timestamp) return m["dialogs.info.unknown_date"]();
     try {
       const d = new Date(timestamp);
-      if (isNaN(d.getTime())) return "Desconocida";
-      return d.toLocaleDateString("es-ES", {
+      if (isNaN(d.getTime())) return m["dialogs.info.unknown_date"]();
+      return d.toLocaleDateString(getLocale(), {
         day: "2-digit",
         month: "short",
         year: "numeric",
       });
     } catch {
-      return "Desconocida";
+      return m["dialogs.info.unknown_date"]();
     }
   }
   function formatBitrate(bitrate?: number): string | null {
@@ -77,26 +79,28 @@
 
   function formatChannels(channels?: number): string | null {
     if (!channels) return null;
-    if (channels === 1) return "Mono (1 ch)";
-    if (channels === 2) return "Estéreo (2 ch)";
-    return `${channels} canales`;
+    if (channels === 1) return m["dialogs.info.format.mono"]();
+    if (channels === 2) return m["dialogs.info.format.stereo"]();
+    return m["dialogs.info.format.channels"]({ count: channels });
   }
 
   function cleanMimeType(mime?: string): string {
-    if (!mime) return "Audio";
-    if (mime.includes("mpeg") || mime.includes("mp3")) return "Audio MP3";
-    if (mime.includes("flac")) return "Audio FLAC";
-    if (mime.includes("aac") || mime.includes("m4a")) return "Audio AAC";
-    if (mime.includes("ogg")) return "Audio OGG";
-    if (mime.includes("wav")) return "Audio WAV";
+    if (!mime) return m["dialogs.info.format.audio"]();
+    if (mime.includes("mpeg") || mime.includes("mp3"))
+      return m["dialogs.info.format.mp3"]();
+    if (mime.includes("flac")) return m["dialogs.info.format.flac"]();
+    if (mime.includes("aac") || mime.includes("m4a"))
+      return m["dialogs.info.format.aac"]();
+    if (mime.includes("ogg")) return m["dialogs.info.format.ogg"]();
+    if (mime.includes("wav")) return m["dialogs.info.format.wav"]();
     return mime;
   }
 </script>
 
 {#if !info}
   <div class="flex flex-col items-center justify-center p-6 text-center gap-3">
-    <p class="text-muted-foreground text-sm">No hay información disponible.</p>
-    <Button onclick={() => ui.closeDialog()}>Cerrar</Button>
+    <p class="text-muted-foreground text-sm">{m["dialogs.info.no_info"]()}</p>
+    <Button onclick={() => ui.closeDialog()}>{m["dialogs.info.close"]()}</Button>
   </div>
 {:else}
   <div class="flex flex-col gap-4 max-h-[80vh] overflow-y-auto pr-1">
@@ -151,28 +155,28 @@
         class="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 px-0.5"
       >
         <Music class="size-3.5 text-primary" />
-        Información de la Canción
+        {m["dialogs.info.info"]()}
       </h3>
 
       <div
         class="grid grid-cols-1 gap-2 text-xs bg-card/60 p-3 border border-border/40"
       >
         <div class="flex flex-col gap-0.5">
-          <span class="text-muted-foreground font-medium">Título:</span>
+          <span class="text-muted-foreground font-medium">{m["dialogs.info.title"]()}</span>
           <span class="text-foreground font-medium select-text break-words"
             >{displayTitle(info)}</span
           >
         </div>
 
         <div class="flex flex-col gap-0.5 border-t border-border/20 pt-2">
-          <span class="text-muted-foreground font-medium">Artista:</span>
+          <span class="text-muted-foreground font-medium">{m["dialogs.info.artist"]()}</span>
           <span class="text-foreground font-medium select-text break-words"
             >{displayArtist(info)}</span
           >
         </div>
 
         <div class="flex flex-col gap-0.5 border-t border-border/20 pt-2">
-          <span class="text-muted-foreground font-medium">Álbum:</span>
+          <span class="text-muted-foreground font-medium">{m["dialogs.info.album"]()}</span>
           <span class="text-foreground font-medium select-text break-words"
             >{displayAlbum(info)}</span
           >
@@ -181,7 +185,7 @@
         {#if info.albumArtist}
           <div class="flex flex-col gap-0.5 border-t border-border/20 pt-2">
             <span class="text-muted-foreground font-medium"
-              >Artista del Álbum:</span
+              >{m["dialogs.info.album_artist"]()}</span
             >
             <span class="text-foreground select-text break-words"
               >{info.albumArtist}</span
@@ -191,7 +195,7 @@
 
         {#if info.composer}
           <div class="flex flex-col gap-0.5 border-t border-border/20 pt-2">
-            <span class="text-muted-foreground font-medium">Compositor:</span>
+            <span class="text-muted-foreground font-medium">{m["dialogs.info.composer"]()}</span>
             <span class="text-foreground select-text break-words"
               >{info.composer}</span
             >
@@ -200,7 +204,7 @@
 
         {#if info.genre}
           <div class="flex flex-col gap-0.5 border-t border-border/20 pt-2">
-            <span class="text-muted-foreground font-medium">Género:</span>
+            <span class="text-muted-foreground font-medium">{m["dialogs.info.genre"]()}</span>
             <span class="text-foreground select-text">{info.genre}</span>
           </div>
         {/if}
@@ -209,7 +213,7 @@
           <div class="grid grid-cols-2 gap-2 border-t border-border/20 pt-2">
             {#if info.year}
               <div class="flex flex-col gap-0.5">
-                <span class="text-muted-foreground font-medium">Año:</span>
+                <span class="text-muted-foreground font-medium">{m["dialogs.info.year"]()}</span>
                 <span class="text-foreground font-mono">{info.year}</span>
               </div>
             {/if}
@@ -217,7 +221,7 @@
             {#if info.track}
               <div class="flex flex-col gap-0.5">
                 <span class="text-muted-foreground font-medium"
-                  >N.º de pista:</span
+                  >{m["dialogs.info.track"]()}</span
                 >
                 <span class="text-foreground font-mono">{info.track}</span>
               </div>
@@ -233,28 +237,28 @@
         class="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 px-0.5"
       >
         <VolumeUp class="size-3.5 text-primary" />
-        Formato y Calidad
+        {m["dialogs.info.format_and_quality.format_and_quality"]()}
       </h3>
 
       <div
         class="grid grid-cols-2 gap-2 text-xs bg-card/60 p-3 border border-border/40"
       >
         <div class="flex flex-col gap-0.5">
-          <span class="text-muted-foreground font-medium">Tipo MIME:</span>
+          <span class="text-muted-foreground font-medium">{m["dialogs.info.format_and_quality.type"]()}</span>
           <span class="text-foreground font-mono"
             >{cleanMimeType(info.mimeType)}</span
           >
         </div>
 
         <div class="flex flex-col gap-0.5">
-          <span class="text-muted-foreground font-medium">Tamaño:</span>
+          <span class="text-muted-foreground font-medium">{m["dialogs.info.format_and_quality.size"]()}</span>
           <span class="text-foreground font-mono">{formatBytes(info.size)}</span
           >
         </div>
 
         {#if formatBitrate(info.bitrate)}
           <div class="flex flex-col gap-0.5 border-t border-border/20 pt-2">
-            <span class="text-muted-foreground font-medium">Tasa de bits:</span>
+            <span class="text-muted-foreground font-medium">{m["dialogs.info.format_and_quality.bitrate"]()}</span>
             <span class="text-foreground font-mono"
               >{formatBitrate(info.bitrate)}</span
             >
@@ -263,7 +267,7 @@
 
         {#if formatSampleRate(info.sampleRate)}
           <div class="flex flex-col gap-0.5 border-t border-border/20 pt-2">
-            <span class="text-muted-foreground font-medium">Muestreo:</span>
+            <span class="text-muted-foreground font-medium">{m["dialogs.info.format_and_quality.sample_rate"]()}</span>
             <span class="text-foreground font-mono"
               >{formatSampleRate(info.sampleRate)}</span
             >
@@ -274,7 +278,7 @@
           <div
             class="flex flex-col gap-0.5 border-t border-border/20 pt-2 col-span-2"
           >
-            <span class="text-muted-foreground font-medium">Canales:</span>
+            <span class="text-muted-foreground font-medium">{m["dialogs.info.format_and_quality.channels"]()}</span>
             <span class="text-foreground font-mono"
               >{formatChannels(info.channels)}</span
             >
@@ -289,7 +293,7 @@
         class="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 px-0.5"
       >
         <Folder class="size-3.5 text-primary" />
-        Archivo y Ubicación
+        {m["dialogs.info.file_and_path.title"]()}
       </h3>
 
       <div
@@ -297,26 +301,26 @@
       >
         <div class="flex flex-col gap-0.5">
           <span class="text-muted-foreground font-medium"
-            >Nombre de archivo:</span
+            >{m["dialogs.info.file_and_path.file_name"]()}</span
           >
           <span class="text-foreground font-mono select-text break-all"
-            >{info.displayName || "Desconocido"}</span
+            >{info.displayName || m["dialogs.info.unknown"]()}</span
           >
         </div>
 
         <div class="flex flex-col gap-0.5 border-t border-border/20 pt-2">
-          <span class="text-muted-foreground font-medium">Almacenamiento:</span>
+          <span class="text-muted-foreground font-medium">{m["dialogs.info.file_and_path.storage"]()}</span>
           <span class="text-foreground font-mono">
             {info.isExternal
-              ? "Tarjeta SD / Externo"
-              : "Almacenamiento Interno"}
+              ? m["dialogs.info.file_and_path.external"]()
+              : m["dialogs.info.file_and_path.internal"]()}
           </span>
         </div>
 
         {#if info.dateModified}
           <div class="flex flex-col gap-0.5 border-t border-border/20 pt-2">
             <span class="text-muted-foreground font-medium"
-              >Fecha de modificación:</span
+              >{m["dialogs.info.file_and_path.date_modified"]()}</span
             >
             <span class="text-foreground font-mono"
               >{formatDate(info.dateModified)}</span
@@ -328,20 +332,20 @@
           <div class="flex flex-col gap-1 border-t border-border/20 pt-2">
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground font-medium font-mono"
-                >Ruta / URI:</span
+                >{m["dialogs.info.file_and_path.path"]()}</span
               >
               <button
                 type="button"
                 onclick={handleCopyPath}
                 class="flex items-center gap-1 text-[11px] font-medium text-primary hover:underline cursor-pointer"
-                title="Copiar ruta al portapapeles"
+                title={m["dialogs.info.file_and_path.copy_title"]()}
               >
                 {#if copied}
                   <Checkmark class="size-3 text-green-400" />
-                  <span class="text-green-400 font-semibold">¡Copiado!</span>
+                  <span class="text-green-400 font-semibold">{m["dialogs.info.file_and_path.copied"]()}</span>
                 {:else}
                   <Copy class="size-3" />
-                  <span>Copiar</span>
+                  <span>{m["dialogs.info.file_and_path.copy_action"]()}</span>
                 {/if}
               </button>
             </div>
@@ -358,7 +362,7 @@
     <!-- Action Buttons -->
     <div class="flex justify-end pt-2">
       <Button class="w-full sm:w-auto px-6" onclick={() => ui.closeDialog()}>
-        Aceptar
+        {m["dialogs.accept"]()}
       </Button>
     </div>
   </div>

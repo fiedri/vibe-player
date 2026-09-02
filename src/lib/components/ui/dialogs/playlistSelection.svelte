@@ -2,6 +2,7 @@
   import { playlistStore } from "$lib/stores/playlist.svelte";
   import { DialogType, ui } from "$lib/stores/ui.svelte";
   import { SvelteSet } from "svelte/reactivity";
+import { m } from "$lib/paraglide/messages.js";
   import { Add, Checkmark } from "carbon-icons-svelte";
   import Button from "../button/button.svelte";
     import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
@@ -40,7 +41,7 @@ selection.clear()
 
 <div class="flex flex-col gap-4">
   <h2 class="text-base font-bold uppercase tracking-wider text-foreground">
-    Agregar a playlist
+    {m["songs_options.add_to_playlists"]()}
   </h2>
 
   <div class="flex flex-col max-h-64 overflow-y-auto pr-1">
@@ -50,7 +51,7 @@ selection.clear()
       class="flex w-full items-center gap-3 px-3 py-3 border border-dashed border-border bg-secondary/40 hover:bg-secondary text-sm font-medium transition-colors cursor-pointer text-foreground active:bg-primary active:text-primary-foreground"
     >
       <Add class="size-5 shrink-0" />
-      <span class="uppercase">Nueva playlist</span>
+      <span class="uppercase">{m["playlist.add.new_playlist"]()}</span>
     </button>
 
     {#each playlistStore.playlists as playlist (playlist.id)}
@@ -77,15 +78,15 @@ selection.clear()
             playlist.id,
           )
             ? 'text-primary'
-            : 'text-foreground'}">{playlist.name}</span
+            : 'text-foreground'}">{playlist.name == 'favoritos' ? m["playlist.favorites"](): playlist.name}</span
         >
       </button>
     {/each}
   </div>
   <div class="flex flex-row gap-3 mt-3 justify-end items-center">
     <Button variant="ghost" class="p-0" onclick={() => ui.closeDialog()}
-      >cancelar</Button
+      >{m.cancel()}</Button
     >
-    <Button class="p-2 h-10" onclick={handleSubmit}>Agregar</Button>
+    <Button class="p-2 h-10 w-20" onclick={handleSubmit}>{m.add()}</Button>
   </div>
 </div>

@@ -1,31 +1,28 @@
 <script lang="ts">
   import {WarningAlt as TriangleAlert} from "carbon-icons-svelte";
+  import { m } from "$lib/paraglide/messages.js";
 </script>
 
 <div class="h-full w-full min-w-0 overflow-y-auto">
   <div class="flex flex-col gap-6 p-5 pb-10">
     <p class="text-sm leading-relaxed text-muted-foreground">
-      Vibe usa un <span class="font-medium text-white">servicio en primer plano</span>
-      (foreground service) para que la música siga sonando aunque dejes la app en
-      segundo plano. En Android stock esto funciona sin que tengas que tocar nada.
-      Sin embargo, algunas marcas —Xiaomi, Samsung, OnePlus, Huawei— traen
-      optimizadores de batería tan agresivos que pueden cerrar Vibe. Acá te mostramos
-      cómo permitirla en cada una.
+      {m["info_page.intro_before"]()}
+      <span class="font-medium text-white">{m["info_page.foreground_service"]()}</span>
+      {m["info_page.intro_after"]()}
     </p>
 
     <section
       class="bg-card p-4 border border-border [&_h2]:uppercase [&_h2]:font-black [&_h2]:tracking-wide [&_h2]:text-sm [&_h2]:text-muted-foreground [&_h2]:mb-3"
     >
-      <h2>Android genérico</h2>
+      <h2>{m["info_page.generic.title"]()}</h2>
       <ol class="list-inside list-decimal space-y-2 text-sm text-muted-foreground marker:text-primary">
         <li>
-          Ajustes → Apps → Vibe → Batería → seleccioná
-          <strong class="font-medium text-white">"Sin restricciones"</strong>
-          (o "No optimizar").
+          {m["info_page.generic.step_1_before"]()}
+          <strong class="font-medium text-white">{m["info_page.generic.step_1_option"]()}</strong>
+          {m["info_page.generic.step_1_after"]()}
         </li>
         <li>
-          Alternativa: Ajustes → Batería → Optimización de batería → buscá Vibe y
-          desactivá la optimización.
+          {m["info_page.generic.step_2"]()}
         </li>
       </ol>
     </section>
@@ -33,19 +30,20 @@
     <section
       class="bg-card p-4 border border-border [&_h2]:uppercase [&_h2]:font-black [&_h2]:tracking-wide [&_h2]:text-sm [&_h2]:text-muted-foreground [&_h2]:mb-3"
     >
-      <h2>Xiaomi / MIUI / HyperOS</h2>
+      <h2>{m["info_page.xiaomi.title"]()}</h2>
       <ol class="list-inside list-decimal space-y-2 text-sm text-muted-foreground marker:text-primary">
         <li>
-          Ajustes → Apps → Permisos de apps → Inicio automático en segundo plano →
-          permití Vibe.
+          {m["info_page.xiaomi.step_1"]()}
         </li>
         <li>
-          Ajustes → Batería → seleccioná
-          <strong class="font-medium text-white">"Sin restricciones"</strong> para Vibe.
+          {m["info_page.xiaomi.step_2_before"]()}
+          <strong class="font-medium text-white">{m["info_page.xiaomi.step_2_option"]()}</strong>
+          {m["info_page.xiaomi.step_2_after"]()}
         </li>
         <li>
-          En Opciones de desarrollador → desactivá la
-          <strong class="font-medium text-white">"Optimización MIUI"</strong>.
+          {m["info_page.xiaomi.step_3_before"]()}
+          <strong class="font-medium text-white">{m["info_page.xiaomi.step_3_option"]()}</strong>
+          {m["info_page.xiaomi.step_3_after"]()}
         </li>
       </ol>
     </section>
@@ -53,11 +51,10 @@
     <section
       class="bg-card p-4 border border-border [&_h2]:uppercase [&_h2]:font-black [&_h2]:tracking-wide [&_h2]:text-sm [&_h2]:text-muted-foreground [&_h2]:mb-3"
     >
-      <h2>Samsung (One UI)</h2>
+      <h2>{m["info_page.samsung.title"]()}</h2>
       <ol class="list-inside list-decimal space-y-2 text-sm text-muted-foreground marker:text-primary">
         <li>
-          Ajustes → Batería → Límites de uso en segundo plano → Apps que nunca
-          duermen → agregá Vibe.
+          {m["info_page.samsung.step_1"]()}
         </li>
       </ol>
     </section>
@@ -65,17 +62,18 @@
     <section
       class="bg-card p-4 border border-border [&_h2]:uppercase [&_h2]:font-black [&_h2]:tracking-wide [&_h2]:text-sm [&_h2]:text-muted-foreground [&_h2]:mb-3"
     >
-      <h2>OnePlus / OPPO (ColorOS)</h2>
+      <h2>{m["info_page.oneplus.title"]()}</h2>
       <ol class="list-inside list-decimal space-y-2 text-sm text-muted-foreground marker:text-primary">
         <li>
-          Ajustes → Batería → desactivá
-          <strong class="font-medium text-white">"Batería adaptable"</strong> y/o
-          <strong class="font-medium text-white">"Optimización profunda"</strong>.
+          {m["info_page.oneplus.step_1_before"]()}
+          <strong class="font-medium text-white">{m["info_page.oneplus.step_1_option_a"]()}</strong>
+          {m["info_page.oneplus.step_1_middle"]()}
+          <strong class="font-medium text-white">{m["info_page.oneplus.step_1_option_b"]()}</strong>
+          {m["info_page.oneplus.step_1_after"]()}
         </li>
-        <li>Habilitá el Auto-inicio de Vibe.</li>
+        <li>{m["info_page.oneplus.step_2"]()}</li>
         <li>
-          Fijá Vibe en el multitarea: abrí los Recents y bloqueá la tarjeta de Vibe
-          (mantenela presionada y tocá el candado).
+          {m["info_page.oneplus.step_3"]()}
         </li>
       </ol>
     </section>
@@ -83,12 +81,10 @@
     <section
       class="bg-card p-4 border border-border [&_h2]:uppercase [&_h2]:font-black [&_h2]:tracking-wide [&_h2]:text-sm [&_h2]:text-muted-foreground [&_h2]:mb-3"
     >
-      <h2>Huawei (EMUI / HarmonyOS)</h2>
+      <h2>{m["info_page.huawei.title"]()}</h2>
       <ol class="list-inside list-decimal space-y-2 text-sm text-muted-foreground marker:text-primary">
         <li>
-          Ajustes → Batería → Inicio de apps → Administrar manualmente → permití
-          Vibe (activá "Permitir inicio automático", "Permitir actividad en segundo
-          plano" y "Permitir ejecución en segundo plano").
+          {m["info_page.huawei.step_1"]()}
         </li>
       </ol>
     </section>
@@ -98,9 +94,7 @@
     >
       <TriangleAlert class="mt-0.5 size-4 shrink-0" />
       <p>
-        En OnePlus y otras marcas, la configuración puede revertirse con las
-        actualizaciones del sistema. Si Vibe deja de sonar en segundo plano, volvé a
-        revisar estos pasos.
+        {m["info_page.warning"]()}
       </p>
     </div>
   </div>

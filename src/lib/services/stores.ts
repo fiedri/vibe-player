@@ -1,6 +1,7 @@
 import { Preferences } from "@capacitor/preferences";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { Capacitor } from "@capacitor/core";
+import type { Locale } from "$lib/paraglide/runtime";
 export interface PlayerState {
   trackId: string | number;
   position: number;
@@ -11,6 +12,19 @@ export interface PlayerState {
 const CACHE_KEY = "biblioteca_cache_v2";
 const CACHE_TIMESTAMP_KEY = "biblioteca_cache_timestamp_v2";
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 h
+const LANGUAGE_KEY = "language_preference";
+
+export type IdiomaPreferido = "auto" | Locale;
+
+export async function guardarIdiomaPreferido(idioma: IdiomaPreferido) {
+  await Preferences.set({ key: LANGUAGE_KEY, value: idioma });
+}
+
+export async function cargarIdiomaPreferido(): Promise<IdiomaPreferido | undefined> {
+  const { value } = await Preferences.get({ key: LANGUAGE_KEY });
+  if (!value) return;
+  return value as IdiomaPreferido;
+}
 
 export async function guardarCache(data: any[]) {
   try {

@@ -1,5 +1,7 @@
 <script lang="ts">
   import Button from "../button/button.svelte";
+
+import { m } from "$lib/paraglide/messages.js";
   import { ui } from "$lib/stores/ui.svelte";
   import { biblioteca } from "$lib/stores/biblioteca.svelte";
   import { selection } from "$lib/components/multiSelector/selectionStore.svelte";
@@ -30,17 +32,17 @@
 
 <div class="flex flex-col gap-4">
   <h3 class="font-medium text-foreground uppercase text-xl">
-    Eliminar Canciones
+   {m["dialogs.confirm_delete.title"]()} 
   </h3>
   <p class="text-muted-foreground text-sm">
-    ¿Estás seguro que deseas eliminar {count} canciones?
+  {m["dialogs.confirm_delete.paragraph"]({count})}
   </p>
   <div class="flex justify-end gap-3 pt-2">
     <Button variant="ghost" onclick={handleCancel} type="button">
-      Cancelar
+     {m.cancel()}
     </Button>
     <Button variant="destructive" onclick={handleConfirm} type="button">
-      Eliminar
+    {m["songs_options.delete"]()}
     </Button>
   </div>
 </div>

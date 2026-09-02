@@ -5,7 +5,8 @@ export enum DialogType {
   Backup = 'backup',
   Error = 'error',
   ConfirmDelete = 'confirmDelete',
-  InfoSong = 'InfoSong'
+  InfoSong = 'InfoSong',
+  Language = 'language'
 }
 
 class UiStore {

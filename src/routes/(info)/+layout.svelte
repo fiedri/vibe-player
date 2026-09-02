@@ -1,12 +1,10 @@
 <script lang="ts">
   import { ArrowLeft } from "carbon-icons-svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import { m } from "$lib/paraglide/messages.js";
 
   let { children } = $props();
 
-  // Volver con el historial del WebView (consistente con el handler de back
-  // de Android en el root layout). Si no hay historial, el <a href="/"> actúa
-  // como fallback y navega al inicio.
   function goBack(e: MouseEvent) {
     if (window.history.length > 1) {
       e.preventDefault();
@@ -21,9 +19,8 @@
       <ArrowLeft class="size-6" />
     </Button>
 
-    <h1 class="uppercase text-center text-2xl">Instrucciones</h1>
+    <h1 class="uppercase text-center text-2xl">{m["info_page.title"]()}</h1>
 
-    <!-- Espaciador para mantener el título centrado, igual que el Hero -->
     <div class="w-18 shrink-0" aria-hidden="true"></div>
   </div>
 </header>
