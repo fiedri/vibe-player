@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0
 
 ---
 ## [unreleased]
+### Added
+- **i18n / Localization**: Added English language support.
+- **Languages**: Full support for English (en).
 
 ## [0.6.2] - 2026-08-31
 ### Fixed

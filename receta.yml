@@ -1,5 +1,5 @@
 Categories:
-  - Multimedia
+  - Local Media Player
 License: GPL-3.0-or-later
 AuthorName: fiedri
 AuthorEmail: ruizfriedrich904@gmail.com
@@ -15,29 +15,68 @@ Repo: https://github.com/fiedri/vibe-player.git
 Binaries: https://github.com/fiedri/vibe-player/releases/download/v%v/app-release.apk
 
 Builds:
-  - versionName: 0.5.1
-    versionCode: 6
-    commit: 6fec4cf83633209eeba763141684f38a55d75135
+  - versionName: 0.6.0
+    versionCode: 9
+    commit: cc71310adb4841df5e251e65b760fb10ee606e21
     subdir: android/app
     sudo:
       - echo "deb https://deb.debian.org/debian forky main" > /etc/apt/sources.list.d/forky.list
       - apt-get update
       - apt-get install -y -t forky nodejs npm
-      - npm install -g pnpm@9
+      - npm install -g pnpm@10.33.2
     init:
       - cd ../..
-      - pnpm install --no-frozen-lockfile
+      - pnpm install --frozen-lockfile
       - BUILD_ID=$$COMMIT$$ pnpm build
       - npx cap sync android
-      - find node_modules -type f \( -name "*.node" -o -name "*.so*" -o -name "*.wasm"
-        -o -name "*.tar.gz" -o -name "*.jar" -o -name "esbuild" -o -name ".jekyll-metadata"
-        \) -delete
     gradle:
       - yes
+    scandelete:
+      - node_modules
+
+  - versionName: 0.6.1
+    versionCode: 10
+    commit: 0f174501cded18bf280677c6447fdedf836df91a
+    subdir: android/app
+    sudo:
+      - echo "deb https://deb.debian.org/debian forky main" > /etc/apt/sources.list.d/forky.list
+      - apt-get update
+      - apt-get install -y -t forky nodejs npm
+      - npm install -g pnpm@10.33.2
+    init:
+      - cd ../..
+      - pnpm install --frozen-lockfile
+      - BUILD_ID=$$COMMIT$$ pnpm build
+      - npx cap sync android
+    gradle:
+      - yes
+    scandelete:
+      - node_modules
+
+  - versionName: 0.6.2
+    versionCode: 11
+    commit: eb956ac69b5a422bf1e62992face66a89067bb8e
+    subdir: android/app
+    sudo:
+      - echo "deb https://deb.debian.org/debian forky main" > /etc/apt/sources.list.d/forky.list
+      - apt-get update
+      - apt-get install -y -t forky nodejs npm
+      - npm install -g pnpm@10.33.2
+    init:
+      - cd ../..
+      - pnpm install --frozen-lockfile
+      - BUILD_ID=$$COMMIT$$ pnpm build
+      - npx cap sync android
+    gradle:
+      - yes
+    scanignore:
+      - node_modules/.pnpm/@capacitor+cli@*/node_modules/@capacitor/cli/assets/capacitor-cordova-android-plugins.tar.gz
+    scandelete:
+      - node_modules
 
 AllowedAPKSigningKeys: c99bcb4ede3f6bd244af57785293e008928d1266f622675fe8b1715ada87cf72
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 0.5.1
-CurrentVersionCode: 6
+CurrentVersion: 0.6.2
+CurrentVersionCode: 11
