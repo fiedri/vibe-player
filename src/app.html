@@ -10,6 +10,19 @@
 		/>
 
 		<meta name="text-scale" content="scale" />
+		<script>
+			// Polyfill para WebViews antiguos (Chrome < 85 / Android 11):
+			// Svelte 5 usa String.prototype.replaceAll (ES2021) en su runtime.
+			// Sin esto, pantalla negra en el emulador y dispositivos con WebView vieja.
+			if (typeof String.prototype.replaceAll !== "function") {
+				String.prototype.replaceAll = function (search, replacement) {
+					if (search instanceof RegExp) {
+						return String.prototype.replace.call(this, search, replacement);
+					}
+					return this.split(search).join(replacement);
+				};
+			}
+		</script>
 		%sveltekit.head%
 	</head>
 
