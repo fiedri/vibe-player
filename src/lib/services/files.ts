@@ -30,76 +30,86 @@ export interface MediaDeletePlugin {
   deleteFiles(options: BatchDeleteOptions): Promise<BatchDeleteResult>;
   deleteMultipleFiles(options: BatchDeleteOptions): Promise<BatchDeleteResult>;
 }
-const MediaDelete = registerPlugin<MediaDeletePlugin>("MediaDelete");
 
-export async function eliminarCancion(rutaABorrar: string) {
-  try {
-    const resultado = await MediaDelete.deleteFile({ uri: rutaABorrar });
+export interface MediaSharePlugin{
+  share(options:{uri: string}): Promise<void>
+}
 
-    if (resultado.success) {
-      console.log("¡Canción eliminada del dispositivo con éxito!");
-      return true;
+class FileService {
+  private mediaDelete = registerPlugin<MediaDeletePlugin>("MediaDelete");
+  private mediaShare = registerPlugin<MediaSharePlugin>("MediaShare")
+  async eliminarCancion(rutaABorrar: string) {
+    try {
+      const resultado = await this.mediaDelete.deleteFile({ uri: rutaABorrar });
+
+      if (resultado.success) {
+        console.log("¡Canción eliminada del dispositivo con éxito!");
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error al intentar eliminar la canción:", error);
+      throw error;
     }
-    return false;
-  } catch (error) {
-    console.error("Error al intentar eliminar la canción:", error);
-    throw error;
   }
-}
 
-export async function eliminarCanciones(
-  rutasABorrar: string[],
-): Promise<BatchDeleteResult> {
-  try {
-    const resultado = await MediaDelete.deleteFiles({ files: rutasABorrar });
+  async eliminarCanciones(
+    rutasABorrar: string[],
+  ): Promise<BatchDeleteResult> {
+    try {
+      const resultado = await this.mediaDelete.deleteFiles({ files: rutasABorrar });
 
-    if (resultado.success) {
-      console.log(
-        `¡${resultado.deletedCount} canciones eliminadas del dispositivo con éxito!`,
-      );
-    } else {
-      console.warn(
-        `Eliminación de lote finalizada: ${resultado.deletedCount} eliminadas, ${resultado.failedCount} fallidas.`,
-        resultado.failedFiles,
-      );
+      if (resultado.success) {
+        console.log(
+          `¡${resultado.deletedCount} canciones eliminadas del dispositivo con éxito!`,
+        );
+      } else {
+        console.warn(
+          `Eliminación de lote finalizada: ${resultado.deletedCount} eliminadas, ${resultado.failedCount} fallidas.`,
+          resultado.failedFiles,
+        );
+      }
+      return resultado;
+    } catch (error) {
+      console.error("Error al intentar eliminar el lote de canciones:", error);
+      throw error;
     }
-    return resultado;
-  } catch (error) {
-    console.error("Error al intentar eliminar el lote de canciones:", error);
-    throw error;
+  }
+
+  async solicitarPermisosAudio() {
+    try {
+      return await CapacitorMediaStore.requestPermissions({ types: ["audio"] });
+    } catch (e) {
+      console.warn("Error al pedir permisos:", e);
+    }
+  }
+
+  async cargarBiblioteca(
+    limit = 500,
+    offset = 0,
+  ): Promise<MediaFile[]> {
+    const opciones: any = {
+      mediaType: "audio",
+      sortBy: "DATE",
+      includeExternal: true,
+    };
+
+    if (limit > 0) opciones.limit = limit;
+    if (offset > 0) opciones.offset = offset;
+
+    const resultado = await CapacitorMediaStore.getMediasByType(opciones);
+    return (
+      resultado.media.map((el) => {
+        return {
+          ...el,
+          dateModified: el.dateModified ?? Date.now()
+        };
+      }) || []
+    );
+  }
+  async share(uri: string){
+    await this.mediaShare.share({uri})
   }
 }
 
-export async function solicitarPermisosAudio() {
-  try {
-    return await CapacitorMediaStore.requestPermissions({ types: ["audio"] });
-  } catch (e) {
-    console.warn("Error al pedir permisos:", e);
-  }
-}
-
-// files.ts
-export async function cargarBiblioteca(
-  limit = 500,
-  offset = 0,
-): Promise<MediaFile[]> {
-  const opciones: any = {
-    mediaType: "audio",
-    sortBy: "DATE",
-    includeExternal: true,
-  };
-
-  // Añadimos la paginación a la consulta nativa
-  if (limit > 0) opciones.limit = limit;
-  if (offset > 0) opciones.offset = offset;
-
-  const resultado = await CapacitorMediaStore.getMediasByType(opciones);
-  return (
-    resultado.media.map((el) => {
-      return {
-        ...el,
-        dateModified: el.dateModified ?? Date.now()
-      };
-    }) || []
-  );
-}
+export const fileService = new FileService();

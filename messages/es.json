@@ -214,5 +214,10 @@
     "general": "Configuración general",
     "language": "Idioma",
     "language_auto": "Auto (sistema)"
+  },
+  "biblioteca": {
+    "scanning": "Escaneando Biblioteca...",
+    "permission_denied": "Necesitás permisos de música y audio → Abrir Ajustes. Cuando lo hayas hecho vuelve y presiona reintentar",
+    "retry": "Reintentar"
   }
 }

@@ -1,5 +1,4 @@
-import { cargarBiblioteca, eliminarCanciones } from "$lib/services/files";
-import { eliminarCancion } from "$lib/services/files";
+import { fileService } from "$lib/services/files";
 import { ensureThumbnail } from "$lib/services/artworks";
 
 import {m} from '$lib/paraglide/messages.js';
@@ -61,7 +60,7 @@ class BibliotecaStore implements SortableStore {
         return false;
       }
 
-      const rawInitial = await cargarBiblioteca(LOTE_INICIAL, 0);
+      const rawInitial = await fileService.cargarBiblioteca(LOTE_INICIAL, 0);
 
       // Mergear con lo que ya haya (caché) sin duplicar por id
       this.#mergeSongs(rawInitial);
@@ -110,7 +109,7 @@ class BibliotecaStore implements SortableStore {
 
     while (hasMore) {
       try {
-        const batch = await cargarBiblioteca(LOTE_INICIAL, currentOffset);
+        const batch = await fileService.cargarBiblioteca(LOTE_INICIAL, currentOffset);
 
         if (batch.length === 0) {
           hasMore = false;
@@ -181,7 +180,7 @@ class BibliotecaStore implements SortableStore {
   }
   async deleteSong(songId: string, songUri: string) {
     try {
-      const result = await eliminarCancion(songUri);
+      const result = await fileService.eliminarCancion(songUri);
       if (!result) return;
 
       this.songs = this.songs.filter((el) => el.uri !== songUri);
@@ -200,7 +199,7 @@ class BibliotecaStore implements SortableStore {
         .map((el) => {
           return el.uri;
         });
-      const result = await eliminarCanciones(songsTodeleleUri);
+      const result = await fileService.eliminarCanciones(songsTodeleleUri);
       if (result.error) {
         console.log(result.error);
         return;

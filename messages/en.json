@@ -205,5 +205,10 @@
     "general": "General Settings",
     "language": "Language",
     "language_auto": "Auto (system)"
+  },
+  "biblioteca": {
+    "scanning": "Scanning Library...",
+    "permission_denied": "Music and audio permissions are required → Open Settings. Once you've done that, come back and press retry",
+    "retry": "Retry"
   }
 }

@@ -6,7 +6,7 @@
 	import "./layout.css";
 	import Player from "$lib/components/ui/player/player.svelte";
 	import { biblioteca } from "$lib/stores/biblioteca.svelte";
-	import { solicitarPermisosAudio } from "$lib/services/files";
+	import { fileService } from "$lib/services/files";
 	import { guardarCache, guardarEstadoReproductor } from "$lib/services/stores";
 	import { DialogType, ui } from "$lib/stores/ui.svelte";
 	import { onMount, onDestroy } from "svelte";
@@ -83,7 +83,7 @@
 		}
 
 		try {
-			const permissions = await solicitarPermisosAudio() as { audio?: string } | undefined;
+			const permissions = await fileService.solicitarPermisosAudio() as { audio?: string } | undefined;
 
 			if (permissions?.audio !== "granted") {
 				biblioteca.permissionDenied = true;

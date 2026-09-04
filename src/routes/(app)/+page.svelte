@@ -9,6 +9,7 @@
     import { Shuffle } from "carbon-icons-svelte";
 import { playerService } from "$lib/services/player/PlayerFacade";
 import { ContextType } from "$lib/services/player/types";
+import { m } from "$lib/paraglide/messages.js";
   onMount(()=>{
 ui.query = ""
   })
@@ -30,13 +31,13 @@ function handleShuffled() {
 <div class="biblioteca h-full w-full">
   {#if biblioteca.loading && biblioteca.songs.length === 0}
     <div class="loading p-4 text-center">
-      <p>Escaneando Biblioteca...</p>
+      <p>{m["biblioteca.scanning"]()}</p>
     </div>
   {:else if biblioteca.error && biblioteca.songs.length === 0}
     <div class="error p-4 text-center">
       {#if biblioteca.permissionDenied}
       <p>
-❌ Necesitás permisos de musica y audio → [Abrir Ajustes]. Cuando lo hayas hecho vuelve y presiona reintentar
+❌ {m["biblioteca.permission_denied"]()}
       </p>
       {:else}
       <p>❌{biblioteca.error}</p>
@@ -45,7 +46,7 @@ function handleShuffled() {
         onclick={() => biblioteca.refresh()}
         class="mt-2 text-primary font-medium"
       >
-        Reintentar
+        {m["biblioteca.retry"]()}
       </button>
     </div>
 

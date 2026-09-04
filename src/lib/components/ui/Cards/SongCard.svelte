@@ -1,7 +1,7 @@
 <script lang="ts">
   import { portal } from "$lib/uiUtils";
   import { m } from "$lib/paraglide/messages.js";
-
+import { fileService } from "$lib/services/files";
   import { ContextType } from "$lib/services/player/types";
   import { playerService as player } from "$lib/services/player/PlayerFacade";
   import {
@@ -174,6 +174,17 @@ openMenu =false
       variant="ghost"
     >
      {m["songs_options.add_to_playlists"]()} 
+    </Button>
+    <Button
+      class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
+      onclick={(e) => {
+        e.stopPropagation();
+        openMenu = false;
+        fileService.share(song.uri)
+      }}
+      variant="ghost"
+    >
+    Compartir 
     </Button>
     {#if context === ContextType.InPlaylist && playlistId}
       <Button
