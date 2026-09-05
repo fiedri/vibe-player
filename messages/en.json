@@ -42,7 +42,8 @@
     "info": "Information",
     "next_in_queue": "Play Next",
     "add_to_playlists": "Add to Playlists",
-    "delete": "Delete"
+    "delete": "Delete",
+    "share": "share"
   },
   "play": "Play",
   "Shuffle": "Shuffle",
@@ -53,6 +54,9 @@
     "favorites": "Favorites",
     "no_playlist": "No playlists available yet...",
     "no_songs": "This playlist has no songs.",
+    "loading": "Loading playlists...",
+    "title": "Playlists",
+    "close_menu": "Close menu",
     "add": {
       "new_playlist": "New Playlist",
       "name_playlist": "Playlist Name",
@@ -65,6 +69,7 @@
       "copied": "Backup copied to clipboard.",
       "restore": "Restore",
       "placeholder": "Paste backup JSON...",
+      "title": "Backup / restore playlists",
       "restore_result": [
         {
           "declarations": ["input count", "local countPlural = count: plural"],
@@ -208,6 +213,8 @@
   },
   "biblioteca": {
     "scanning": "Scanning Library...",
+    "loading_albums": "Loading Albums...",
+    "loading_artists": "Loading Artists...",
     "permission_denied": "Music and audio permissions are required → Open Settings. Once you've done that, come back and press retry",
     "retry": "Retry"
   }

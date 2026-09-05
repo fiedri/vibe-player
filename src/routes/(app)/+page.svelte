@@ -10,6 +10,7 @@
 import { playerService } from "$lib/services/player/PlayerFacade";
 import { ContextType } from "$lib/services/player/types";
 import { m } from "$lib/paraglide/messages.js";
+import LoadingScreen from "$lib/components/ui/LoadingScreen.svelte";
   onMount(()=>{
 ui.query = ""
   })
@@ -30,9 +31,7 @@ function handleShuffled() {
  
 <div class="biblioteca h-full w-full">
   {#if biblioteca.loading && biblioteca.songs.length === 0}
-    <div class="loading p-4 text-center">
-      <p>{m["biblioteca.scanning"]()}</p>
-    </div>
+    <LoadingScreen text={m["biblioteca.scanning"]()} />
   {:else if biblioteca.error && biblioteca.songs.length === 0}
     <div class="error p-4 text-center">
       {#if biblioteca.permissionDenied}

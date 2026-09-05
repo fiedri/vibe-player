@@ -32,7 +32,8 @@ export interface MediaDeletePlugin {
 }
 
 export interface MediaSharePlugin{
-  share(options:{uri: string}): Promise<void>
+  share(options:{uri: string}): Promise<void>;
+  shareMultiple(options: {uris: string[]}): Promise<void>
 }
 
 class FileService {
@@ -109,6 +110,9 @@ class FileService {
   }
   async share(uri: string){
     await this.mediaShare.share({uri})
+  }
+  async shareMultiple(uris: string[]){
+    await this.mediaShare.shareMultiple({uris})
   }
 }
 

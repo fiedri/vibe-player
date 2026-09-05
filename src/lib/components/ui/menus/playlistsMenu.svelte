@@ -1,10 +1,11 @@
 <script>
     import Button from "../button/button.svelte";
     import { playlistStore } from "$lib/stores/playlist.svelte";
+    import {m} from '$lib/paraglide/messages'
 let {playlistId, onClose} = $props()
 let options = [
 {
-text: "Eliminar Duplicados",
+text: m["playlist.menu.remove_duplicate"](),
 onclick: ()=> {playlistStore.deleteDuplicates(playlistId); onClose()}
 }
 ]

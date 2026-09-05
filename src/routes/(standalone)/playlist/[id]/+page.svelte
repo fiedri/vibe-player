@@ -141,7 +141,7 @@ import {m} from '$lib/paraglide/messages.js';
               <span class="text-primary uppercase font-bold text-sm"
                 >Playlists</span
               >
-              <h2 class="text-4xl font-extrabold">{playlists}</h2>
+              <h2 class="text-4xl font-extrabold">{playlists == 'favoritos' ? m['playlist.favorites'](): playlists}</h2>
               <div
                 class="flex items-center gap-3 *:uppercase text-muted-foreground font-bold"
               >
@@ -171,7 +171,7 @@ import {m} from '$lib/paraglide/messages.js';
             </div>
           {:else}
             <p class="text-center text-muted-foreground text-sm py-10">
-              Esta playlist no tiene canciones
+              {m['playlist.no_songs']()}
             </p>
           {/if}
         </div>

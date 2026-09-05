@@ -184,7 +184,7 @@ openMenu =false
       }}
       variant="ghost"
     >
-    Compartir 
+    {m["songs_options.share"]()}
     </Button>
     {#if context === ContextType.InPlaylist && playlistId}
       <Button

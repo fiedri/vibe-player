@@ -1,17 +1,19 @@
 <script lang="ts">
-
-import { m } from "$lib/paraglide/messages.js";
+  import { m } from "$lib/paraglide/messages.js";
   import {
     ArrowLeft,
     OverflowMenuVertical,
     CheckboxChecked,
     CheckboxCheckedFilled,
+    Share,
   } from "carbon-icons-svelte";
   import Button from "../ui/button/button.svelte";
   import { selection } from "./selectionStore.svelte";
   import { DialogType, ui } from "$lib/stores/ui.svelte";
   import { page } from "$app/stores";
   import { playlistStore } from "$lib/stores/playlist.svelte";
+  import { biblioteca } from "$lib/stores/biblioteca.svelte";
+  import { fileService } from "$lib/services/files";
 
   let openMenu = $state(false);
   let currentPlaylistId = $derived.by(() => {
@@ -26,7 +28,14 @@ import { m } from "$lib/paraglide/messages.js";
     await playlistStore.removeManySongs(currentPlaylistId, ids);
     selection.clear();
   }
-  
+  async function shareMultiple() {
+    openMenu = false;
+    const songsToShare: string[] = biblioteca.songs
+      .filter((song) => selection.seletedIds.has(song.id))
+      .map((e) => e.uri);
+    await fileService.shareMultiple(songsToShare);
+    selection.clear()
+  }
 </script>
 
 {#if selection.isActive}
@@ -44,14 +53,19 @@ import { m } from "$lib/paraglide/messages.js";
       >
         <ArrowLeft class="size-8" />
       </Button>
-      <span>{m["menus.multi_selection.selected"]({count: selection.count})}</span>
+      <span
+        >{m["menus.multi_selection.selected"]({ count: selection.count })}</span
+      >
     </div>
     <div>
+      <Button variant="ghost" class="p-2" onclick={() => {shareMultiple()}}>
+        <Share class="size-8" />
+      </Button>
       <Button
         variant="ghost"
         class="p-2"
         onclick={() => {
-selection.selectAll()
+          selection.selectAll();
         }}
       >
         {#if !selection.isSelectedAll}
@@ -82,7 +96,7 @@ selection.selectAll()
             ui.openDialog(DialogType.Playlist, selection.seletedIds);
           }}
         >
-         {m["songs_options.add_to_playlists"]()} 
+          {m["songs_options.add_to_playlists"]()}
         </Button>
         {#if currentPlaylistId !== null}
           <Button
@@ -90,7 +104,7 @@ selection.selectAll()
             class="w-full justify-start text-sm active:bg-primary active:text-primary-foreground"
             onclick={removeFromPlaylist}
           >
-           {m["menus.multi_selection.remove_from_playlist"]()} 
+            {m["menus.multi_selection.remove_from_playlist"]()}
           </Button>
         {/if}
         <Button
@@ -101,7 +115,7 @@ selection.selectAll()
             ui.openDialog(DialogType.ConfirmDelete, selection.seletedIds);
           }}
         >
-        {m["songs_options.delete"]()}
+          {m["songs_options.delete"]()}
         </Button>
       </div>
     {/if}
