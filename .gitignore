@@ -9,6 +9,8 @@ node_modules
 /build
 /dist
 /android/app/build/
+# Kotlin daemon sessions
+**/.kotlin/
 
 # OS
 .DS_Store
