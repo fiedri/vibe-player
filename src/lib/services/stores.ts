@@ -3,7 +3,7 @@ import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { Capacitor } from "@capacitor/core";
 import type { Locale } from "$lib/paraglide/runtime";
 export interface PlayerState {
-  trackId: string | number;
+  trackId: string | number|undefined;
   position: number;
   timestamp: number;
   mode: string;
@@ -79,7 +79,7 @@ export async function esCacheBibliotecaFresco(): Promise<boolean> {
   }
 }
 export async function guardarEstadoReproductor(
-  songId: string | number,
+  songId: string | number | undefined,
   currentTime: number,
   mode: string = "off",
 ) {

@@ -4,8 +4,10 @@
   import { setLocale, type Locale } from "$lib/paraglide/runtime";
   import { Device } from "@capacitor/device";
   import { ui } from "$lib/stores/ui.svelte";
-  import { cargarIdiomaPreferido, guardarIdiomaPreferido } from "$lib/services/stores";
+  import { cargarIdiomaPreferido,guardarEstadoReproductor, guardarIdiomaPreferido } from "$lib/services/stores";
+
   import Button from "../../button/button.svelte";
+    import { playerService } from "$lib/services/player/PlayerFacade";
 
   type LanguageOption = "auto" | Locale;
 
@@ -34,8 +36,10 @@
       locale = selected;
     }
     await guardarIdiomaPreferido(selected);
+    guardarEstadoReproductor(playerService.currentSong?.id, playerService.currentTime, playerService.mode)
     setLocale(locale, { reload: true });
     ui.closeDialog();
+
   }
 </script>
 
