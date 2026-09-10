@@ -19,13 +19,8 @@
   });
 
   function goBack(e: MouseEvent) {
-    //if (window.history.length > 1) {
-      //e.preventDefault();
-      //window.history.back();
-    //} else {
       e.preventDefault();
       goto("/");
-    //}
   }
 </script>
 
