@@ -14,9 +14,11 @@ import { m } from "$lib/paraglide/messages.js";
     PauseFilled,
     Favorite,
     FavoriteFilled,
+    Share,
   } from "carbon-icons-svelte";
   import { Capacitor } from "@capacitor/core";
   import { playerService } from "$lib/services/player/PlayerFacade";
+  import { fileService } from "$lib/services/files";
   import {
     displayTitle,
     displayArtist,
@@ -224,6 +226,16 @@ import { m } from "$lib/paraglide/messages.js";
         ><ArrowLeft class="size-6" /></Button
       >
       <div class="flex flex-row w-auto items-center justify-center">
+        {#if playerService.currentSong}
+          <Button
+            variant="ghost"
+            class="active:scale-90 transition-transform m-0 p-2"
+            aria-label={m["songs_options.share"]()}
+            onclick={() => void fileService.share(playerService.currentSong!.uri)}
+          >
+            <Share class="size-6" />
+          </Button>
+        {/if}
         <Button
           variant="ghost"
           class="active:scale-90 transition-transform m-0 p-2"
