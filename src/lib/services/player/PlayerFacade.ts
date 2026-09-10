@@ -46,7 +46,7 @@ export class PlayerFacade {
   }
 
   private async initSong(song: MediaFile) {
-    this.audioEngine.setUrl(this.queueManager.currentSong?.uri);
+    this.audioEngine.setSong(song);
     const adyacentsSongImage = this.queueManager.getAdyacentsSongImage();
     this.artworkServices.prewarmArtworkAdyacente(
       adyacentsSongImage.previous,
@@ -166,7 +166,7 @@ export class PlayerFacade {
     const mode = lastState.mode || "off";
 
     this.switchMode(mode);
-    this.audioEngine.setUrl(restoredSong.uri);
+    this.audioEngine.setSong(restoredSong);
     this.queueManager.fillqueue();
     const img = await this.artworkServices.getArtworkSrc(
       displayImage(restoredSong),

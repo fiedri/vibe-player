@@ -1,4 +1,5 @@
 import { Capacitor } from "@capacitor/core";
+import type { MediaFile } from "@odion-cloud/capacitor-mediastore";
 export abstract class AudioEngine {
   public currentTime = $state<number>(0);
   public duration = $state<number>(0);
@@ -7,7 +8,7 @@ export abstract class AudioEngine {
   public onEndedRequest?: () => void;
   public onLoadedMetadata?: () => void;
   public onSeeked?: () => void;
-  abstract setUrl(songUrl: string): void;
+  abstract setSong(song: MediaFile): void;
   abstract restoreLoadPosition(position: number): void;
   abstract setVolume(val: number): void;
   abstract seek(time: number): void;
@@ -17,8 +18,6 @@ export abstract class AudioEngine {
 export class WebAudioEngine extends AudioEngine {
   private audioElement: HTMLAudioElement = new Audio();
   private pendingPosition: number | null = null;
-  public onLoadedMetadata?: () => void;
-  public onSeeked?: () => void;
   constructor() {
     super();
     const updateDuration = () => {
@@ -54,11 +53,11 @@ export class WebAudioEngine extends AudioEngine {
   public restoreLoadPosition(position: number) {
     this.pendingPosition = position;
   }
-  public setUrl(songUrl: string) {
+  public setSong(song: MediaFile) {
     this.currentTime = 0;
     this.duration = 0;
     this.isPlaying = false;
-    this.audioElement.src = Capacitor.convertFileSrc(songUrl);
+    this.audioElement.src = Capacitor.convertFileSrc(song.uri);
   }
   public play() {
     if (!this.audioElement) return;
