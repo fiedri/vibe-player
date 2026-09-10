@@ -1,0 +1,4 @@
+v0.7.0 - Soporte de inglés y compartir canciones
+
+- La interfaz ahora está disponible en español e inglés (detección automática).
+- Compartí canciones con cualquier app: enviá una o varias desde la selección múltiple.

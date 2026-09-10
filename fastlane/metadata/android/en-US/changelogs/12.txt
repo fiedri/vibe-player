@@ -1,0 +1,4 @@
+v0.7.0 - English support and sharing
+
+- The interface is now available in English and Spanish (auto-detected).
+- Share songs with any app: send one or several songs from the multi-select.

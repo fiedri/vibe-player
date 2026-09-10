@@ -6,9 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0
 
 ---
 ## [unreleased]
+
+## [0.7.0] - 2026-09-10
 ### Added
 - **i18n / Localization**: Added English language support.
 - **Languages**: Full support for English (en).
+- Share Songs
 
 ## [0.6.2] - 2026-08-31
 ### Fixed
