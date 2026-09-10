@@ -225,7 +225,7 @@ import { m } from "$lib/paraglide/messages.js";
                     : "00:00"}</span
                 >
                 <button
-                  aria-label="Arrastrar para reordenar"
+                  aria-label={m["menus.drag_to_reorder"]()}
                   class="p-1 hover:text-foreground cursor-grab active:cursor-grabbing touch-none"
                   onpointerdown={(e) => {
                     e.stopPropagation();

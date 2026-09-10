@@ -1,5 +1,6 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
+  import { m } from "$lib/paraglide/messages.js";
 
   let {
     title = "",
@@ -38,7 +39,7 @@
     <img
       src={currentImg}
       class="w-full h-full {imgClass} hover:scale-105 transition-all duration-300 {loaded ? 'opacity-100' : 'opacity-0'}"
-      alt="{title || 'Imagen'} "
+      alt="{title || m['common.image']()}"
       loading="lazy"
       decoding="async"
       onerror={() => {

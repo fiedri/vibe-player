@@ -19,7 +19,7 @@ import { m } from "$lib/paraglide/messages.js";
     { href: "/", tab: m["tabs.songs"]() },
     { href: "/albums", tab: m["tabs.albums"]() },
     { href: "/artist", tab: m["tabs.artists"]() },
-    { href: "/playlist", tab: "Playlist" },
+    { href: "/playlist", tab: m["playlist.title"]() },
   ];
 
   let activeTab = $derived($page.url.pathname);
@@ -67,7 +67,7 @@ import { m } from "$lib/paraglide/messages.js";
         class="px-2"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
-        aria-label="Abrir menú"
+        aria-label={m["menus.open"]()}
         onclick={() => (menuOpen = !menuOpen)}
       >
         <Menu class="size-6" />
@@ -83,7 +83,7 @@ import { m } from "$lib/paraglide/messages.js";
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Cerrar menú"
+              aria-label={m["menus.close"]()}
               onclick={closeMenu}
             >
               <ArrowLeft class="size-6" />
@@ -133,7 +133,7 @@ import { m } from "$lib/paraglide/messages.js";
           onclick={() => {
             overflowMenuOpen = false;
           }}
-          aria-label="Cerrar menú"
+          aria-label={m["menus.close"]()}
         >
         </button>
         

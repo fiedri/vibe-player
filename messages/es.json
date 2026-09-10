@@ -50,13 +50,14 @@
   "cancel": "Cancelar",
   "error": "Ocurrio un error inesperado",
   "add": "Agregar",
+  "no_found": "No se encontraron resultados",
   "playlist": {
     "favorites": "Favoritos",
     "no_playlist": "Aún no hay playlist disponibles...",
     "no_songs": "Esta playlist no tiene canciones.",
     "loading": "Cargando playlists...",
     "title": "Playlists",
-    "close_menu": "Cerrar menú",
+    "error_create": "Error al crear la playlist",
     "add": {
       "new_playlist": "Nueva playlist",
       "name_playlist": "Nombre de la playlist",
@@ -68,6 +69,8 @@
       "copy_json": "copia el JSON al portapapeles",
       "copied": "Backup copiado al portapapeles.",
       "restore": "Restaurar",
+      "invalid_json": "El texto no es un JSON válido.",
+      "invalid_format": "Formato de backup inválido.",
       "placeholder": "Pegá el JSON del backup...",
       "title": "Backup / restaurar playlists",
       "restore_result": [
@@ -86,6 +89,11 @@
     }
   },
   "menus": {
+    "open": "Abrir menú",
+    "close": "Cerrar menú",
+    "back": "Volver",
+    "song_options": "Opciones de canción",
+    "drag_to_reorder": "Arrastrar para reordenar",
     "home_overflow_menu": {
       "refresh_library": "Actualizar Biblioteca",
       "order_by": "Ordernar Por:",
@@ -125,6 +133,7 @@
       "delete": "Eliminar"
     },
     "accept": "Aceptar",
+    "unimplemented": "Funcionalidad no implementada en esta versión...",
     "info": {
       "info": "Información de la canción",
       "no_info": "No hay información disponible.",
@@ -226,5 +235,28 @@
     "loading_artists": "Cargando Artistas...",
     "permission_denied": "Necesitás permisos de música y audio → Abrir Ajustes. Cuando lo hayas hecho vuelve y presiona reintentar",
     "retry": "Reintentar"
+  },
+  "error_page": {
+    "not_found_title": "No encontramos esta vista",
+    "crash_title": "Se cortó la música",
+    "not_found_detail": "La página que buscás no existe o se movió de lugar.",
+    "crash_detail": "Algo se rompió mientras cargábamos esta vista. Probá de nuevo.",
+    "fallback_detail": "Algo salió mal.",
+    "back_home": "Volver al inicio"
+  },
+  "search": {
+    "placeholder": "Buscar..."
+  },
+  "unknown": {
+    "title": "Sin título",
+    "artist": "Artista desconocido",
+    "album": "Álbum desconocido"
+  },
+  "empty_states": {
+    "album_no_songs": "Este álbum no tiene canciones.",
+    "artist_no_albums": "Sin álbumes disponibles."
+  },
+  "common": {
+    "image": "Imagen"
   }
 }

@@ -142,7 +142,7 @@ import {m} from '$lib/paraglide/messages.js';
           </div>
         {:else}
           <p class="text-center text-muted-foreground text-sm py-10">
-            Este álbum no tiene canciones
+            {m["empty_states.album_no_songs"]()}
           </p>
         {/if}
         </div>

@@ -47,12 +47,12 @@ import {m} from '$lib/paraglide/messages.js';
   }
 
   function errorMessage(err: unknown): string {
-    return err instanceof Error ? err.message : "Ocurrió un error inesperado.";
+    return err instanceof Error ? err.message : m.error();
   }
 </script>
 
 <div class="flex flex-col gap-4">
-  <h2 class="font-medium text-foreground uppercase text-xl">Playlists</h2>
+  <h2 class="font-medium text-foreground uppercase text-xl">{m["playlist.title"]()}</h2>
   <p class="text-sm text-muted-foreground">
     {m['playlist.backup.explanation']()}
   </p>

@@ -15,5 +15,5 @@ onclick: ()=> {playlistStore.deleteDuplicates(playlistId); onClose()}
  <Button variant="secondary" onclick={option.onclick}>{option.text}</Button> 
 {/each}
 </div>
-<button class="fixed inset-0 " onclick={onClose} aria-label="Cerrar Menu">
+<button class="fixed inset-0 " onclick={onClose} aria-label={m["menus.close"]()}>
 </button>

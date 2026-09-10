@@ -10,6 +10,7 @@
   import HorizontalContainer from "$lib/components/ui/wrapper/horizontalContainer.svelte";
   import ThumbnailCard from "$lib/components/ui/Cards/thumbnailCard.svelte";
   import type { MediaFile } from "$lib/types/songs";
+  import {m} from '$lib/paraglide/messages'
   import { onMount } from "svelte";
   function goBack(e: MouseEvent) {
     if (window.history.length > 1) {
@@ -22,14 +23,14 @@
   let filteredAlbums = $state<any[]>([]);
   let filteredArtist = $state<any[]>([]);
   let searchInput: HTMLInputElement;
-
+let searched = $state<boolean>(false)
   onMount(() => {
     searchInput?.focus();
   });
 
   $effect(() => {
     const query = searchQuery;
-
+  searched = false
     if (!query) {
       filteredSongs = [];
       filteredArtist = [];
@@ -41,6 +42,7 @@
       filteredSongs = biblioteca.search(query);
       filteredArtist = artists.search(query);
       filteredAlbums = albumes.search(query);
+      searched = true
     }, 500);
 
     return () => {
@@ -62,14 +64,14 @@
     <input
       class="appearance-none border-1 bg-input hover:border-border/70 w-[90%] transition-colors py-3 leading-tight focus:outline-none focus:ring-ring focus:border-border focus:shadow-outline border-border"
       type="text"
-      placeholder="Search..."
+      placeholder={m["search.placeholder"]()}
       bind:this={searchInput}
       bind:value={searchQuery}
     />
   </div>
   <div>
     {#if filteredArtist.length > 0}
-      <h2 class="px-4 mt-4">Artista</h2>
+      <h2 class="px-4 mt-4">{m["tabs.artists"]()}</h2>
       <div class="pl-4">
         <HorizontalContainer>
           {#each filteredArtist as artist}
@@ -86,7 +88,7 @@
       </div>
     {/if}
     {#if filteredAlbums.length > 0}
-      <h2 class="px-4 mt-4">Album</h2>
+      <h2 class="px-4 mt-4">{m["tabs.albums"]()}</h2>
       <div class="pl-4">
         <HorizontalContainer>
           {#each filteredAlbums as album}
@@ -103,7 +105,7 @@
       </div>
     {/if}
     {#if filteredSongs.length > 0}
-      <h2 class="px-4 mt-4">Canciones</h2>
+      <h2 class="px-4 mt-4">{m["tabs.songs"]()}</h2>
       {#each filteredSongs as song, idx (song.id)}
         <SongCard
           {song}
@@ -114,8 +116,9 @@
         />
       {/each}
     {/if}
-    {#if searchQuery && filteredSongs.length == 0 && filteredArtist.length == 0 && filteredAlbums.length == 0}
-      <p class="italic text-center mt-20">No se encontraron resultados</p>
+    {#if searchQuery.length > 0 && searched && filteredSongs.length == 0 && filteredArtist.length == 0 && filteredAlbums.length == 0}
+      <p class="italic text-center mt-20">{m.no_found()}</p>
     {/if}
+
   </div>
 </section>

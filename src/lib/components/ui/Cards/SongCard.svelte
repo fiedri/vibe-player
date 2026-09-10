@@ -122,7 +122,7 @@ import { fileService } from "$lib/services/files";
         e.stopPropagation();
         openMenu = !openMenu;
       }}
-      aria-label="Opciones de canción"
+      aria-label={m["menus.song_options"]()}
       class="p-1 hover:text-foreground"
     >
       <EllipsisVertical class="size-6" />
@@ -136,7 +136,7 @@ import { fileService } from "$lib/services/files";
     type="button"
     class="fixed inset-0 z-10 h-full w-full border-none cursor-default bg-black/20"
     onclick={() => (openMenu = false)}
-    aria-label="Cerrar menu"
+    aria-label={m["menus.close"]()}
   ></button>
   <div
     use:portal

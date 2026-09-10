@@ -45,7 +45,7 @@ import {m} from '$lib/paraglide/messages.js';
     type="button"
     class="fixed inset-0 z-10 h-full w-full border-none cursor-default"
     onclick={() => (activeMenuId = null)}
-    aria-label={m["playlist.close_menu"]()}
+    aria-label={m["menus.close"]()}
   ></button>
 {/if}
 

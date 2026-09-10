@@ -50,13 +50,14 @@
   "cancel": "Cancel",
   "error": "An unexpected error occurred",
   "add": "Add",
+  "no_found": "No results found",
   "playlist": {
     "favorites": "Favorites",
     "no_playlist": "No playlists available yet...",
     "no_songs": "This playlist has no songs.",
     "loading": "Loading playlists...",
     "title": "Playlists",
-    "close_menu": "Close menu",
+    "error_create": "Error creating playlist",
     "add": {
       "new_playlist": "New Playlist",
       "name_playlist": "Playlist Name",
@@ -68,6 +69,8 @@
       "copy_json": "Copy JSON to clipboard",
       "copied": "Backup copied to clipboard.",
       "restore": "Restore",
+      "invalid_json": "The text is not valid JSON.",
+      "invalid_format": "Invalid backup format.",
       "placeholder": "Paste backup JSON...",
       "title": "Backup / restore playlists",
       "restore_result": [
@@ -86,6 +89,11 @@
     }
   },
   "menus": {
+    "open": "Open menu",
+    "close": "Close menu",
+    "back": "Back",
+    "song_options": "Song options",
+    "drag_to_reorder": "Drag to reorder",
     "home_overflow_menu": {
       "refresh_library": "Refresh Library",
       "order_by": "Sort By:",
@@ -116,6 +124,7 @@
       "delete": "Delete"
     },
     "accept": "Accept",
+    "unimplemented": "Feature not implemented in this version...",
     "info": {
       "info": "Song Information",
       "no_info": "No information available.",
@@ -217,5 +226,28 @@
     "loading_artists": "Loading Artists...",
     "permission_denied": "Music and audio permissions are required → Open Settings. Once you've done that, come back and press retry",
     "retry": "Retry"
+  },
+  "error_page": {
+    "not_found_title": "We couldn't find this view",
+    "crash_title": "The music stopped",
+    "not_found_detail": "The page you're looking for doesn't exist or was moved.",
+    "crash_detail": "Something broke while loading this view. Try again.",
+    "fallback_detail": "Something went wrong.",
+    "back_home": "Back to home"
+  },
+  "search": {
+    "placeholder": "Search..."
+  },
+  "unknown": {
+    "title": "Untitled",
+    "artist": "Unknown artist",
+    "album": "Unknown album"
+  },
+  "empty_states": {
+    "album_no_songs": "This album has no songs.",
+    "artist_no_albums": "No albums available."
+  },
+  "common": {
+    "image": "Image"
   }
 }

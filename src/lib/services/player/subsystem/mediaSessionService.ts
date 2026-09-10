@@ -2,6 +2,7 @@ import { MediaSession } from "@capgo/capacitor-media-session";
 import { Capacitor } from "@capacitor/core";
 import { artworkCache } from "$lib/services/artworks";
 import { DEFAULT_COVER } from "$lib/types/songs";
+import { m } from "$lib/paraglide/messages.js";
 
 export interface MediaMetadata {
   id?: string;
@@ -98,15 +99,15 @@ export class MediaSessionService {
     const title =
       song.title && song.title.trim() !== "" && song.title !== "Unknown"
         ? song.title
-        : "Sin título";
+        : m["unknown.title"]();
     const artist =
       song.artist && song.artist.trim() !== "" && song.artist !== "Unknown"
         ? song.artist
-        : "Artista desconocido";
+        : m["unknown.artist"]();
     const album =
       song.album && song.album.trim() !== "" && song.album !== "Unknown"
         ? song.album
-        : "Álbum desconocido";
+        : m["unknown.album"]();
 
     const coverKey = song.albumArtUri || song.image;
     const cached = coverKey ? artworkCache.get(coverKey) : undefined;

@@ -1,5 +1,6 @@
 import * as db from "./db/querys";
 import { playlistStore } from "$lib/stores/playlist.svelte";
+import { m } from "$lib/paraglide/messages.js";
 
 export interface PlaylistBackup {
   formatVersion: 1;
@@ -31,7 +32,7 @@ export async function importPlaylistsBackup(jsonStr: string): Promise<number> {
   try {
     raw = JSON.parse(jsonStr);
   } catch {
-    throw new Error("El texto no es un JSON válido.");
+    throw new Error(m["playlist.backup.invalid_json"]());
   }
 
   if (
@@ -40,7 +41,7 @@ export async function importPlaylistsBackup(jsonStr: string): Promise<number> {
     (raw as PlaylistBackup).formatVersion !== 1 ||
     !Array.isArray((raw as PlaylistBackup).playlists)
   ) {
-    throw new Error("Formato de backup inválido.");
+    throw new Error(m["playlist.backup.invalid_format"]());
   }
   const backup = raw as PlaylistBackup;
 

@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { locales, localizeHref } from '$lib/paraglide/runtime';
+	import { m } from '$lib/paraglide/messages.js';
 	import "./layout.css";
 	import Player from "$lib/components/ui/player/player.svelte";
 	import { biblioteca } from "$lib/stores/biblioteca.svelte";
@@ -116,7 +117,7 @@
 		window.addEventListener("unhandledrejection", (event) => {
 			console.error("Promesa rechazada no manejada:", event.reason);
 
-			const mensaje = event.reason?.message || "Ocurrió un error inesperado";
+			const mensaje = event.reason?.message || m.error();
 
 			ui.openDialog(DialogType.Error, mensaje as string);
 		});

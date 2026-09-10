@@ -2,6 +2,7 @@ import * as db from "$lib/db/db/querys";
 import { biblioteca } from "./biblioteca.svelte";
 import type { MediaFile } from "$lib/types/songs";
 import { DialogType, ui } from "./ui.svelte";
+import { m } from "$lib/paraglide/messages.js";
 interface Playlists {
   name: string;
   id: number;
@@ -26,7 +27,7 @@ class playlist {
 
       this.isLoading = false;
       if (this.playlists.length === 0) {
-        this.error = "No hay playlist Disponibles";
+        this.error = m["playlist.no_playlist"]();
       }
     } catch (e) {
       this.error = e;
@@ -35,7 +36,7 @@ class playlist {
   public async add(playlistsName: string, firstSong?: string) {
     try {
       const result = await db.createPlaylist(playlistsName.trim());
-      if (!result) throw Error("Error al crear la playlist");
+      if (!result) throw Error(m["playlist.error_create"]());
       this.playlists.unshift({
         name: result.name,
         id: result.id,

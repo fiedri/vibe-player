@@ -112,7 +112,7 @@ import {m} from '$lib/paraglide/messages.js';
                     />
                   </a>
                 {:else}
-                  <p>Sin albumes disponibles.</p>
+                  <p>{m["empty_states.artist_no_albums"]()}</p>
                 {/each}
               </HorizontalContainer>
             </div>

@@ -15,7 +15,7 @@
 
 <header class="pt-5 px-2 border-b-4 border-border">
   <div class="flex flex-row justify-between items-center w-full mb-5">
-    <Button variant="ghost" href="/" aria-label="Volver" onclick={goBack}>
+    <Button variant="ghost" href="/" aria-label={m["menus.back"]()} onclick={goBack}>
       <ArrowLeft class="size-6" />
     </Button>
 

@@ -2,20 +2,21 @@
   import { ArrowLeft, Home, Restart } from "carbon-icons-svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { goto } from "$app/navigation";
+  import { m } from "$lib/paraglide/messages.js";
 
   let { status, error }: { status: number; error: App.Error } = $props();
 
   let es404 = $derived(status === 404);
   let titulo = $derived(
-    es404 ? "No encontramos esta vista" : "Se cortó la música",
+    es404 ? m["error_page.not_found_title"]() : m["error_page.crash_title"](),
   );
   const DEFAULTS = ["Internal Error", "Not Found", ""];
   let detalle = $derived(
     es404
-      ? "La página que buscás no existe o se movió de lugar."
+      ? m["error_page.not_found_detail"]()
       : DEFAULTS.includes(error?.message ?? "")
-        ? "Algo se rompió mientras cargábamos esta vista. Probá de nuevo."
-        : (error?.message ?? "Algo salió mal."),
+        ? m["error_page.crash_detail"]()
+        : (error?.message ?? m["error_page.fallback_detail"]()),
   );
 
   function volver() {
@@ -49,7 +50,7 @@
       variant="ghost"
       class="px-4 transition-all {tight ? 'bg-background' : 'bg-transparent'}"
       onclick={volver}
-      aria-label="Volver atrás"
+      aria-label={m["menus.back"]()}
     >
       <ArrowLeft class="size-6" />
     </Button>
@@ -112,7 +113,7 @@
         onclick={volver}
       >
         <Home class="fill-current" />
-        Volver al inicio
+        {m["error_page.back_home"]()}
       </Button>
       <Button
         variant="outline"
@@ -120,7 +121,7 @@
         onclick={reintentar}
       >
         <Restart />
-        Reintentar
+        {m["biblioteca.retry"]()}
       </Button>
     </div>
   </div>
