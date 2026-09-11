@@ -23,36 +23,45 @@ jobs:
 
     steps:
       - name: Checkout tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.event.release.tag_name || inputs.tag }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "24"
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: "10.33.2"
           run_install: false
 
       - name: Setup JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "21"
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Setup release signing
         shell: bash
         run: |
+          BASE64="$(printf '%s' "${{ secrets.KEYSTORE_BASE64 }}" | tr -d '[:space:]')"
+          echo "KEYSTORE_BASE64 length: ${#BASE64}"
           KEYSTORE_PATH="$RUNNER_TEMP/vibe-release.keystore"
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$KEYSTORE_PATH"
+          if printf '%s' "$BASE64" | base64 -d > "$KEYSTORE_PATH" 2>/dev/null; then
+            echo "decode: OK"
+            echo "decoded size: $(wc -c < "$KEYSTORE_PATH")"
+            echo "decoded sha256: $(sha256sum "$KEYSTORE_PATH" | cut -d' ' -f1)"
+          else
+            echo "::error::No se pudo decodificar KEYSTORE_BASE64 (longitud recibida: ${#BASE64}). Revisá que el secret tenga el base64 completo del keystore."
+            exit 1
+          fi
           {
             echo "MYAPP_RELEASE_STORE_FILE=$KEYSTORE_PATH"
             echo "MYAPP_RELEASE_STORE_PASSWORD=${{ secrets.KEYSTORE_STORE_PASSWORD }}"
