@@ -1,0 +1,99 @@
+name: Build & attach release APK
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag del release (ej: v0.8.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    environment: release
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      APK_PATH: android/app/build/outputs/apk/release/app-release.apk
+
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10.33.2"
+          run_install: false
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup release signing
+        shell: bash
+        run: |
+          KEYSTORE_PATH="$RUNNER_TEMP/vibe-release.keystore"
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$KEYSTORE_PATH"
+          {
+            echo "MYAPP_RELEASE_STORE_FILE=$KEYSTORE_PATH"
+            echo "MYAPP_RELEASE_STORE_PASSWORD=${{ secrets.KEYSTORE_STORE_PASSWORD }}"
+            echo "MYAPP_RELEASE_KEY_ALIAS=${{ secrets.KEYSTORE_KEY_ALIAS }}"
+            echo "MYAPP_RELEASE_KEY_PASSWORD=${{ secrets.KEYSTORE_KEY_PASSWORD }}"
+          } >> android/gradle.properties
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web & sync Capacitor
+        run: pnpm build:android
+
+      - name: Build APK
+        run: |
+          cd android
+          ./gradlew clean assembleRelease --no-daemon
+
+      - name: Verify APK matches tag commit
+        shell: bash
+        run: |
+          EXPECTED="$(git rev-parse HEAD)"
+          APK_VERSION="$(unzip -p "$APK_PATH" assets/public/_app/version.json | python3 -c 'import sys, json; print(json.load(sys.stdin)["version"])')"
+          VERSION_HASH="$(node -e 'let h=5381,s=process.argv[1];for(let i=s.length;i;)h=(h*33)^s.charCodeAt(--i);h=h>>>0;let d="0123456789abcdefghijklmnopqrstuvwxyz",o="";while(h){o=d[h%36]+o;h=Math.floor(h/36)}process.stdout.write(o)' "$APK_VERSION")"
+          echo "expected commit: $EXPECTED"
+          echo "apk version:     $APK_VERSION"
+          echo "versionHash:     __sveltekit_$VERSION_HASH"
+
+          if [ "$APK_VERSION" != "$EXPECTED" ]; then
+            echo "::error::APK construida desde $APK_VERSION, se esperaba $EXPECTED (commit del tag $TAG)"
+            exit 1
+          fi
+
+          {
+            echo "## Build $TAG Aprobado"
+            echo "- commit: \`$EXPECTED\`"
+            echo "- version.json: \`$APK_VERSION\`"
+            echo "- versionHash: \`__sveltekit_$VERSION_HASH\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Attach APK to release
+        run: gh release upload "$TAG" "$APK_PATH" --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
