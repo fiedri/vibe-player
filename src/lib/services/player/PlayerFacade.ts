@@ -1,5 +1,6 @@
 import type { AudioEngine } from "./subsystem/AudioEngine.svelte";
 import { WebAudioEngine } from "./subsystem/AudioEngine.svelte";
+import { NativeAudioEngine } from "./subsystem/NativeAudioEngine";
 import { QueueManager } from "./subsystem/queue.svelte";
 import { MediaSessionService } from "./subsystem/mediaSessionService";
 import { ArtworkService } from "./subsystem/arworkServices";
@@ -310,4 +311,6 @@ export class PlayerFacade {
   }
 }
 
-export const playerService = new PlayerFacade(new WebAudioEngine());
+export const playerService = new PlayerFacade(
+  Capacitor.isNativePlatform() ? new NativeAudioEngine() : new WebAudioEngine(),
+);
