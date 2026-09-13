@@ -3,6 +3,7 @@ package com.vibe.app
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
@@ -37,7 +38,10 @@ class NativeAudioEnginePlugin : Plugin() {
     override fun load() {
         super.load()
         activity.runOnUiThread {
-            val exoPlayer = ExoPlayer.Builder(context).build()
+            val exoPlayer = ExoPlayer.Builder(context)
+                .setAudioAttributes(AudioAttributes.DEFAULT, true)
+                .setHandleAudioBecomingNoisy(true)
+                .build()
             exoPlayer.addListener(object : Player.Listener {
                 override fun onPlaybackStateChanged(playbackState: Int) {
                     when (playbackState) {
