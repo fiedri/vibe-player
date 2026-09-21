@@ -15,6 +15,23 @@ export const DEFAULT_COVER_DATA_URL: string = defaultCoverUrl;
  */
 export const artworkCache = new Map<string, string>();
 
+const ARTWORK_CACHE_MAX = 40;
+
+/**
+ * Guarda con evicción FIFO: el Map preserva orden de inserción, así que
+ * borrar el primer key expulsa la entrada más vieja. Sin esto, cada canción
+ * reproducida en una sesión acumula un data URL base64 que NUNCA se libera y
+ * el cambio frenético de canciones dispara muchos decodes a la vez -> OOM.
+ */
+export function cacheArtwork(key: string, value: string) {
+  if (artworkCache.has(key)) return;
+  artworkCache.set(key, value);
+  if (artworkCache.size > ARTWORK_CACHE_MAX) {
+    const oldest = artworkCache.keys().next().value;
+    if (oldest !== undefined) artworkCache.delete(oldest);
+  }
+}
+
 const pendingThumbnails = new Map<string, Promise<string | null>>();
 
 export function hashString(input: string): string {
@@ -200,6 +217,7 @@ async function generateThumbnail(image: string): Promise<string | null> {
 }
 
 export async function ensureThumbnail(image: string): Promise<string | null> {
+  if (/^https?:\/\//.test(image)) return DEFAULT_COVER_DATA_URL;
   if (image === DEFAULT_COVER || image === "/default-cover.png") return DEFAULT_COVER_DATA_URL;
 
   // Caché en memoria primero: evita lecturas nativas y re-decode cuando el
@@ -213,11 +231,11 @@ export async function ensureThumbnail(image: string): Promise<string | null> {
   const task = (async () => {
     const existing = await readThumbnail(image);
     if (existing) {
-      artworkCache.set(image, existing);
+      cacheArtwork(image, existing);
       return existing;
     }
     const generated = await generateThumbnail(image);
-    if (generated) artworkCache.set(image, generated);
+    if (generated) cacheArtwork(image, generated);
     return generated;
   })().finally(() => pendingThumbnails.delete(image));
 

@@ -52,12 +52,11 @@ export class NativeAudioEngine extends AudioEngine {
       this.onLoadedMetadata?.();
     });
     void this.plugin.addListener("isPlayingChange", ({ isPlaying, currentTime }) => {
-      this.isPlaying = isPlaying;
+      //this.isPlaying = isPlaying;
       this.currentTime = currentTime;
     });
     void this.plugin.addListener("seeked", ({ currentTime }) => {
       this.currentTime = currentTime;
-      this.onSeeked?.();
     });
     void this.plugin.addListener("ended", () => {
 
@@ -83,13 +82,14 @@ export class NativeAudioEngine extends AudioEngine {
     this.anchorPosition = 0;
     this.anchorTimestamp = performance.now();
     this.duration = 0;
-    this.isPlaying = false;
-    void this.plugin.setSong({ uri: song.uri });
+    void this.plugin.setSong({ uri: song.uri }).catch((error: unknown) => {
+      console.error("Error al setear la canción:", error);
+    });
   }
 
   public play() {
     this.anchorTimestamp = performance.now();
-    this.isPlaying = true;
+    this.isPlaying = true
     this.plugin
       .play()
       .catch((error: unknown) => {
@@ -101,15 +101,14 @@ export class NativeAudioEngine extends AudioEngine {
   }
 
   public pause() {
+    this.isPlaying = false
     this.anchorPosition = this.currentTime;
     this.anchorTimestamp = performance.now();
-    this.isPlaying = false;
     void this.plugin.pause();
   }
 
   public seek(time: number) {
-    this.anchorPosition = time;
-    this.anchorTimestamp = performance.now();
+    this.currentTime = time;
     void this.plugin.seek({ time });
   }
 

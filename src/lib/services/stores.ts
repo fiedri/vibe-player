@@ -3,10 +3,11 @@ import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { Capacitor } from "@capacitor/core";
 import type { Locale } from "$lib/paraglide/runtime";
 export interface PlayerState {
-  trackId: string | number|undefined;
+  trackId: string | number | undefined;
   position: number;
   timestamp: number;
   mode: string;
+  shuffle: boolean;
 }
 
 const CACHE_KEY = "biblioteca_cache_v2";
@@ -82,12 +83,14 @@ export async function guardarEstadoReproductor(
   songId: string | number | undefined,
   currentTime: number,
   mode: string = "off",
+  shuffle: boolean = false,
 ) {
   const estado: PlayerState = {
     trackId: songId,
     position: currentTime,
     timestamp: Date.now(),
     mode,
+    shuffle,
   };
 
   console.log("🎵 Guardando estado:", estado);

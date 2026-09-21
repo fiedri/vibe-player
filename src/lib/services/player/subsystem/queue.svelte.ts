@@ -76,9 +76,9 @@ export class QueueManager {
 
     return shuffled;
   }
-  public toggleShuffle() {
-    this.isShuffle = !this.isShuffle;
-    if (this.isShuffle) {
+  public setShuffle(active: boolean) {
+    if (this.isShuffle === active) return;
+    if (active) {
       this.aplicarShuffle();
     } else {
       this.queue =
@@ -86,7 +86,11 @@ export class QueueManager {
           ? [...this.playlistSongs]
           : [...this.rawSource];
     }
+    this.isShuffle = active;
     this.calculateIndex();
+  }
+  public toggleShuffle() {
+    this.setShuffle(!this.isShuffle);
   }
   public getAdyacentsSongImage() {
     let previous = null;
@@ -112,7 +116,14 @@ export class QueueManager {
     return this.state.handleTrackEndednext();
   }
   public fillqueue() {
-    this.queue = this.rawSource;
+    if (this.isShuffle) {
+      // Reconstruir SIN perder el shuffle activo: si aplicamos rawSource
+      // directo, la cola restaurada muestra el orden original aunque el
+      // usuario tenía shuffle on.
+      this.aplicarShuffle();
+    } else {
+      this.queue = this.rawSource;
+    }
     this.calculateIndex();
   }
   public setNextSong(song: MediaFile) {

@@ -63,7 +63,7 @@
 				pauseListener = await App.addListener("pause", () => {
 					// guardarEstado reproductor
 					if (playerService.currentSong) {
-						guardarEstadoReproductor(playerService.currentSong?.id, playerService.currentTime, playerService.mode);
+						guardarEstadoReproductor(playerService.currentSong?.id, playerService.currentTime, playerService.mode, playerService.isShuffle);
 					}
 				});
 			} catch(err) {

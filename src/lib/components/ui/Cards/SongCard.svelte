@@ -1,14 +1,14 @@
 <script lang="ts">
   import { portal } from "$lib/uiUtils";
   import { m } from "$lib/paraglide/messages.js";
-import { fileService } from "$lib/services/files";
+  import { fileService } from "$lib/services/files";
   import { ContextType } from "$lib/services/player/types";
   import { playerService as player } from "$lib/services/player/PlayerFacade";
   import {
     OverflowMenuVertical as EllipsisVertical,
     PlayFilledAlt as Play,
     PauseFilled as Pause,
-    Information
+    Information,
   } from "carbon-icons-svelte";
   import { longPress } from "$lib/components/multiSelector/pointer";
   import type { MediaFile } from "$lib/types/songs";
@@ -38,10 +38,7 @@ import { fileService } from "$lib/services/files";
     onDelete = () => {},
   }: Props = $props();
 
-  let isCurrent = $derived(
-    player.currentSong?.id === song.id &&
-      player.currentSong?.album === song.album,
-  );
+  let isCurrent = $derived(player.currentSong?.id === song.id);
   let isPlayingThis = $derived(isCurrent && player.isPlaying);
 
   function handleOnclick(id: string) {
@@ -74,7 +71,7 @@ import { fileService } from "$lib/services/files";
 <div
   use:longPress={song.id}
   onclick={(e) => {
-  e.stopPropagation()
+    e.stopPropagation();
     handleOnclick(song.id);
   }}
   onkeydown={(e) =>
@@ -85,9 +82,9 @@ import { fileService } from "$lib/services/files";
     song.id,
   )
     ? 'bg-accent'
-    : isPlayingThis
+    : isCurrent
       ? 'bg-card/50 shadow-[inset_0_0_0_1px_theme(colors.primary)] '
-      : ''} transition-all duration-200 ease-in-out gap-2"
+      : ''} gap-2"
 >
   <div class="flex items-center gap-4 flex-1 min-w-0 pointer-events-none">
     <button
@@ -143,26 +140,25 @@ import { fileService } from "$lib/services/files";
     transition:slide
     class="fixed bottom-0 right-0 left-0 z-50 min-h-[30%] border-t border-border bg-popover text-popover-foreground pb-22 shadow-xl"
   >
-
     <Button
       class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
       variant="ghost"
-      onclick={()=>{
-      ui.openDialog(DialogType.InfoSong, song)
-openMenu =false
+      onclick={() => {
+        ui.openDialog(DialogType.InfoSong, song);
+        openMenu = false;
       }}
     >
-     <Information/>{m["songs_options.info"]()}
+      <Information />{m["songs_options.info"]()}
     </Button>
     <Button
       class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
       variant="ghost"
-      onclick={()=>{
-player.setNextSong(song)
-openMenu =false
+      onclick={() => {
+        player.setNextSong(song);
+        openMenu = false;
       }}
     >
-     {m["songs_options.next_in_queue"]()} 
+      {m["songs_options.next_in_queue"]()}
     </Button>
     <Button
       class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
@@ -173,18 +169,18 @@ openMenu =false
       }}
       variant="ghost"
     >
-     {m["songs_options.add_to_playlists"]()} 
+      {m["songs_options.add_to_playlists"]()}
     </Button>
     <Button
       class="w-full justify-start border-b border-border px-4 py-4 text-sm active:bg-primary active:text-primary-foreground"
       onclick={(e) => {
         e.stopPropagation();
         openMenu = false;
-        fileService.share(song.uri)
+        fileService.share(song.uri);
       }}
       variant="ghost"
     >
-    {m["songs_options.share"]()}
+      {m["songs_options.share"]()}
     </Button>
     {#if context === ContextType.InPlaylist && playlistId}
       <Button
@@ -197,7 +193,7 @@ openMenu =false
         }}
         variant="ghost"
       >
-       {m["songs_options.add_to_playlists"]()}</Button
+        {m["songs_options.add_to_playlists"]()}</Button
       >
     {:else}
       <Button

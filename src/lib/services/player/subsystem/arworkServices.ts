@@ -34,12 +34,9 @@ export class ArtworkService{
     current?: string | null | undefined,
   ) {
 
-    const siguiente = next
-    const anterior = previous
-    const actual = current
 
-    const aPrecalentar = [siguiente, anterior].filter(
-      (img): img is string => !!img && img !== actual && !artworkCache.has(img),
+    const aPrecalentar = [next, previous].filter(
+      (img): img is string => !!img && img !== current && !artworkCache.has(img),
     );
     if (aPrecalentar.length === 0) return;
 
@@ -49,7 +46,6 @@ export class ArtworkService{
       }
     };
 
-    // requestIdleCallback con fallback a setTimeout para WebViews viejas.
     if (typeof requestIdleCallback === "function") {
       requestIdleCallback(precalentar, { timeout: 2000 });
     } else {

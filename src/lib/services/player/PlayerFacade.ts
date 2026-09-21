@@ -1,5 +1,4 @@
 import type { AudioEngine } from "./subsystem/AudioEngine.svelte";
-import { WebAudioEngine } from "./subsystem/AudioEngine.svelte";
 import { NativeAudioEngine } from "./subsystem/NativeAudioEngine";
 import { QueueManager } from "./subsystem/queue.svelte";
 import { MediaSessionService } from "./subsystem/mediaSessionService";
@@ -15,17 +14,19 @@ import { Capacitor } from "@capacitor/core";
 import type { MediaFile } from "$lib/types/songs";
 import { displayImage } from "$lib/types/songs";
 import type { ContextType } from "./types";
+
 export class PlayerFacade {
   protected audioEngine: AudioEngine;
   protected queueManager: QueueManager;
   protected artworkServices: ArtworkService = new ArtworkService();
   protected mediaSessionService: MediaSessionService =
     new MediaSessionService();
+  private pendingSong: MediaFile | null = null;
+  private songChangeTimer: ReturnType<typeof setTimeout> | null = null;
   constructor(audioEngine: AudioEngine) {
     this.audioEngine = audioEngine;
     this.audioEngine.onEndedRequest = () => this.handleTrackEnded();
     this.audioEngine.onLoadedMetadata = () => this.handleLoadedMetadata();
-    this.audioEngine.onSeeked = () => this.handleSeeked();
     this.queueManager = new QueueManager(new RepeatOffmode());
 
     this.mediaSessionService.onPauseRequest = () => this.pause();
@@ -45,7 +46,18 @@ export class PlayerFacade {
         this.mediaSessionService.init(defaultPath);
       });
   }
-
+  private requestSongChange(song: MediaFile) {
+    this.pendingSong = song;
+    if (this.songChangeTimer) clearTimeout(this.songChangeTimer);
+    this.songChangeTimer = setTimeout(() => {
+      this.songChangeTimer = null;
+      const s = this.pendingSong;
+      this.pendingSong = null;
+      if (s) {
+        this.initSong(s);
+      }
+    }, 80);
+  }
   private async initSong(song: MediaFile) {
     this.audioEngine.setSong(song);
     const adyacentsSongImage = this.queueManager.getAdyacentsSongImage();
@@ -58,7 +70,6 @@ export class PlayerFacade {
     const img = await this.artworkServices.getArtworkSrc(displayImage(song));
     void this.mediaSessionService.setMetadata(song, img);
   }
-
   get currentSong() {
     return this.queueManager.currentSong;
   }
@@ -133,11 +144,8 @@ export class PlayerFacade {
 
     this.mediaSessionService.endNativePauseSuppression();
   }
-  public handleSeeked() {
-    // Native ExoPlayer syncs position directly via Player.Listener
-  }
-  public moveInQueue(from: number, to: number){
-    this.queueManager.moveInQueue(from, to)
+  public moveInQueue(from: number, to: number) {
+    this.queueManager.moveInQueue(from, to);
   }
   public async loadLastSavedState() {
     const lastState = await cargarEstadoReproductor();
@@ -157,6 +165,7 @@ export class PlayerFacade {
 
     this.switchMode(mode);
     this.audioEngine.setSong(restoredSong);
+    this.queueManager.setShuffle(lastState.shuffle ?? false);
     this.queueManager.fillqueue();
     const img = await this.artworkServices.getArtworkSrc(
       displayImage(restoredSong),
@@ -168,16 +177,11 @@ export class PlayerFacade {
     }
   }
 
-  private startPlayback() {
-    this.isPlaying = true;
-    this.play();
-  }
-
   public setSong(song: MediaFile) {
     this.queueManager.setCurrentSong(song);
 
-    this.initSong(song);
-    this.startPlayback();
+    this.requestSongChange(song);
+    this.play()
   }
   public play() {
     this.audioEngine.play();
@@ -204,8 +208,7 @@ export class PlayerFacade {
     this.queueManager.previous();
     song = this.queueManager.currentSong;
     if (song) {
-      this.initSong(song);
-      this.startPlayback();
+      this.requestSongChange(song);
     }
   }
   public setNextSong(song: MediaFile) {
@@ -215,8 +218,7 @@ export class PlayerFacade {
     this.queueManager.next();
     const song = this.queueManager.currentSong;
     if (song) {
-      this.initSong(song);
-      this.startPlayback();
+      this.requestSongChange(song);
     }
   }
   public togglePlay() {
@@ -239,8 +241,10 @@ export class PlayerFacade {
     if (cancion) {
       if (cancion !== cancionAnterior) {
         this.setSong(cancion);
+      } else {
+        this.seekTo(0);
+        this.play()
       }
-      this.startPlayback();
     } else {
       this.pause();
     }
@@ -257,13 +261,6 @@ export class PlayerFacade {
   }
   public syncNativePlaybackState(isPlaying = this.isPlaying) {
     this.mediaSessionService.syncNativePlaybackState(isPlaying);
-  }
-  public updatePositionState(
-    position: number,
-    duration: number,
-    force: boolean,
-  ) {
-    this.mediaSessionService.updatePositionState(position, duration, force);
   }
 }
 

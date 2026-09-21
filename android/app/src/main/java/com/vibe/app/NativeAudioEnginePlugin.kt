@@ -97,7 +97,7 @@ class NativeAudioEnginePlugin : Plugin() {
                     notifyMediaSessionPlaybackChanged()
                     val data = JSObject()
                     data.put("isPlaying", isPlaying)
-                    data.put("currentTime", exoPlayer.currentPosition / 1000.0)
+                    data.put("currentTime", (player?.currentPosition?: 0L) / 1000.0)
                     notifyListeners("isPlayingChange", data)
                 }
 
@@ -141,11 +141,20 @@ class NativeAudioEnginePlugin : Plugin() {
         }
         // Read and clear immediately: this position belongs only to the song
         // being set right now, never to whatever setSong call comes next.
-        val startPositionMs = pendingPositionMs
-        pendingPositionMs = null
+
         activity.runOnUiThread {
-            val exoPlayer = player ?: return@runOnUiThread
+            val exoPlayer = player
+            if (exoPlayer == null) {
+                call.reject("NativeAudioEngine is not loaded")
+                return@runOnUiThread
+            }
             try {
+                // setMediaItem ya reemplaza el source anterior y resetea la
+                // posición: NO hace falta stop() + clearMediaItems() (churn
+                // pesado) ni en ráfagas de cambios rápidos ni en el flujo
+                // normal. prepare() arranca el load del nuevo contenido.
+                val startPositionMs = pendingPositionMs
+                pendingPositionMs = null
                 val mediaItem = MediaItem.fromUri(Uri.parse(uriString))
                 if (startPositionMs != null) {
                     exoPlayer.setMediaItem(mediaItem, startPositionMs)
@@ -153,13 +162,14 @@ class NativeAudioEnginePlugin : Plugin() {
                     exoPlayer.setMediaItem(mediaItem)
                 }
                 exoPlayer.prepare()
+                call.resolve()
             } catch (e: Exception) {
                 val data = JSObject()
                 data.put("message", e.message ?: "Failed to load song")
                 notifyListeners("error", data)
+                call.resolve()
             }
         }
-        call.resolve()
     }
 
     @PluginMethod
@@ -211,6 +221,7 @@ class NativeAudioEnginePlugin : Plugin() {
         MediaSessionService.setPlayerProvider(null)
         playbackListener = null
         activity.runOnUiThread {
+            player?.stop()
             player?.release()
             player = null
         }

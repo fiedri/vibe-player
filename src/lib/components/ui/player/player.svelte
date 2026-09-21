@@ -38,6 +38,7 @@ import { m } from "$lib/paraglide/messages.js";
 // m.["player.no_song"]()
   let displayTime = $state<number>(0);
   $effect(() => {
+  if(!playerService.currentSong || !playerService.isPlaying) return
     let raf: number;
     const tick = () => {
       displayTime = isSeeking ? seekValue : playerService.currentTime;
@@ -63,8 +64,10 @@ import { m } from "$lib/paraglide/messages.js";
   }
   function handleError(e: Event) {
     console.error("Error en elemento audio:", e);
+    if (Capacitor.isNativePlatform()) {
+      playerService.endNativePauseSuppression();
+    }
     playerService.pause();
-    playerService.endNativePauseSuppression();
   }
 
   function handleSeekStart(e: Event) {
