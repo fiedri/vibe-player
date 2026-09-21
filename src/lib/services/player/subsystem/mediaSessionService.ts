@@ -22,8 +22,6 @@ export class MediaSessionService {
   public onPauseRequest?: () => void;
   private handlersInitialized = false;
   private suppressNativePausePush = false;
-  private lastPositionSync = 0;
-  private isSeeking = false;
   public onStopTrackRequest?: () => void;
   public get isSuppressingNativePause(): boolean {
     return this.suppressNativePausePush;
@@ -137,100 +135,32 @@ export class MediaSessionService {
       console.warn("Error metadata nativo:", e);
     }
   }
-public syncNativePlaybackState(
-    isPlaying: boolean,
-    currentPosition?: number,
-    duration?: number
-  ) {
+  public syncNativePlaybackState(isPlaying: boolean) {
     if (Capacitor.isNativePlatform()) {
       try {
         MediaSession.setPlaybackState({
           playbackState: isPlaying ? "playing" : "paused",
         });
-
-        if (
-          currentPosition !== undefined &&
-          duration !== undefined &&
-          Number.isFinite(duration) &&
-          duration > 0
-        ) {
-          this.updatePositionState(currentPosition, duration, true);
-        }
       } catch (e) {
         console.warn("Error sync state:", e);
       }
     }
   }
 
-
   public resetNativePosition(
-    song: MediaMetadata | null,
-    elementDuration: number = 0,
+    _song?: MediaMetadata | null,
+    _elementDuration: number = 0,
   ) {
     if (!Capacitor.isNativePlatform()) return;
-
     this.syncNativePlaybackState(false);
-
-    let finiteDuration = this.#songDurationToSeconds(song?.duration);
-    if (
-      !(finiteDuration > 0) &&
-      Number.isFinite(elementDuration) &&
-      elementDuration > 0
-    ) {
-      finiteDuration = elementDuration;
-    }
-    if (!(finiteDuration > 0)) return;
-
-    // Ancla en 0: el plugin siempre propaga setPositionState; reset nativo.
-    this.updatePositionState(0, finiteDuration, true);
-  }
-
-  /** Song.duration es ms (número) o "mm:ss" (string). Devuelve segundos. */
-  #songDurationToSeconds(duration: number | string | undefined): number {
-    if (
-      typeof duration === "number" &&
-      Number.isFinite(duration) &&
-      duration > 0
-    ) {
-      return duration / 1000;
-    }
-    if (typeof duration === "string" && duration.includes(":")) {
-      const parts = duration.split(":").map(Number);
-      return parts.reduce((acc, part) => acc * 60 + part, 0);
-    }
-    return 0;
   }
 
   public updatePositionState(
-    position: number,
-    duration: number,
-    force: boolean = false,
+    _position?: number,
+    _duration?: number,
+    _force: boolean = false,
   ) {
-    if (
-      !Number.isFinite(duration) ||
-      !Number.isFinite(position) ||
-      duration <= 0 ||
-      position < 0
-    ) {
-      return;
-    }
-
-    const safePosition = Math.min(position, duration);
-
-    const now = Date.now();
-    if (!force && now - this.lastPositionSync < 1500) return;
-    this.lastPositionSync = now;
-
-    if (Capacitor.isNativePlatform()) {
-      try {
-        MediaSession.setPositionState({
-          position: safePosition,
-          duration,
-          playbackRate: 1.0,
-        });
-      } catch (e) {
-        console.warn("Error setting position state:", e);
-      }
-    }
+    // Native ExoPlayer syncs position directly with MediaSessionService.
+    // JS no longer polls or pushes position updates to the native media session.
   }
 }

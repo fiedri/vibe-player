@@ -1,14 +1,13 @@
 package com.vibe.app
 
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.capgo.mediasession.MediaSessionService
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
@@ -25,15 +24,13 @@ import com.getcapacitor.annotation.CapacitorPlugin
 class NativeAudioEnginePlugin : Plugin() {
 
     private var player: ExoPlayer? = null
+    private var playbackListener: MediaSessionService.PlaybackListener? = null
 
     // Set by restoreLoadPosition, consumed by the very next setSong call (and
     // cleared immediately) so a stale value can never apply to a later,
     // unrelated track.
     @Volatile
     private var pendingPositionMs: Long? = null
-
-    private val positionHandler = Handler(Looper.getMainLooper())
-    private var positionRunnable: Runnable? = null
 
     override fun load() {
         super.load()
@@ -42,8 +39,40 @@ class NativeAudioEnginePlugin : Plugin() {
                 .setAudioAttributes(AudioAttributes.DEFAULT, true)
                 .setHandleAudioBecomingNoisy(true)
                 .build()
+
+            player = exoPlayer
+
+            val provider = object : MediaSessionService.ExoPlayerProvider {
+                override fun getPositionMs(): Long = player?.currentPosition ?: 0L
+                override fun getDurationMs(): Long {
+                    val dur = player?.duration ?: 0L
+                    return if (dur != C.TIME_UNSET && dur > 0) dur else 0L
+                }
+                override fun isPlaying(): Boolean = player?.isPlaying == true
+                override fun seekTo(positionMs: Long) {
+                    activity.runOnUiThread {
+                        player?.seekTo(positionMs)
+                    }
+                }
+                override fun play() {
+                    activity.runOnUiThread {
+                        player?.play()
+                    }
+                }
+                override fun pause() {
+                    activity.runOnUiThread {
+                        player?.pause()
+                    }
+                }
+                override fun setListener(listener: MediaSessionService.PlaybackListener?) {
+                    playbackListener = listener
+                }
+            }
+            MediaSessionService.setPlayerProvider(provider)
+
             exoPlayer.addListener(object : Player.Listener {
                 override fun onPlaybackStateChanged(playbackState: Int) {
+                    notifyMediaSessionPlaybackChanged()
                     when (playbackState) {
                         Player.STATE_READY -> {
                             val durationMs = exoPlayer.duration
@@ -59,14 +88,17 @@ class NativeAudioEnginePlugin : Plugin() {
                             }
                         }
                         Player.STATE_ENDED -> {
-                            stopPositionUpdates()
                             notifyListeners("ended", JSObject())
                         }
                     }
                 }
 
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
-                    if (isPlaying) startPositionUpdates() else stopPositionUpdates()
+                    notifyMediaSessionPlaybackChanged()
+                    val data = JSObject()
+                    data.put("isPlaying", isPlaying)
+                    data.put("currentTime", exoPlayer.currentPosition / 1000.0)
+                    notifyListeners("isPlayingChange", data)
                 }
 
                 override fun onPositionDiscontinuity(
@@ -74,6 +106,7 @@ class NativeAudioEnginePlugin : Plugin() {
                     newPosition: Player.PositionInfo,
                     reason: Int,
                 ) {
+                    notifyMediaSessionPlaybackChanged(newPosition.positionMs)
                     if (reason == Player.DISCONTINUITY_REASON_SEEK) {
                         val data = JSObject()
                         data.put("currentTime", newPosition.positionMs / 1000.0)
@@ -82,13 +115,21 @@ class NativeAudioEnginePlugin : Plugin() {
                 }
 
                 override fun onPlayerError(error: PlaybackException) {
+                    notifyMediaSessionPlaybackChanged()
                     val data = JSObject()
                     data.put("message", error.message ?: "Unknown playback error")
                     notifyListeners("error", data)
                 }
             })
-            player = exoPlayer
         }
+    }
+
+    private fun notifyMediaSessionPlaybackChanged(targetPositionMs: Long? = null) {
+        val exo = player ?: return
+        val duration = exo.duration
+        val durationMs = if (duration != C.TIME_UNSET && duration > 0) duration else 0L
+        val pos = targetPositionMs ?: exo.currentPosition
+        playbackListener?.onPlaybackChanged(exo.isPlaying, pos, durationMs)
     }
 
     @PluginMethod
@@ -104,7 +145,6 @@ class NativeAudioEnginePlugin : Plugin() {
         pendingPositionMs = null
         activity.runOnUiThread {
             val exoPlayer = player ?: return@runOnUiThread
-            stopPositionUpdates()
             try {
                 val mediaItem = MediaItem.fromUri(Uri.parse(uriString))
                 if (startPositionMs != null) {
@@ -167,36 +207,13 @@ class NativeAudioEnginePlugin : Plugin() {
         call.resolve()
     }
 
-    private fun startPositionUpdates() {
-        stopPositionUpdates()
-        val runnable = object : Runnable {
-            override fun run() {
-                val exoPlayer = player ?: return
-                val data = JSObject()
-                data.put("currentTime", exoPlayer.currentPosition / 1000.0)
-                notifyListeners("timeUpdate", data)
-                positionHandler.postDelayed(this, POSITION_UPDATE_INTERVAL_MS)
-            }
-        }
-        positionRunnable = runnable
-        positionHandler.post(runnable)
-    }
-
-    private fun stopPositionUpdates() {
-        positionRunnable?.let { positionHandler.removeCallbacks(it) }
-        positionRunnable = null
-    }
-
     override fun handleOnDestroy() {
-        stopPositionUpdates()
+        MediaSessionService.setPlayerProvider(null)
+        playbackListener = null
         activity.runOnUiThread {
             player?.release()
             player = null
         }
         super.handleOnDestroy()
-    }
-
-    private companion object {
-        const val POSITION_UPDATE_INTERVAL_MS = 250L
     }
 }

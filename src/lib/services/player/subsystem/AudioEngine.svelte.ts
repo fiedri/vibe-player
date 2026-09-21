@@ -1,13 +1,33 @@
 import { Capacitor } from "@capacitor/core";
 import type { MediaFile } from "@odion-cloud/capacitor-mediastore";
 export abstract class AudioEngine {
-  public currentTime = $state<number>(0);
   public duration = $state<number>(0);
   public volume = $state<number>(1);
   public isPlaying = $state<boolean>(false);
   public onEndedRequest?: () => void;
   public onLoadedMetadata?: () => void;
   public onSeeked?: () => void;
+
+  public anchorPosition = $state<number>(0);
+  public anchorTimestamp: number = typeof performance !== "undefined" ? performance.now() : 0;
+
+  public get currentTime(): number {
+    if (this.isPlaying) {
+      const now = typeof performance !== "undefined" ? performance.now() : 0;
+      const elapsed = (now - this.anchorTimestamp) / 1000;
+      return Math.min(
+        this.duration || Infinity,
+        Math.max(0, this.anchorPosition + elapsed),
+      );
+    }
+    return this.anchorPosition;
+  }
+
+  public set currentTime(time: number) {
+    this.anchorPosition = time;
+    this.anchorTimestamp = typeof performance !== "undefined" ? performance.now() : 0;
+  }
+
   abstract setSong(song: MediaFile): void;
   abstract restoreLoadPosition(position: number): void;
   abstract setVolume(val: number): void;
@@ -28,33 +48,42 @@ export class WebAudioEngine extends AudioEngine {
 
     this.audioElement.addEventListener("durationchange", updateDuration);
     this.audioElement.ontimeupdate = () => {
-      this.currentTime = this.audioElement?.currentTime ?? 0;
+      this.anchorPosition = this.audioElement?.currentTime ?? 0;
+      this.anchorTimestamp = performance.now();
     };
     this.audioElement.onloadedmetadata = () => {
       this.duration = this.audioElement.duration ?? 0;
       if (this.pendingPosition !== null) {
         this.audioElement.currentTime = this.pendingPosition;
-        this.currentTime = this.pendingPosition;
+        this.anchorPosition = this.pendingPosition;
         this.pendingPosition = null;
       } else {
-        this.currentTime = 0;
+        this.anchorPosition = 0;
       }
+      this.anchorTimestamp = performance.now();
       this.onLoadedMetadata?.();
     };
     this.audioElement.onseeked = () => {
-      this.currentTime = this.audioElement.currentTime;
+      this.anchorPosition = this.audioElement.currentTime;
+      this.anchorTimestamp = performance.now();
       this.onSeeked?.();
     };
     this.audioElement.onended = () => {
+      this.isPlaying = false;
+      this.anchorPosition = 0;
+      this.anchorTimestamp = performance.now();
       this.onEndedRequest?.();
     };
   }
 
   public restoreLoadPosition(position: number) {
     this.pendingPosition = position;
+    this.anchorPosition = position;
+    this.anchorTimestamp = performance.now();
   }
   public setSong(song: MediaFile) {
-    this.currentTime = 0;
+    this.anchorPosition = 0;
+    this.anchorTimestamp = performance.now();
     this.duration = 0;
     this.isPlaying = false;
     this.audioElement.src = Capacitor.convertFileSrc(song.uri);
@@ -62,12 +91,14 @@ export class WebAudioEngine extends AudioEngine {
   public play() {
     if (!this.audioElement) return;
 
+    this.anchorTimestamp = performance.now();
     const playPromise = this.audioElement.play();
 
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
           this.isPlaying = true;
+          this.anchorTimestamp = performance.now();
         })
         .catch((error) => {
           if (error.name !== "AbortError") {
@@ -77,10 +108,13 @@ export class WebAudioEngine extends AudioEngine {
         });
     } else {
       this.isPlaying = true;
+      this.anchorTimestamp = performance.now();
     }
   }
 
   public pause() {
+    this.anchorPosition = this.audioElement.currentTime;
+    this.anchorTimestamp = performance.now();
     this.audioElement.pause();
     this.isPlaying = false;
   }
@@ -88,7 +122,8 @@ export class WebAudioEngine extends AudioEngine {
   public seek(time: number) {
     if (this.audioElement) {
       this.audioElement.currentTime = time;
-      this.currentTime = time;
+      this.anchorPosition = time;
+      this.anchorTimestamp = performance.now();
     }
   }
 

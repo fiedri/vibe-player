@@ -132,20 +132,9 @@ export class PlayerFacade {
     if (!this.currentSong) return;
 
     this.mediaSessionService.endNativePauseSuppression();
-    this.mediaSessionService.updatePositionState(
-      this.currentTime ?? 0,
-      this.duration ?? 0,
-      true,
-    );
   }
   public handleSeeked() {
-    if (this.duration && Number.isFinite(this.duration)) {
-      this.mediaSessionService.updatePositionState(
-        this.currentTime,
-        this.duration,
-        true,
-      );
-    }
+    // Native ExoPlayer syncs position directly via Player.Listener
   }
   public moveInQueue(from: number, to: number){
     this.queueManager.moveInQueue(from, to)
@@ -176,30 +165,12 @@ export class PlayerFacade {
     if (Capacitor.isNativePlatform()) {
       this.mediaSessionService.syncNativePlaybackState(false);
       void this.mediaSessionService.setMetadata(restoredSong, img);
-
-      const duration = restoredSong.duration as number | string | undefined;
-
-      let restoredDuration = 0;
-      if (typeof duration === "number" && Number.isFinite(duration)) {
-        restoredDuration = duration / 1000;
-      } else if (typeof duration === "string" && duration.includes(":")) {
-        const parts = duration.split(":").map(Number);
-        restoredDuration = parts.reduce((acc, part) => acc * 60 + part, 0);
-      }
-      if (restoredDuration > 0) {
-        this.updatePositionState(lastState.position, restoredDuration, true);
-      }
     }
   }
 
   private startPlayback() {
     this.isPlaying = true;
     this.play();
-    this.mediaSessionService.syncNativePlaybackState(
-      this.isPlaying,
-      0,
-      this.duration,
-    );
   }
 
   public setSong(song: MediaFile) {
@@ -212,11 +183,7 @@ export class PlayerFacade {
     this.audioEngine.play();
     this.isPlaying = true;
     this.endNativePauseSuppression();
-    this.mediaSessionService.syncNativePlaybackState(
-      true,
-      this.currentTime,
-      this.duration,
-    );
+    this.mediaSessionService.syncNativePlaybackState(true);
   }
   public pause() {
     this.audioEngine.pause();
@@ -225,11 +192,7 @@ export class PlayerFacade {
       return;
     }
     this.isPlaying = false;
-    this.mediaSessionService.syncNativePlaybackState(
-      false,
-      this.currentTime,
-      this.duration,
-    );
+    this.mediaSessionService.syncNativePlaybackState(false);
   }
 
   public previous() {
@@ -283,14 +246,7 @@ export class PlayerFacade {
     }
   }
   public seekTo(time: number) {
-    const validDuration =
-      this.duration && Number.isFinite(this.duration) ? this.duration : 0;
-
     this.audioEngine.seek(time);
-
-    if (validDuration > 0) {
-      this.mediaSessionService.updatePositionState(time, validDuration, true);
-    }
   }
   public setContext(context: ContextType, songs: MediaFile[]) {
     this.queueManager.setContext(context, songs);

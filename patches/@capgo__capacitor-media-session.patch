@@ -1,16 +1,86 @@
+diff --git a/android/src/main/java/com/capgo/mediasession/MediaSessionCallback.java b/android/src/main/java/com/capgo/mediasession/MediaSessionCallback.java
+index b5fbf9ffad76d2963ad2ba9b85c184ea0445d424..137c1d182fc60f64bebe83f8b031b265691456a7 100644
+--- a/android/src/main/java/com/capgo/mediasession/MediaSessionCallback.java
++++ b/android/src/main/java/com/capgo/mediasession/MediaSessionCallback.java
+@@ -23,6 +23,9 @@ public class MediaSessionCallback extends MediaSessionCompat.Callback {
+ 
+     @Override
+     public void onSeekTo(long pos) {
++        if (MediaSessionService.playerProvider != null) {
++            MediaSessionService.playerProvider.seekTo(pos);
++        }
+         JSObject data = new JSObject();
+         data.put("seekTime", (double) pos / 1000.0);
+         plugin.actionCallback("seekto", data);
 diff --git a/android/src/main/java/com/capgo/mediasession/MediaSessionService.java b/android/src/main/java/com/capgo/mediasession/MediaSessionService.java
 index e2c1f052c568618637015c022b305cbb71325133..b6ac5b3adebe350ec55f0850df063e644906cffc 100644
 --- a/android/src/main/java/com/capgo/mediasession/MediaSessionService.java
 +++ b/android/src/main/java/com/capgo/mediasession/MediaSessionService.java
-@@ -8,6 +8,7 @@ import android.app.Service;
+@@ -8,6 +8,10 @@ import android.app.Service;
  import android.content.Intent;
  import android.content.pm.ServiceInfo;
  import android.graphics.Bitmap;
 +import android.media.AudioManager;
  import android.os.Binder;
  import android.os.Build;
++import android.os.Handler;
  import android.os.IBinder;
-@@ -96,6 +97,8 @@ public class MediaSessionService extends Service {
++import android.os.Looper;
++import android.os.SystemClock;
+ import android.support.v4.media.MediaMetadataCompat;
+@@ -27,6 +31,45 @@ import java.util.Set;
+ 
+ public class MediaSessionService extends Service {
+ 
++    public interface ExoPlayerProvider {
++        long getPositionMs();
++        long getDurationMs();
++        boolean isPlaying();
++        void seekTo(long positionMs);
++        void play();
++        void pause();
++        void setListener(PlaybackListener listener);
++    }
++
++    public interface PlaybackListener {
++        void onPlaybackChanged(boolean isPlaying, long positionMs, long durationMs);
++    }
++
++    public static ExoPlayerProvider playerProvider;
++    private static MediaSessionService activeService;
++
++    public static void setPlayerProvider(ExoPlayerProvider provider) {
++        if (playerProvider != null) {
++            playerProvider.setListener(null);
++        }
++        playerProvider = provider;
++        if (activeService != null && provider != null) {
++            provider.setListener(new PlaybackListener() {
++                @Override
++                public void onPlaybackChanged(boolean isPlaying, long positionMs, long durationMs) {
++                    if (activeService != null) {
++                        activeService.syncFromExoPlayer(isPlaying, positionMs, durationMs);
++                    }
++                }
++            });
++            activeService.syncFromExoPlayer(
++                provider.isPlaying(),
++                provider.getPositionMs(),
++                provider.getDurationMs()
++            );
++        }
++    }
++
+     private static final String TAG = "MediaSessionService";
+     private static final String CHANNEL_ID = "playback";
+     private static final int NOTIFICATION_ID = 1;
+@@ -93,9 +136,12 @@ public class MediaSessionService extends Service {
+ 
+     public void connectAndInitialize(MediaSessionPlugin plugin, Intent intent) {
+         this.plugin = plugin;
++        activeService = this;
+ 
+         mediaSession = new MediaSessionCompat(this, "CapgoMediaSession");
          mediaSession.setCallback(new MediaSessionCallback(plugin));
          mediaSession.setActive(true);
  
@@ -18,4 +88,98 @@ index e2c1f052c568618637015c022b305cbb71325133..b6ac5b3adebe350ec55f0850df063e64
 +
          playbackStateBuilder = new PlaybackStateCompat.Builder()
              .setActions(PlaybackStateCompat.ACTION_PLAY)
-             .setState(PlaybackStateCompat.STATE_PAUSED, position, playbackSpeed);
+-            .setState(PlaybackStateCompat.STATE_PAUSED, position, playbackSpeed);
++            .setState(PlaybackStateCompat.STATE_PAUSED, position, playbackSpeed, SystemClock.elapsedRealtime());
+         mediaSession.setPlaybackState(playbackStateBuilder.build());
+@@ -211,9 +257,69 @@ public class MediaSessionService extends Service {
+         playbackStateActions.put("seekto", PlaybackStateCompat.ACTION_SEEK_TO);
+         playbackStateActions.put("stop", PlaybackStateCompat.ACTION_STOP);
++
++        if (playerProvider != null) {
++            playerProvider.setListener(new PlaybackListener() {
++                @Override
++                public void onPlaybackChanged(boolean isPlaying, long positionMs, long durationMs) {
++                    if (activeService != null) {
++                        activeService.syncFromExoPlayer(isPlaying, positionMs, durationMs);
++                    }
++                }
++            });
++            syncFromExoPlayer(
++                playerProvider.isPlaying(),
++                playerProvider.getPositionMs(),
++                playerProvider.getDurationMs()
++            );
++        }
+     }
+ 
+     public void destroy() {
++        if (playerProvider != null) {
++            playerProvider.setListener(null);
++        }
++        if (activeService == this) {
++            activeService = null;
++        }
+         stopForeground(true);
+         stopSelf();
+     }
++
++    public void syncFromExoPlayer(boolean isPlaying, long positionMs, long durationMs) {
++        if (Looper.myLooper() != Looper.getMainLooper()) {
++            new Handler(Looper.getMainLooper()).post(new Runnable() {
++                @Override
++                public void run() {
++                    syncFromExoPlayer(isPlaying, positionMs, durationMs);
++                }
++            });
++            return;
++        }
++
++        this.position = positionMs >= 0 ? positionMs : 0;
++        int newState = isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
++        boolean stateChanged = (this.playbackState != newState);
++        this.playbackState = newState;
++
++        if (durationMs > 0 && this.duration != durationMs) {
++            this.duration = durationMs;
++            if (mediaMetadataBuilder != null && mediaSession != null) {
++                mediaMetadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationMs);
++                mediaSession.setMetadata(mediaMetadataBuilder.build());
++            }
++        }
++
++        if (playbackStateBuilder != null && mediaSession != null) {
++            float speed = isPlaying ? 1.0f : 0.0f;
++            playbackStateBuilder.setState(
++                this.playbackState,
++                this.position,
++                speed,
++                SystemClock.elapsedRealtime()
++            );
++            mediaSession.setPlaybackState(playbackStateBuilder.build());
++        }
++
++        if (stateChanged) {
++            possibleActionsUpdate = true;
++            update();
++        }
++    }
+@@ -272,6 +378,9 @@ public class MediaSessionService extends Service {
+     }
+ 
+     public void setPosition(long newPosition) {
++        if (playerProvider != null) {
++            return;
++        }
+         if (position != newPosition) {
+             position = newPosition;
+             playbackStateUpdate = true;
+@@ -340,7 +449,8 @@ public class MediaSessionService extends Service {
+         }
+ 
+         if (playbackStateUpdate && playbackStateBuilder != null) {
+-            playbackStateBuilder.setState(playbackState, position, playbackSpeed);
++            float speed = (playbackState == PlaybackStateCompat.STATE_PLAYING) ? playbackSpeed : 0.0f;
++            playbackStateBuilder.setState(playbackState, position, speed, SystemClock.elapsedRealtime());
+             mediaSession.setPlaybackState(playbackStateBuilder.build());
+             playbackStateUpdate = false;
+         }

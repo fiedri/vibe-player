@@ -36,7 +36,16 @@ import { m } from "$lib/paraglide/messages.js";
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
 // m.["player.no_song"]()
-  let displayTime = $derived(isSeeking ? seekValue : playerService.currentTime);
+  let displayTime = $state<number>(0);
+  $effect(() => {
+    let raf: number;
+    const tick = () => {
+      displayTime = isSeeking ? seekValue : playerService.currentTime;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  });
   let progressPercent = $derived(
     playerService.duration ? (displayTime / playerService.duration) * 100 : 0,
   );

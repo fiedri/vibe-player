@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: "Vibe",
   webDir: "build",
   server: isDev ? {
-    url: "http://192.168.0.103:5173/",
+    url: "http://192.168.0.104:5173/",
     cleartext: true,
   }: undefined,
   plugins: {

@@ -7,7 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0
 ---
 ## [unreleased]
 ### Added
-- Native ExoPlayer-backed audio engine for Android (play/pause/seek/volume), replacing the Web Audio API for native playback. MediaSession integration is unchanged for now and stays on the existing plugin.
+- Native ExoPlayer-backed audio engine for Android (play/pause/seek/volume), replacing the Web Audio API for native playback.
+### Fixed
+- Smooth Android MediaSession notification seekbar synchronization by connecting ExoPlayer directly to `MediaSessionService`
 
 ## [0.7.0] - 2026-09-10
 ### Added

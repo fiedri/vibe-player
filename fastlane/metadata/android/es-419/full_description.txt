@@ -1,10 +1,1 @@
-<b>Vibe</b> es un reproductor de música local minimalista, fluido y 100%
-offline, libre de anuncios y rastreo.<br /><br /><b
-  >Características principales:</b
-><br /><br />• <b>100% Offline:</b> Sin anuncios ni conexión a internet.<br />•
-<b>Playlists y Backup:</b> Creá, editá y exportá/importá tus listas en JSON
-fácilmente.<br />• <b>Navegación ágil:</b> Vistas por álbumes, artistas y
-búsqueda rápida.<br />• <b>Rendimiento optimizado:</b> Manejo fluido de miles de
-canciones.
-<br /><br /><b>Idiomas:</b> Interfaz disponible en español e inglés (detección automática del sistema).
-<br /><br /><b>Requerimientos minimos para un buen funcionamiento:</b><br /><br />• <b>Android 10 (nivel de API 29)</b> o superior.<br />• <b>System WebView (85>=)</b>.<br /><br />Nota: no es que las versiones anteriores sean incompatibles, sino que Android 10 con WebView 85 fue la versión más antigua en la que pudimos probar Vibe.
+<b>Vibe</b> es un reproductor de música local minimalista, fluido y 100% offline, libre de anuncios y rastreo.<br /><br /><b>Características principales:</b><br /><br />• <b>Motor nativo ExoPlayer:</b> Reproducción de alta fidelidad, eficiente y con bajo consumo de batería respaldada por la tecnología multimedia de Android.<br />• <b>100% Offline:</b> Sin anuncios ni conexión a internet.<br />• <b>Playlists y Backup:</b> Creá, editá y exportá/importá tus listas en JSON fácilmente.<br />• <b>Navegación ágil:</b> Vistas por álbumes, artistas y búsqueda rápida.<br />• <b>Rendimiento optimizado:</b> Manejo fluido de miles de canciones.<br /><br /><b>Idiomas:</b> Interfaz disponible en español e inglés (detección automática del sistema).<br /><br /><b>Requerimientos mínimos para un buen funcionamiento:</b><br /><br />• <b>Android 10 (nivel de API 29)</b> o superior.<br />• <b>System WebView (85>=)</b>.<br /><br />Nota: no es que las versiones anteriores sean incompatibles, sino que Android 10 con WebView 85 fue la versión más antigua en la que pudimos probar Vibe.

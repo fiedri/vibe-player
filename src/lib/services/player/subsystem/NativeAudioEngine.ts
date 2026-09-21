@@ -14,8 +14,8 @@ export interface NativeAudioEnginePlugin {
     listenerFunc: (data: { duration: number; currentTime: number }) => void,
   ): Promise<{ remove: () => Promise<void> }>;
   addListener(
-    eventName: "timeUpdate",
-    listenerFunc: (data: { currentTime: number }) => void,
+    eventName: "isPlayingChange",
+    listenerFunc: (data: { isPlaying: boolean; currentTime: number }) => void,
   ): Promise<{ remove: () => Promise<void> }>;
   addListener(
     eventName: "seeked",
@@ -51,7 +51,8 @@ export class NativeAudioEngine extends AudioEngine {
       this.currentTime = currentTime;
       this.onLoadedMetadata?.();
     });
-    void this.plugin.addListener("timeUpdate", ({ currentTime }) => {
+    void this.plugin.addListener("isPlayingChange", ({ isPlaying, currentTime }) => {
+      this.isPlaying = isPlaying;
       this.currentTime = currentTime;
     });
     void this.plugin.addListener("seeked", ({ currentTime }) => {
@@ -59,44 +60,56 @@ export class NativeAudioEngine extends AudioEngine {
       this.onSeeked?.();
     });
     void this.plugin.addListener("ended", () => {
+
+      this.currentTime = 0;
+      this.isPlaying = false;
       this.onEndedRequest?.();
     });
     void this.plugin.addListener("error", ({ message }) => {
       console.error("NativeAudioEngine playback error:", message);
+      this.anchorPosition = this.currentTime;
+      this.anchorTimestamp = performance.now();
       this.isPlaying = false;
     });
   }
 
   public restoreLoadPosition(position: number) {
+    this.anchorPosition = position;
+    this.anchorTimestamp = performance.now();
     void this.plugin.restoreLoadPosition({ position });
   }
 
   public setSong(song: MediaFile) {
-    this.currentTime = 0;
+    this.anchorPosition = 0;
+    this.anchorTimestamp = performance.now();
     this.duration = 0;
     this.isPlaying = false;
     void this.plugin.setSong({ uri: song.uri });
   }
 
   public play() {
+    this.anchorTimestamp = performance.now();
+    this.isPlaying = true;
     this.plugin
       .play()
-      .then(() => {
-        this.isPlaying = true;
-      })
       .catch((error: unknown) => {
         console.error("Error al reproducir audio:", error);
+        this.anchorPosition = this.currentTime;
+        this.anchorTimestamp = performance.now();
         this.isPlaying = false;
       });
   }
 
   public pause() {
-    void this.plugin.pause();
+    this.anchorPosition = this.currentTime;
+    this.anchorTimestamp = performance.now();
     this.isPlaying = false;
+    void this.plugin.pause();
   }
 
   public seek(time: number) {
-    this.currentTime = time;
+    this.anchorPosition = time;
+    this.anchorTimestamp = performance.now();
     void this.plugin.seek({ time });
   }
 
