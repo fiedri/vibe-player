@@ -1,12 +1,15 @@
 package com.vibe.app
 
 import android.net.Uri
+import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import com.capgo.mediasession.MediaSessionService
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
@@ -32,10 +35,15 @@ class NativeAudioEnginePlugin : Plugin() {
     @Volatile
     private var pendingPositionMs: Long? = null
 
+    @OptIn(UnstableApi::class)
     override fun load() {
         super.load()
         activity.runOnUiThread {
-            val exoPlayer = ExoPlayer.Builder(context)
+            val renderersFactory = DefaultRenderersFactory(context).apply {
+                setEnableAudioFloatOutput(true)
+
+            }
+            val exoPlayer = ExoPlayer.Builder(context, renderersFactory)
                 .setAudioAttributes(AudioAttributes.DEFAULT, true)
                 .setHandleAudioBecomingNoisy(true)
                 .build()
