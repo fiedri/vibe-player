@@ -1,5 +1,5 @@
 <script lang="ts">
-import { m } from "$lib/paraglide/messages.js";
+  import { m } from "$lib/paraglide/messages.js";
   import { fly } from "svelte/transition";
   import { cubicOut } from "svelte/easing";
   import {
@@ -35,14 +35,20 @@ import { m } from "$lib/paraglide/messages.js";
   import Queue from "./queue.svelte";
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
-// m.["player.no_song"]()
+  // m.["player.no_song"]()
+  const FPS_INTERVAL = 500; // Cada medio segundo (2 updates por segundo)
+  let lastTime = 0;
   let displayTime = $state<number>(0);
   $effect(() => {
-  if(!playerService.currentSong || !playerService.isPlaying) return
+    if (!playerService.currentSong || !playerService.isPlaying) return;
     let raf: number;
-    const tick = () => {
-      displayTime = isSeeking ? seekValue : playerService.currentTime;
+    const tick = (timeStamp: number) => {
       raf = requestAnimationFrame(tick);
+      const elapsed = timeStamp - lastTime;
+      if (elapsed >= FPS_INTERVAL) {
+        lastTime = timeStamp - (elapsed % FPS_INTERVAL);
+        displayTime = isSeeking ? seekValue : playerService.currentTime;
+      }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
@@ -243,7 +249,8 @@ import { m } from "$lib/paraglide/messages.js";
             variant="ghost"
             class="active:scale-90 transition-transform m-0 p-2"
             aria-label={m["songs_options.share"]()}
-            onclick={() => void fileService.share(playerService.currentSong!.uri)}
+            onclick={() =>
+              void fileService.share(playerService.currentSong!.uri)}
           >
             <Share class="size-6" />
           </Button>
@@ -413,5 +420,9 @@ import { m } from "$lib/paraglide/messages.js";
       var(--primary) var(--seek-progress, 0%),
       var(--seek-rest, var(--border)) var(--seek-progress, 0%)
     );
+  }
+  input[type="range"] {
+    will-change: value;
+    transform: translateZ(0);
   }
 </style>
