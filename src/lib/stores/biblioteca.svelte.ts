@@ -94,6 +94,24 @@ class BibliotecaStore implements SortableStore {
     return this.songs.length - prevLen;
   }
 
+  /**
+   * Merge barato para el escaneo en background: dedupe O(n) pero SIN sort.
+   * Ordenar toda la librería por cada batch de 1500 es O(batches · n log n)
+   * de CPU tirada a la basura; el orden final se aplica UNA vez con
+   * #sortFinal() al terminar el escaneo.
+   */
+  #mergeSongsSinSort(nuevas: MediaFile[]): number {
+    const prevLen = this.songs.length;
+    this.songs = this.#dedupePorId([...this.songs, ...nuevas]);
+    return this.songs.length - prevLen;
+  }
+
+  #sortFinal() {
+    const strategy =
+      SortStrategies[this.currentSort] ?? SortStrategies.titleAsc;
+    this.songs = [...this.songs].sort(strategy);
+  }
+
   #dedupePorId(lista: MediaFile[]): MediaFile[] {
     const vistos = new Set<string>();
     return lista.filter((s) => {
@@ -116,30 +134,25 @@ class BibliotecaStore implements SortableStore {
           break;
         }
 
-        const agregadas = this.#mergeSongs(batch);
+        const agregadas = this.#mergeSongsSinSort(batch);
         currentOffset += batch.length;
 
-        // Batch sin NINGÚN id nuevo: ya vimos todo el resto en una pasada
-        // previa (la paginación "fake" del plugin devuelve siempre el mismo
-        // conjunto). Cortar acá deja de saturar el hilo nativo sin ganancia.
         if (agregadas === 0) {
           hasMore = false;
           break;
         }
 
-        // Pausa generosa: deja ventanas en el hilo único de Capacitor para
-        // que el MediaSession (setMetadata/setPositionState) avance entre
-        // batchs.
         await new Promise((resolve) => setTimeout(resolve, 1200));
       } catch (e) {
         console.error("Error en carga en segundo plano:", e);
         hasMore = false;
       }
     }
+
+    this.#sortFinal();
   }
 
   async refresh() {
-    // Re-escaneo forzado: ignora la frescura de la caché.
     this.loaded = false;
     this.songs = [];
     const oldSongCount = this.songCount;

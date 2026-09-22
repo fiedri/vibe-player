@@ -31,6 +31,17 @@
 	let backListener: any = null;
 	let pauseListener: any = null;
 
+	// Declaradas a nivel superior para queonDestroy las pueda ver
+	const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+		console.error("Promesa rechazada no manejada:", event.reason);
+		const mensaje = event.reason?.message || m.error();
+		ui.openDialog(DialogType.Error, mensaje as string);
+	};
+
+	const onPopState = () => {
+		if (ui.activeDialog) ui.closeDialog();
+	};
+
 	onMount(async () => {
 		if (Capacitor.isNativePlatform()) {
 			try {
@@ -39,13 +50,11 @@
 
 					if (ui.playerIsOpen) {
 						ui.playerIsOpen = false;
-
 						return;
 					}
 
 					if (selection.isActive) {
 						selection.clear();
-
 						return;
 					}
 
@@ -61,7 +70,6 @@
 
 			try {
 				pauseListener = await App.addListener("pause", () => {
-					// guardarEstado reproductor
 					if (playerService.currentSong) {
 						guardarEstadoReproductor(playerService.currentSong?.id, playerService.currentTime, playerService.mode, playerService.isShuffle);
 					}
@@ -101,10 +109,6 @@
 					const escaneoCompleto = await biblioteca.load();
 
 					console.log(`📀 Biblioteca cargada: ${biblioteca.songs.length} canciones`);
-
-					// Renovar la caché (y su timestamp) SOLO cuando hubo un escaneo
-					// real. Si load() usó la caché fresca no se toca el timestamp:
-					// así la frescura vence a las 24h y aparecen canciones nuevas.
 					if (escaneoCompleto) {
 						await guardarCache(biblioteca.songs);
 						console.log("✅ Caché local guardado");
@@ -114,31 +118,22 @@
 			2000
 		);
 
-		window.addEventListener("unhandledrejection", (event) => {
-			console.error("Promesa rechazada no manejada:", event.reason);
-
-			const mensaje = event.reason?.message || m.error();
-
-			ui.openDialog(DialogType.Error, mensaje as string);
-		});
+		// Registrar los listeners globales aquí dentro o afuera, pero con acceso al scope correcto
+		window.addEventListener("unhandledrejection", onUnhandledRejection);
+		window.addEventListener("popstate", onPopState);
 	});
 
 	onDestroy(async () => {
 		if (backListener) {
-			const handler = backListener;
-
-			handler.remove();
+			backListener.remove();
 		}
 
 		if (pauseListener) {
-			const handler = pauseListener;
-
-			handler.remove();
+			pauseListener.remove();
 		}
-	});
 
-	window.addEventListener("popstate", () => {
-		if (ui.activeDialog) ui.closeDialog();
+		window.removeEventListener("unhandledrejection", onUnhandledRejection);
+		window.removeEventListener("popstate", onPopState);
 	});
 </script>
 
@@ -172,18 +167,6 @@
 </Dialog>
 
 <SelectionMode />
-<!--
-// Escuchar cambios en los dispositivos de entrada/salida de audio
-navigator.mediaDevices.ondevicechange = async (event) => {
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  const audioOutputs = devices.filter(d => d.kind === 'audiooutput');
-  
-  console.log('Cambio en dispositivos de audio detectado:', audioOutputs);
-  // Aquí puedes verificar si la salida activa cambió y pausar la música
-};
-navigator.mediaDevices.ondevicechange
-
--->
 
 <div style="display:none">
 	{#each locales as locale (locale)}
@@ -193,10 +176,3 @@ navigator.mediaDevices.ondevicechange
 	{/each}
 </div>
 
-<div style="display:none">
-	{#each locales as locale (locale)}
-		<a
-			href={resolve(localizeHref(page.url.pathname, { locale }) as Pathname)}
-		>{locale}</a>
-	{/each}
-</div>

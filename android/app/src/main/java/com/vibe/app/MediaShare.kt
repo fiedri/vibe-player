@@ -51,8 +51,9 @@ class MediaShare : Plugin() {
     @PluginMethod
     fun shareMultiple(call: PluginCall) {
         val uriArray = call.getArray("uris")
-        if(uriArray == null || uriArray.length() == 0) {
-        call.reject("Se Require al menos una uri para compartir")
+        if (uriArray == null || uriArray.length() == 0) {
+            call.reject("Se Require al menos una uri para compartir")
+            return
         }
         try {
             val audioUris = ArrayList<Uri>()

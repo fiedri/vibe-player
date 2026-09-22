@@ -28,6 +28,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,6 +39,9 @@ import org.json.JSONObject;
  */
 @CapacitorPlugin(name = "MediaDelete")
 public class MediaDeletePlugin extends Plugin {
+
+
+    private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor();
 
     private ActivityResultLauncher<IntentSenderRequest> deleteLauncher;
 
@@ -306,6 +311,11 @@ public class MediaDeletePlugin extends Plugin {
 
     @PluginMethod
     public void deleteFiles(PluginCall call) {
+        // Fuera del thread de la llamada: el loop hace I/O pesado por archivo.
+        ioExecutor.execute(() -> deleteFilesInternal(call));
+    }
+
+    private void deleteFilesInternal(PluginCall call) {
         JSArray filesArray = call.getArray("files");
         if (filesArray == null) filesArray = call.getArray("uris");
         if (filesArray == null) filesArray = call.getArray("paths");
@@ -324,6 +334,9 @@ public class MediaDeletePlugin extends Plugin {
         List<Uri> pendingUrisForPermission = new ArrayList<>();
         List<String> pendingInputsForPermission = new ArrayList<>();
         List<String> pendingPathsToScan = new ArrayList<>();
+        // Un solo MediaScannerConnection.scanFile (acepta String[]) al final:
+        // escanear por archivo abre una conexión nueva cada vez.
+        List<String> deletedPathsToScan = new ArrayList<>();
         ContentResolver contentResolver = getContext().getContentResolver();
 
         for (String input : inputList) {
@@ -351,7 +364,7 @@ public class MediaDeletePlugin extends Plugin {
                         int rowsDeleted = contentResolver.delete(contentUri, null, null);
                         if (rowsDeleted > 0) {
                             if (filePath != null) {
-                                MediaScannerConnection.scanFile(getContext(), new String[]{filePath}, null, null);
+                                deletedPathsToScan.add(filePath);
                             }
                             deletedCount++;
                             continue;
@@ -372,7 +385,7 @@ public class MediaDeletePlugin extends Plugin {
                 if (filePath != null) {
                     File file = new File(filePath);
                     if (file.exists() && file.delete()) {
-                        MediaScannerConnection.scanFile(getContext(), new String[]{filePath}, null, null);
+                        deletedPathsToScan.add(filePath);
                         deletedCount++;
                         continue;
                     }
@@ -395,6 +408,16 @@ public class MediaDeletePlugin extends Plugin {
             }
         }
 
+        // Scan batch: una sola conexión para todos los archivos borrados.
+        if (!deletedPathsToScan.isEmpty()) {
+            MediaScannerConnection.scanFile(
+                getContext(),
+                deletedPathsToScan.toArray(new String[0]),
+                null,
+                null
+            );
+        }
+
         // Si hay archivos que requieren diálogo de confirmación del sistema en Android 11+ (API 30+)
         if (!pendingUrisForPermission.isEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
@@ -408,7 +431,9 @@ public class MediaDeletePlugin extends Plugin {
                 pendingBatchInputs = pendingInputsForPermission;
                 pendingBatchPathsToScan = pendingPathsToScan;
 
-                requestUserDeletePermission(call, pendingIntent.getIntentSender());
+                final PluginCall callToLaunch = call;
+                final IntentSender sender = pendingIntent.getIntentSender();
+                getActivity().runOnUiThread(() -> requestUserDeletePermission(callToLaunch, sender));
                 return;
             } catch (Exception e) {
                 failedFiles.addAll(pendingInputsForPermission);

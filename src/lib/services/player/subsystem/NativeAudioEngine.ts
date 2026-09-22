@@ -84,6 +84,7 @@ export class NativeAudioEngine extends AudioEngine {
     this.duration = 0;
     void this.plugin.setSong({ uri: song.uri }).catch((error: unknown) => {
       console.error("Error al setear la canción:", error);
+      this.isPlaying = false
     });
   }
 

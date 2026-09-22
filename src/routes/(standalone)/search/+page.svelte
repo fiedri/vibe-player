@@ -7,6 +7,7 @@
   import { albumes } from "$lib/stores/albumes.svelte";
   import { ContextType } from "$lib/services/player/types";
   import SongCard from "$lib/components/ui/Cards/SongCard.svelte";
+  import VirtualList from "$lib/components/ui/virtualList.svelte";
   import HorizontalContainer from "$lib/components/ui/wrapper/horizontalContainer.svelte";
   import ThumbnailCard from "$lib/components/ui/Cards/thumbnailCard.svelte";
   import type { MediaFile } from "$lib/types/songs";
@@ -52,7 +53,7 @@ let searched = $state<boolean>(false)
 </script>
 
 <section
-  class="h-screen w-screen overflow-y-auto overscroll-y-contain flex flex-col [&_h2]:uppercase [&_h2]:font-black [&_h2]:tracking-wide [&_h2]:text-sm [&_h2]:text-muted-foreground [&_h2]:mb-3"
+  class="h-screen w-screen overflow-hidden flex flex-col [&_h2]:uppercase [&_h2]:font-black [&_h2]:tracking-wide [&_h2]:text-sm [&_h2]:text-muted-foreground [&_h2]:mb-3"
   id="playlists-view"
 >
   <div
@@ -69,7 +70,7 @@ let searched = $state<boolean>(false)
       bind:value={searchQuery}
     />
   </div>
-  <div>
+  <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
     {#if filteredArtist.length > 0}
       <h2 class="px-4 mt-4">{m["tabs.artists"]()}</h2>
       <div class="pl-4">
@@ -106,15 +107,19 @@ let searched = $state<boolean>(false)
     {/if}
     {#if filteredSongs.length > 0}
       <h2 class="px-4 mt-4">{m["tabs.songs"]()}</h2>
-      {#each filteredSongs as song, idx (song.id)}
-        <SongCard
-          {song}
-          {idx}
-          context={ContextType.InPlaylist}
-          contextSongs={filteredSongs}
-          playlistId={undefined}
-        />
-      {/each}
+      <div class="flex-1 min-h-0">
+        <VirtualList items={filteredSongs} itemHeight={52}>
+          {#snippet children(song, idx)}
+            <SongCard
+              {song}
+              {idx}
+              context={ContextType.InPlaylist}
+              contextSongs={filteredSongs}
+              playlistId={undefined}
+            />
+          {/snippet}
+        </VirtualList>
+      </div>
     {/if}
     {#if searchQuery.length > 0 && searched && filteredSongs.length == 0 && filteredArtist.length == 0 && filteredAlbums.length == 0}
       <p class="italic text-center mt-20">{m.no_found()}</p>

@@ -36,22 +36,19 @@
   let isSeeking = $state<boolean>(false);
   let seekValue = $state<number>(0);
   // m.["player.no_song"]()
-  const FPS_INTERVAL = 500; // Cada medio segundo (2 updates por segundo)
-  let lastTime = 0;
+  const FPS_INTERVAL = 500;
   let displayTime = $state<number>(0);
   $effect(() => {
     if (!playerService.currentSong || !playerService.isPlaying) return;
-    let raf: number;
-    const tick = (timeStamp: number) => {
-      raf = requestAnimationFrame(tick);
-      const elapsed = timeStamp - lastTime;
-      if (elapsed >= FPS_INTERVAL) {
-        lastTime = timeStamp - (elapsed % FPS_INTERVAL);
-        displayTime = isSeeking ? seekValue : playerService.currentTime;
-      }
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    const interval = setInterval(() => {
+      if (!isSeeking) displayTime = playerService.currentTime;
+    }, FPS_INTERVAL);
+    return () => clearInterval(interval);
+  });
+  $effect(() => {
+    playerService.currentSong;
+    displayTime = 0;
+    isSeeking = false;
   });
   let progressPercent = $derived(
     playerService.duration ? (displayTime / playerService.duration) * 100 : 0,
@@ -62,11 +59,13 @@
     const newTime = parseFloat(target.value);
 
     playerService.seekTo(newTime);
+    displayTime = newTime;
     isSeeking = false;
   }
   function handleSeekCancel() {
     isSeeking = false;
     seekValue = playerService.currentTime;
+    displayTime = seekValue;
   }
   function handleError(e: Event) {
     console.error("Error en elemento audio:", e);
@@ -86,6 +85,7 @@
     isSeeking = true;
     const target = e.target as HTMLInputElement;
     seekValue = parseFloat(target.value);
+    displayTime = seekValue;
   }
 
   function handleOpenAndClosePlayer() {

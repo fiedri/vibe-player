@@ -9,15 +9,15 @@ export enum ContextType {
 
 export class QueueManager {
   queue = $state([...biblioteca.songs]);
-  private rawSource = $derived([...biblioteca.songs]);
+  private get rawSource(): MediaFile[] {
+    return biblioteca.songs;
+  }
   private state!: ModeState;
   mode = $state<string>("off");
   isShuffle = $state<boolean>(false);
   context = $state<ContextType | null>(null);
   playlistSongs = $state<MediaFile[]>([]);
   currentSong = $state<MediaFile | null>(null);
-  //findLastIndex no es una buena solucion, ya que si la cancion esta despues de la que se esta reproduciendo actualmente
-  //al agregarla a la siguiente, siempre buscara la ultima, no la que acabamos de agregar que aparecera amtes
   currentSongIndex = $state<number | null>(null);
   constructor(state: ModeState) {
     this.transitionTo(state);
@@ -117,12 +117,9 @@ export class QueueManager {
   }
   public fillqueue() {
     if (this.isShuffle) {
-      // Reconstruir SIN perder el shuffle activo: si aplicamos rawSource
-      // directo, la cola restaurada muestra el orden original aunque el
-      // usuario tenía shuffle on.
       this.aplicarShuffle();
     } else {
-      this.queue = this.rawSource;
+      this.queue = [...this.rawSource];
     }
     this.calculateIndex();
   }

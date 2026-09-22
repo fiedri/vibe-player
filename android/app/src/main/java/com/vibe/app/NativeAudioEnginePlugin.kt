@@ -46,6 +46,7 @@ class NativeAudioEnginePlugin : Plugin() {
             val exoPlayer = ExoPlayer.Builder(context, renderersFactory)
                 .setAudioAttributes(AudioAttributes.DEFAULT, true)
                 .setHandleAudioBecomingNoisy(true)
+                .setWakeMode(C.WAKE_MODE_LOCAL)
                 .build()
 
             player = exoPlayer
@@ -228,11 +229,12 @@ class NativeAudioEnginePlugin : Plugin() {
     override fun handleOnDestroy() {
         MediaSessionService.setPlayerProvider(null)
         playbackListener = null
-        activity.runOnUiThread {
-            player?.stop()
-            player?.release()
-            player = null
-        }
+        // Release directo: handleOnDestroy ya corre en el main thread y un
+        // runOnUiThread acá puede no ejecutarse nunca si la activity ya está
+        // destruida -> ExoPlayer + codecs + wake lock filtrados.
+        player?.stop()
+        player?.release()
+        player = null
         super.handleOnDestroy()
     }
 }
