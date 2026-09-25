@@ -1,3 +1,13 @@
+> [!IMPORTANT]
+> **Vibe is being rewritten as a native Android app (Kotlin + Jetpack Compose).**
+>
+> This web-based version is no longer receiving new features. It stays here as a
+> reference while the native rewrite lands. The reason is performance: a WebView
+> running a JavaScript audio engine can't match a real native pipeline for long
+> library scrolling, audio decoding, and reliable background playback.
+>
+> **To contribute, target the [`feat/migrate-to-native`](https://github.com/fiedri/vibe-player/tree/feat/migrate-to-native) branch**, where the interface is being ported screen by screen to Jetpack Compose. Open your pull requests there.
+
 https://github.com/user-attachments/assets/bb9c6b3d-9a11-46e1-8010-32d19ab609bc
 
 <p align="center">
