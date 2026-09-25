@@ -1,4 +1,4 @@
-package dev.fiedri.vibe.ui
+package dev.fiedri.vibe.core.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
@@ -13,12 +13,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import dev.fiedri.vibe.player.Player
-import dev.fiedri.vibe.player.PlayerState
-import dev.fiedri.vibe.player.Song
-import dev.fiedri.vibe.ui.components.Pager
-import dev.fiedri.vibe.ui.components.VibeToBar
-import dev.fiedri.vibe.ui.theme.VibeTheme
+import dev.fiedri.vibe.features.player.presentation.Player
+import dev.fiedri.vibe.features.player.presentation.PlayerState
+import dev.fiedri.vibe.features.player.presentation.Song
+import dev.fiedri.vibe.core.ui.composables.Pager
+import dev.fiedri.vibe.core.ui.composables.VibeToBar
+import dev.fiedri.vibe.core.ui.theme.VibeTheme
 import kotlinx.coroutines.launch
 
 @Composable

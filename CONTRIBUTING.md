@@ -11,9 +11,31 @@ First off, thank you for considering contributing!
 >
 > If you want to help, you are in the right place. Most of the app is not written yet.
 
+## Your first contribution, in about fifteen minutes
+
+You do not need to understand the whole app to make your first contribution. Two
+real bugs need no knowledge of the codebase at all:
+
+1. **Delete the 7 unused template colors** in `app/src/main/res/values/colors.xml`.
+   They are Android Studio wizard leftovers that nothing references.
+2. **Remove the unused imports** in `MainActivity.kt`. Android Studio does this for
+   you: right-click the file → **Optimize Imports**.
+
+Both are listed in the [Known issues](README.md#known-issues) with `file:line`
+locations. There are more like them.
+
+If you would rather be pointed at something, or you want to say what you want to
+learn, open an issue using the **First-time contributor** template. It has a
+checklist of areas — audio, database, Compose, translations — and we will find you
+something that fits.
+
+**And if you are here to file a bug or request a feature**, use the Bug report or
+Feature request templates instead.
+
 ## Table of contents
 
 - [Where to send your pull request](#where-to-send-your-pull-request)
+- [Your first contribution, in about fifteen minutes](#your-first-contribution-in-about-fifteen-minutes)
 - [What the project looks like today](#what-the-project-looks-like-today)
 - [Local development setup](#local-development-setup)
 - [Build and test commands](#build-and-test-commands)

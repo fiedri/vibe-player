@@ -1,11 +1,10 @@
-package dev.fiedri.vibe.ui.screen
+package dev.fiedri.vibe.core.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,7 +38,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import dev.fiedri.vibe.ui.theme.VibeTheme
+import dev.fiedri.vibe.core.ui.theme.VibeTheme
 
 data class PlaylistCardData(
     val id: Int,

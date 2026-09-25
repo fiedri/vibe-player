@@ -1,4 +1,4 @@
-package dev.fiedri.vibe.ui.components
+package dev.fiedri.vibe.core.ui.composables
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -24,10 +24,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.fiedri.vibe.ui.theme.VibeTheme
+import dev.fiedri.vibe.core.ui.theme.VibeTheme
 
 fun Modifier.borderBotton(
     color: Color,
@@ -129,8 +130,8 @@ fun VibeToBar(
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .offset(x = with(androidx.compose.ui.platform.LocalDensity.current) { animatedX.toDp() })
-                    .width(with(androidx.compose.ui.platform.LocalDensity.current) { animatedWidth.toDp() })
+                    .offset(x = with(LocalDensity.current) { animatedX.toDp() })
+                    .width(with(LocalDensity.current) { animatedWidth.toDp() })
                     .height(2.dp)
                     .background(primaryColor)
             )

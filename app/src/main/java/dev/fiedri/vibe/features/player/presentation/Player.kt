@@ -1,4 +1,4 @@
-package dev.fiedri.vibe.player
+package dev.fiedri.vibe.features.player.presentation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -54,12 +54,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.fiedri.vibe.ui.theme.VibeTheme
+import dev.fiedri.vibe.core.ui.theme.VibeTheme
 import dev.fiedri.vibe.R
 import android.graphics.BlurMaskFilter
 import android.graphics.Paint
