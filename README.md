@@ -53,7 +53,7 @@ helps nobody.
 | Library screens — songs, albums, artists, playlists | Layouts done, **placeholder data** |
 | Player screen | **Visual only, no audio behind it** |
 | Reading the device library (MediaStore) | Not started — no permissions declared at all |
-| Database | Not started — `room-ktx` is on the classpath but KSP is not configured, so no `@Entity` can compile |
+| Database | Not started — no Room dependency, no KSP plugin, no entities |
 | ViewModels, state holders, DI | Not started |
 | Translations | Not started — one string in `strings.xml`, the launcher label |
 | Tests | The two generated stubs, nothing real |
@@ -79,7 +79,6 @@ confirmed bugs, not opinions:
   player share/favorite/more buttons all have `onClick = {}`.
 - **The playlists empty state is unreachable**, because the placeholder list is never
   empty.
-- **`MainActivity.kt` has 22 unused imports** left over from when the shell lived there.
 - **`res/values/colors.xml` holds 7 unused template colors** from the project wizard.
 - **`keepRules/rules.keep` is entirely commented out**, and R8 is currently disabled
   for release builds.
