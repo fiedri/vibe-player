@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import dev.fiedri.vibe.R
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
 
-@Preview
 @Composable
 fun ThumbnailCard(title: String, subtitle: String, img: Int = R.drawable.default_artist){
 
