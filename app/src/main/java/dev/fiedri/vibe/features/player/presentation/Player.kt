@@ -87,17 +87,7 @@ private fun formatMs(ms: Long): String {
 
 private val MiniPlayerHeight = 92.dp
 
-data class PlayerUiState(
-    val currentSong: Song? = null,
-    val isPlaying: Boolean = false,
-    val currentTimeMs: Long = 0L,
-    val durationMs: Long = 0L,
-    val currentSongIndex: Int = 0,
-    val numberOfSongs: Int = 0,
-    val isShuffle: Boolean = false,
-    val repeatMode: PlayerState = PlayerState.REPEAT_OFF,
-    val isExpanded: Boolean = false
-)
+
 
 @Composable
 fun Player(

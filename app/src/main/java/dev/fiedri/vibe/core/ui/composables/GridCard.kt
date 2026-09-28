@@ -11,13 +11,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.fiedri.vibe.core.ui.composables.models.CardData
 
-data class CardData(
-    val id: Int,
-    val name: String,
-    val songsCount: Int,
-    val image: Int
-)
 
 @Composable
 fun CardGrid(

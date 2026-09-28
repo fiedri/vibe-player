@@ -3,7 +3,7 @@ package dev.fiedri.vibe.features.artists.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import dev.fiedri.vibe.R
-import dev.fiedri.vibe.core.ui.composables.CardData
+import dev.fiedri.vibe.core.ui.composables.models.CardData
 import dev.fiedri.vibe.core.ui.composables.CardGrid
 import dev.fiedri.vibe.core.ui.ArtistDetail
 import dev.fiedri.vibe.core.ui.LocalNavigator
