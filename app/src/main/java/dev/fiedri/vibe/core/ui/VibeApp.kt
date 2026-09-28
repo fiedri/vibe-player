@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.fiedri.vibe.features.player.presentation.Player
 import dev.fiedri.vibe.features.player.presentation.PlayerState
+import dev.fiedri.vibe.features.player.presentation.PlayerUiState
 import dev.fiedri.vibe.features.player.presentation.Song
 
 @Composable
@@ -43,23 +44,25 @@ fun VibeApp(){
             VibeNavGraph()
         }
         Player(
+            uiState = PlayerUiState(
+                currentSong = fakeSong,
+                isPlaying = isPlaying,
+                currentTimeMs = 45_000,
+                durationMs = fakeSong.durationMs,
+                currentSongIndex = 0,
+                numberOfSongs = 1,
+                isShuffle = false,
+                repeatMode = PlayerState.REPEAT_OFF,
+                isExpanded = isExpanded,
+            ),
             modifier = Modifier.align(Alignment.BottomCenter),
-            currentSong = fakeSong,
-            isPlaying = isPlaying,
-            currentTimeMs = 45_000,
-            durationMs = fakeSong.durationMs,
-            currentSongIndex = 0,
-            numberOfSongs = 1,
-            isShuffle = false,
-            repeatMode = PlayerState.REPEAT_OFF,
-            isExpanded = isExpanded,
             onTogglePlay = { isPlaying = !isPlaying },
             onNext = {},
             onPrevious = {},
             onSeek = {},
             onToggleShuffle = {},
             onCycleRepeat = {},
-            onToogleExpand = { isExpanded = !isExpanded },
+            onToggleExpand = { isExpanded = !isExpanded },
         )
     }
 

@@ -42,7 +42,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.fiedri.vibe.R
-import dev.fiedri.vibe.core.ui.composables.CardData
+import dev.fiedri.vibe.core.ui.composables.models.CardData
+import dev.fiedri.vibe.core.ui.composables.SongCard
+import dev.fiedri.vibe.core.ui.composables.SongCardUiState
 import dev.fiedri.vibe.core.ui.composables.ThumbnailCard
 import dev.fiedri.vibe.features.songs.presentation.SongOptionsSheet
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
@@ -51,13 +53,13 @@ import kotlinx.coroutines.delay
 @Composable
 fun SearchScreen(
     onBack: () -> Unit = {},
-    onSongClick: (SongCardData) -> Unit = {},
+    onSongClick: (SongCardUiState) -> Unit = {},
     onAlbumClick: (CardData) -> Unit = {},
     onArtistClick: (CardData) -> Unit = {}
 ) {
-    val allSongs: List<SongCardData> = remember {
+    val allSongs: List<SongCardUiState> = remember {
         List(50) { index ->
-            SongCardData(
+            SongCardUiState(
                 id = "id ${index + 1}",
                 duration = "3:00",
                 title = "Titulo ${index + 1}",
@@ -87,11 +89,11 @@ fun SearchScreen(
     }
 
     var query by remember { mutableStateOf("") }
-    var songs by remember { mutableStateOf(emptyList<SongCardData>()) }
+    var songs by remember { mutableStateOf(emptyList<SongCardUiState>()) }
     var albums by remember { mutableStateOf(emptyList<CardData>()) }
     var artists by remember { mutableStateOf(emptyList<CardData>()) }
     var searched by remember { mutableStateOf(false) }
-    var optionsFor by remember { mutableStateOf<SongCardData?>(null) }
+    var optionsFor by remember { mutableStateOf<SongCardUiState?>(null) }
 
     LaunchedEffect(query) {
         searched = false

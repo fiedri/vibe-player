@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.fiedri.vibe.R
+import dev.fiedri.vibe.core.ui.composables.models.CardData
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
 
 enum class EntityType(val kicker: String, val emptyStateText: String) {

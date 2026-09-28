@@ -6,15 +6,15 @@ import dev.fiedri.vibe.core.ui.composables.DetailHeader
 import dev.fiedri.vibe.core.ui.composables.DetailResources
 import dev.fiedri.vibe.core.ui.composables.DetailsScreen
 import dev.fiedri.vibe.core.ui.composables.EntityType
-import dev.fiedri.vibe.core.ui.screen.SongCardData
+import dev.fiedri.vibe.core.ui.composables.SongCardUiState
 import dev.fiedri.vibe.core.ui.LocalNavigator
 
 @Composable
 fun PlaylistDetailsScreen(id: Int) {
     val navigator = LocalNavigator.current
-    val songs: List<SongCardData> = remember(id) {
+    val songs: List<SongCardUiState> = remember(id) {
         List(50) { index ->
-            SongCardData(
+            SongCardUiState(
                 id = "id ${index + 1}",
                 duration = "3:00",
                 title = "Cancion ${index + 1}",
