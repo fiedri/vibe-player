@@ -81,7 +81,7 @@ body:
         The versionName of the build you installed. Check
         Settings → Apps → Vibe, or run
         `adb shell dumpsys package dev.fiedri.vibe | grep versionName`.
-      placeholder: e.g. 0.8.0
+      placeholder: e.g. 1.0.0
     validations:
       required: true
   - type: textarea

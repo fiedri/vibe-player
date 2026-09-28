@@ -4,7 +4,7 @@ All notable changes and new features of **Vibe** will be documented in this file
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/lang/es/).
 
-> **Note on versions.** The native rewrite is versioned from `0.8.0` onward and lives
+> **Note on versions.** The native rewrite is versioned from `1.0.0` onward and lives
 > on the `feat/migrate-to-native` branch. Everything under
 > [Web version history](#web-version-history-svelte--capacitor) describes the previous
 > Svelte + Capacitor app, preserved on the `master` and `dev` branches. There is no
@@ -25,9 +25,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0
 - Launcher icon and default album/artist artwork assets.
 
 ### Known limitations
-- All four library screens still render placeholder data.
+- All ten screens still render placeholder data.
 - The player screen has no audio engine behind it yet: the buttons do not produce sound.
-- No database, no ViewModels, no dependency injection, no translations.
+- No database, no ViewModels, no dependency injection. Translations exist in three
+  locales but are only partially wired.
 
 ---
 
