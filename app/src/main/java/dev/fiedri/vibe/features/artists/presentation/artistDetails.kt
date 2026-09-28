@@ -36,7 +36,7 @@ fun ArtistDetailsScreen(name: String) {
         }
     }
     DetailsScreen(
-        header = DetailHeader(name = "Nombre Artista", image = R.drawable.default_artist),
+        header = DetailHeader(name = name, image = R.drawable.default_artist),
         type = EntityType.ARTISTS,
         resources = DetailResources(songs, albums),
         onBack = { navigator?.goBack() },

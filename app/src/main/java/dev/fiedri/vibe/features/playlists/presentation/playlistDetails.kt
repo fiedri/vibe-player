@@ -23,7 +23,7 @@ fun PlaylistDetailsScreen(id: Int) {
         }
     }
     DetailsScreen(
-        header = DetailHeader(name = "Mi playlist"),
+        header = DetailHeader(name = "Playlist $id"),
         type = EntityType.PLAYLIST,
         resources = DetailResources(songs),
         onBack = { navigator?.goBack() },

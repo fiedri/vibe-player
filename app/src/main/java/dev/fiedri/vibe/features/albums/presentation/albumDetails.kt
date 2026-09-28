@@ -23,7 +23,7 @@ fun AlbumDetailsScreen(id: Int) {
         }
     }
     DetailsScreen(
-        header = DetailHeader(name = "Titulo del album"),
+        header = DetailHeader(name = "Album $id"),
         type = EntityType.ALBUM,
         resources = DetailResources(songs),
         onBack = { navigator?.goBack() },
