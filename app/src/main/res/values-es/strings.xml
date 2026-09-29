@@ -171,4 +171,13 @@
     <string name="empty_states_artist_no_albums">Sin álbumes disponibles.</string>
     <string name="common_image">Imagen</string>
 
+    <string name="permisos_dialog_title">Permisos necesarios</string>
+    <string name="permisos_audio_title">Acceso al audio</string>
+    <string name="permisos_audio_description">Vibe lee tus archivos de música para mostrar tu biblioteca y reproducir canciones. Nada sale de tu dispositivo.</string>
+    <string name="permisos_dialog_grant">Conceder permiso</string>
+    <string name="permisos_dialog_later">Ahora no</string>
+    <string name="permisos_toast_granted">¡Permiso concedido!</string>
+    <string name="permisos_toast_denied">Permiso denegado</string>
+    <string name="permisos_open_settings">Abrir Ajustes</string>
+
 </resources>
