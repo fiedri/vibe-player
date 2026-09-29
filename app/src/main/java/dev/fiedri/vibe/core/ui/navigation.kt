@@ -25,7 +25,11 @@ class Navigator(val backStack: MutableList<NavKey>) {
 }
 val LocalNavigator = staticCompositionLocalOf<Navigator?> { null }
 @Composable
-fun VibeNavGraph(){
+fun VibeNavGraph(
+    hasAudioPermission: Boolean,
+    onOpenSettings: () -> Unit,
+    onPermissionRetry: () -> Unit,
+){
 
 
     val backStack = remember { mutableStateListOf<NavKey>(Home) }
@@ -41,7 +45,13 @@ fun VibeNavGraph(){
             entryProvider = entryProvider {
 
 
-                entry<Home> { HomeLayout() }
+                entry<Home> {
+                    HomeLayout(
+                        hasAudioPermission = hasAudioPermission,
+                        onOpenSettings = onOpenSettings,
+                        onPermissionRetry = onPermissionRetry,
+                    )
+                }
                 entry<AlbumDetail> { key ->
                     AlbumDetailsScreen(key.id)
                 }

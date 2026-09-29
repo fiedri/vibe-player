@@ -25,12 +25,17 @@ import dev.fiedri.vibe.core.ui.Search
 import dev.fiedri.vibe.core.ui.Settings
 import dev.fiedri.vibe.features.albums.presentation.AlbumsScreen
 import dev.fiedri.vibe.features.artists.presentation.ArtistsScreen
+import dev.fiedri.vibe.features.permissions.presentation.PermissionBlockedScreen
 import dev.fiedri.vibe.features.playlists.presentation.PlaylistsScreen
 import dev.fiedri.vibe.features.songs.presentation.SongsScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeLayout(){
+fun HomeLayout(
+    hasAudioPermission: Boolean,
+    onOpenSettings: () -> Unit,
+    onPermissionRetry: () -> Unit,
+){
     val tabs = listOf("Songs", "Artists", "Albums", "Playlist")
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val coroutineScope = rememberCoroutineScope()
@@ -43,9 +48,9 @@ fun HomeLayout(){
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
-                VibeTopBar(
-                    tabs = tabs,
-                    activeTab = tabs[pagerState.currentPage],
+            VibeTopBar(
+                tabs = if (hasAudioPermission) tabs else emptyList(),
+                activeTab = tabs[pagerState.currentPage],
                     onTabSelected = { selectedTab ->
                         val targetIndex = tabs.indexOf(selectedTab)
                         if (targetIndex != -1) {
@@ -62,11 +67,19 @@ fun HomeLayout(){
             containerColor = VibeTheme.colors.background,
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            Pager(
-                pagerState = pagerState,
-                tabs = tabs,
-                innerPadding = innerPadding
-            )
+            if (hasAudioPermission) {
+                Pager(
+                    pagerState = pagerState,
+                    tabs = tabs,
+                    innerPadding = innerPadding
+                )
+            } else {
+                PermissionBlockedScreen(
+                    onOpenSettings = onOpenSettings,
+                    onRetry = onPermissionRetry,
+                    modifier = Modifier.padding(innerPadding),
+                )
+            }
         }
 
         SettingsDrawer(

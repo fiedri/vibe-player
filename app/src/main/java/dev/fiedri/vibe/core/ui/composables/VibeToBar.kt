@@ -92,6 +92,7 @@ fun VibeTopBar(
                 }
             }
         }
+    if (tabs.isNotEmpty()) {
     Box(modifier = Modifier.fillMaxWidth().drawBehind {
 
         val strokeWidth = 2.dp.toPx()
@@ -142,6 +143,7 @@ fun VibeTopBar(
                     .background(primaryColor)
             )
         }
+    }
     }
 
     }
