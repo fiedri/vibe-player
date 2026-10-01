@@ -10,12 +10,12 @@ import dev.fiedri.vibe.core.ui.composables.DetailsScreen
 import dev.fiedri.vibe.core.ui.composables.EntityType
 
 import dev.fiedri.vibe.core.ui.LocalNavigator
-import dev.fiedri.vibe.core.ui.composables.SongCardUiState
+import dev.fiedri.vibe.core.ui.composables.models.SongCardUiState
 
 @Composable
 fun ArtistDetailsScreen(name: String) {
     val navigator = LocalNavigator.current
-    val songs: List<SongCardUiState> = remember(name) {
+    /*val songs: List<SongCardUiState> = remember(name) {
         List(50) { index ->
             SongCardUiState(
                 id = "id ${index + 1}",
@@ -43,4 +43,6 @@ fun ArtistDetailsScreen(name: String) {
         onPlay = {},
         onShuffle = {}
     )
+    */
+
 }

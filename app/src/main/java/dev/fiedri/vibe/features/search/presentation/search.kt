@@ -44,9 +44,9 @@ import androidx.compose.ui.unit.sp
 import dev.fiedri.vibe.R
 import dev.fiedri.vibe.core.ui.composables.models.CardData
 import dev.fiedri.vibe.core.ui.composables.SongCard
-import dev.fiedri.vibe.core.ui.composables.SongCardUiState
+import dev.fiedri.vibe.core.ui.composables.models.SongCardUiState
 import dev.fiedri.vibe.core.ui.composables.ThumbnailCard
-import dev.fiedri.vibe.features.songs.presentation.SongOptionsSheet
+import dev.fiedri.vibe.core.ui.composables.SongOptionsSheet
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
 import kotlinx.coroutines.delay
 
@@ -57,7 +57,7 @@ fun SearchScreen(
     onAlbumClick: (CardData) -> Unit = {},
     onArtistClick: (CardData) -> Unit = {}
 ) {
-    val allSongs: List<SongCardUiState> = remember {
+    /*val allSongs: List<SongCardUiState> = remember {
         List(50) { index ->
             SongCardUiState(
                 id = "id ${index + 1}",
@@ -168,7 +168,7 @@ fun SearchScreen(
             song = song,
             onDismissRequest = { optionsFor = null }
         )
-    }
+    }*/
 }
 
 @Composable

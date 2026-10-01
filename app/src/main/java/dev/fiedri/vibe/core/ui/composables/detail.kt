@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.fiedri.vibe.R
 import dev.fiedri.vibe.core.ui.composables.models.CardData
+import dev.fiedri.vibe.core.ui.composables.models.SongCardUiState
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
 
 enum class EntityType(val kicker: String, val emptyStateText: String) {
@@ -222,7 +223,7 @@ fun DetailsScreen(
                 }
             }
         } else {
-            items(items = resources.songs, key = { song -> song.id }) { song ->
+            items(items = resources.songs, key = { song -> song.song.id }) { song ->
                 SongCard(song, onClick = { onSongClick(song) })
             }
         }
