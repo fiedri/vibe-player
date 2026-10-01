@@ -1,5 +1,10 @@
 # Vibe
 
+[![i18n](https://img.shields.io/badge/i18n-en%7Ces%7Cpl,_133_strings-0e8a16)](CONTRIBUTING.md)
+<a href="https://f-droid.org/packages/dev.fiedri.vibe/">
+  <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">
+</a>
+
 An offline music player for Android. No account, no streaming backend, no network —
 Vibe plays the audio files that are already on your phone.
 
@@ -45,7 +50,7 @@ helps nobody.
 - The player UI, including a hand-drawn seek bar with working tap and drag gestures.
 - Context menus: song options as a bottom sheet, a player dropdown, a home overflow
   menu with per-tab sorting, and a slide-in settings drawer.
-- **156 strings in English, 155 in Spanish and 155 in Polish**, ported from the web
+- **133 strings in English, 132 in Spanish and 132 in Polish**, ported from the web
   app's message catalogs.
 
 **What is not started at all:** the entire data and playback spine.
@@ -62,7 +67,7 @@ helps nobody.
 | Reading the device library (MediaStore) | Not started — no permissions declared at all |
 | Database | Not started — no Room dependency, no KSP plugin, no entities |
 | ViewModels, state holders, DI | Not started |
-| Translations | Ported, 24 of 156 strings wired; no language switcher |
+| Translations | Ported (~130 strings × 3 locales), partially wired; no language switcher |
 | Tests | The two generated stubs, nothing real |
 
 The play button does not make sound. The seek bar can be dragged, but the position it

@@ -101,7 +101,7 @@ Use `legacy` as the behavioral reference. Screen by screen, in this order:
 - [ ] Multi-select and "play next"
 - [ ] Share song, delete song — the menu items render, the handlers are empty
 - [ ] Build out the settings screen and add the language switcher. The three locales
-      already exist; only 24 of 156 strings are wired to `stringResource`
+      already exist; only a fraction of the ~130 strings are wired to `stringResource`
 
 ### Phase 4 — Polish
 - [ ] **Move the ~40 hardcoded strings into `strings.xml`** — mostly `Player.kt`,

@@ -115,8 +115,8 @@ Being honest about this, because it saves you from a wasted afternoon:
 - The player UI exists, including a working custom-drawn seek bar, but the audio
   engine is **not wired** — there is no Media3 or ExoPlayer behind the buttons.
 - There is **no database, no ViewModels and no dependency injection.**
-- Translations **do** exist — 156 strings in English, 155 in Spanish, 155 in Polish,
-  ported from the web app's `messages/` catalogs. But only 24 of them are wired to
+- Translations **do** exist — 133 strings in English, 132 in Spanish, 132 in Polish,
+  ported from the web app's `messages/` catalogs. But only a fraction of them are wired to
   `stringResource`, `R.plurals` is referenced from zero places, there are 26 hardcoded
   `contentDescription` literals, and no language switcher. So i18n is **partially
   adopted, not absent** — which makes it a good first contribution area.
