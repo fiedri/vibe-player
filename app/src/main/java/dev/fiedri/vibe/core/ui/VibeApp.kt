@@ -33,7 +33,7 @@ fun VibeApp(){
     var showPermissionDialog by remember { mutableStateOf(false) }
     val grantedMessage = stringResource(R.string.permisos_toast_granted)
     val deniedMessage = stringResource(R.string.permisos_toast_denied)
-    var hasAudioPermission by remember { mutableStateOf(true) }
+    var hasAudioPermission: Boolean? by remember { mutableStateOf(null) }
     val permissionController = rememberPermissionController(
         onPermissionGranted = {
             hasAudioPermission = true
@@ -100,7 +100,7 @@ fun VibeApp(){
             modifier = Modifier.padding(bottom = 92.dp).fillMaxSize()
         ) {
             VibeNavGraph(
-                hasAudioPermission = hasAudioPermission,
+                hasAudioPermission = hasAudioPermission == true,
                 onOpenSettings = { permissionController.openAppSettings() },
                 onPermissionRetry = { hasAudioPermission = permissionController.hasPermission() },
             )
