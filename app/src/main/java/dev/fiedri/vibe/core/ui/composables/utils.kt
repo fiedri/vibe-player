@@ -6,6 +6,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import java.util.concurrent.TimeUnit
+
+fun formatMillisToMMSS(millis: Long): String {
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(millis)
+    val seconds = TimeUnit.MILLISECONDS.toSeconds(millis) % 60
+    return String.format("%02d:%02d", minutes, seconds)
+}
 
 fun Modifier.borderBotton(
     color: Color,

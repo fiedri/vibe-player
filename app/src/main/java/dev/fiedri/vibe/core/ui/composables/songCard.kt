@@ -2,6 +2,7 @@ package dev.fiedri.vibe.core.ui.composables
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,36 +16,39 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import dev.fiedri.vibe.R
+import dev.fiedri.vibe.core.ui.composables.models.SongCardUiState
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
 
-data class SongCardUiState(
-    val id: String,
-    val duration: String,
-    val title: String,
-    val artist: String,
-    val isSelected: Boolean = false,
-    val isPlayingThis: Boolean = false
-)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SongCard(
-    song: SongCardUiState,
+    uiState: SongCardUiState,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit= {},
     onOptionsClick: () -> Unit = {}
 ) {
 
-    val isSelected: Boolean = song.isSelected
-    val isPlayingThis: Boolean = song.isPlayingThis
+    val isSelected: Boolean = uiState.isSelected
+    val isPlayingThis: Boolean = uiState.isPlayingThis
 
     val backgroundColor: Color = when {
         isSelected -> VibeTheme.colors.accent
@@ -81,16 +85,16 @@ fun SongCard(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = song.title,
+                text = uiState.song.title,
                 color = VibeTheme.colors.foreground,
-                style = VibeTheme.typography.titleLarge,
+                style = VibeTheme.typography.songTitle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = song.artist,
+                text = uiState.song.artists,
                 color = VibeTheme.colors.mutedForeground,
-                style = VibeTheme.typography.caption,
+                style = VibeTheme.typography.songArtist,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -101,7 +105,7 @@ fun SongCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = song.duration, // Aquí puedes aplicar tu función formatearMS(song.duration) si es un Long/Int
+                text = formatMillisToMMSS(uiState.song.duration),
                 color = VibeTheme.colors.mutedForeground,
                 style = VibeTheme.typography.caption
             )
@@ -118,5 +122,111 @@ fun SongCard(
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SongOptionsSheet(
+    uiState: SongCardUiState,
+    onDismissRequest: () -> Unit,
+    onInfo: () -> Unit = {},
+    onPlayNext: () -> Unit = {},
+    onAddToPlaylists: () -> Unit = {},
+    onShare: () -> Unit = {},
+    onDelete: () -> Unit = {}
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = rememberModalBottomSheetState(),
+        shape = RectangleShape,
+        containerColor = VibeTheme.colors.popover,
+        contentColor = VibeTheme.colors.foreground,
+        scrimColor = VibeTheme.colors.background.copy(alpha = 0.2f),
+        dragHandle = null
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            SongOptionRow(
+                text = stringResource(R.string.songs_options_info),
+                onClick = {
+                    onDismissRequest()
+                    onInfo()
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            )
+            HorizontalDivider(color = VibeTheme.colors.border)
+            SongOptionRow(
+                text = stringResource(R.string.songs_options_next_in_queue),
+                onClick = {
+                    onDismissRequest()
+                    onPlayNext()
+                }
+            )
+            HorizontalDivider(color = VibeTheme.colors.border)
+            SongOptionRow(
+                text = stringResource(R.string.songs_options_add_to_playlists),
+                onClick = {
+                    onDismissRequest()
+                    onAddToPlaylists()
+                }
+            )
+            HorizontalDivider(color = VibeTheme.colors.border)
+            SongOptionRow(
+                text = stringResource(R.string.songs_options_share),
+                onClick = {
+                    onDismissRequest()
+                    onShare()
+                }
+            )
+            HorizontalDivider(color = VibeTheme.colors.border)
+            SongOptionRow(
+                text = stringResource(R.string.songs_options_delete),
+                onClick = {
+                    onDismissRequest()
+                    onDelete()
+                },
+                destructive = true
+            )
+        }
+    }
+}
+
+@Composable
+private fun SongOptionRow(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    leadingIcon: (@Composable () -> Unit)? = null,
+    destructive: Boolean = false
+) {
+    val contentColor = if (destructive) {
+        VibeTheme.colors.destructive
+    } else {
+        VibeTheme.colors.foreground
+    }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        if (leadingIcon != null) {
+            CompositionLocalProvider(LocalContentColor provides contentColor) {
+                leadingIcon()
+            }
+        }
+        Text(
+            text = text,
+            color = contentColor,
+            style = VibeTheme.typography.bodyLarge
+        )
     }
 }
