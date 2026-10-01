@@ -62,7 +62,7 @@ fun VibeTopBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 40.dp, start = 5.dp, end = 5.dp, bottom = 20.dp),
+                .padding(top = 40.dp, start = 5.dp, end = 5.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -70,7 +70,7 @@ fun VibeTopBar(
                 Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menus_open), tint = VibeTheme.colors.foreground,
                     modifier = Modifier.size(30.dp))
             }
-            Text(text = "VIBE", color = VibeTheme.colors.foreground, fontSize = 24.sp)
+            Text(text = "VIBE", color = VibeTheme.colors.foreground, style = VibeTheme.typography.titleLarge, fontSize = 28.sp)
             Row() {
                 IconButton(onClick = onSearchClick) {
                     Icon(Icons.Default.Search, contentDescription = "Buscar", tint = VibeTheme.colors.foreground,

@@ -376,25 +376,22 @@ private fun ExpandedPlayer(
             ) {
                 Text(
                     text = currentSong?.title ?: "No Song",
-                    style = VibeTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Black,
-                        color = Color.White
-                    ),
+                    color = VibeTheme.colors.foreground,
+                    style = VibeTheme.typography.display,
                     maxLines = 1,
                     modifier = Modifier.basicMarquee(velocity = 20.dp)
                 )
                 Text(
                     text = currentSong?.artist ?: "No Artist",
-                    fontSize = 12.sp,
                     color = VibeTheme.colors.mutedForeground,
+                    style = VibeTheme.typography.songArtist,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = currentSong?.album ?: "No Album",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White,
+                    color = VibeTheme.colors.foreground,
+                    style = VibeTheme.typography.caption,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.basicMarquee(velocity = 20.dp)
@@ -427,18 +424,18 @@ private fun ExpandedPlayer(
                 ) {
                     Text(
                         text = formatMs(currentTimeMs),
-                        fontSize = 14.sp,
-                        color = VibeTheme.colors.mutedForeground
+                        color = VibeTheme.colors.mutedForeground,
+                        style = VibeTheme.typography.bodyLarge
                     )
                     Text(
                         text = "${currentSongIndex + 1}/$numberOfSongs",
-                        fontSize = 10.sp,
-                        color = VibeTheme.colors.mutedForeground
+                        color = VibeTheme.colors.mutedForeground,
+                        style = VibeTheme.typography.caption
                     )
                     Text(
                         text = formatMs(durationMs),
-                        fontSize = 14.sp,
-                        color = VibeTheme.colors.mutedForeground
+                        color = VibeTheme.colors.mutedForeground,
+                        style = VibeTheme.typography.bodyLarge
                     )
                 }
             }

@@ -233,7 +233,7 @@ private fun PlaylistRow(
             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false },
                 shape = RectangleShape) {
                 DropdownMenuItem(
-                    text = { Text("Eliminar") },
+                    text = { Text("Eliminar", style = VibeTheme.typography.bodyLarge) },
                     onClick = {
                         menuOpen = false
                     }
