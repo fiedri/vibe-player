@@ -7,10 +7,10 @@ Vibe plays the audio files that are already on your phone.
 > **This branch is the native Android rewrite, in Kotlin and Jetpack Compose.**
 >
 > Vibe used to be a SvelteKit web app wrapped in Capacitor. That version is frozen
-> and lives on the `master` and `dev` branches, where it stays as a **behavioral
+> on the `legacy` branch, where it stays as a **behavioral
 > reference** — it is not accepting new features.
 >
-> **To contribute, target this branch (`feat/migrate-to-native`).** Most of the app
+> **To contribute, target `main` (the default branch).** Most of the app
 > is not written yet, so there is a lot of room.
 
 ## Why rewrite it
@@ -70,55 +70,6 @@ reports is frozen. The manifest declares zero permissions.
 
 See the [ROADMAP](ROADMAP.md) for the ordered plan.
 
-## Known issues
-
-Small, self-contained, and perfect for a first contribution. All of these are
-confirmed bugs, not opinions. Paths are relative to the repository root.
-
-- **The play/pause icon is inverted in the mini player.**
-  `app/src/main/java/dev/fiedri/vibe/features/player/presentation/Player.kt:274` picks
-  `PlayArrow` while playing; `:481` in the expanded player picks `Pause` and is the
-  correct one.
-- **The theme ignores light mode.** `core/ui/theme/Theme.kt:133` hardcodes
-  `val colors = VibeDarkColors` with the correct line sitting commented out on `:132`,
-  so `VibeLightColors` is unreachable. `MaterialTheme.colorScheme` at `:141` *does*
-  respect `darkTheme`, so in system-light mode Material components render light while
-  the custom tokens stay dark.
-- **The overflow button is announced as "Search" by TalkBack.**
-  `core/ui/composables/VibeToBar.kt:84` sets `contentDescription = "Buscar"` on the
-  `MoreVert` button, the same string as the search icon on `:76`.
-- **Mini player previous/next are empty callbacks.** The parameters are declared in
-  `Player.kt:178-179` and then dropped at `:254` and `:281`.
-- **Around forty user-facing strings are hardcoded in the Kotlin source** across seven
-  files, so the UI stays English regardless of device language. Only 24 of the 156
-  translated strings are wired to `stringResource`. The translations exist — nobody
-  called them.
-- **Song and album counts are string-concatenated instead of using `<plurals>`.**
-  `detail.kt:121` writes `if (size == 1) "1 cancion" else "$size canciones"`, which is
-  grammatically wrong in Polish — 3 should be "3 utwory" and 5 "5 utworów". The
-  `values-pl/strings.xml` catalog already has the correct `one` / `few` / `many` /
-  `other` forms; `R.plurals` is referenced from zero places.
-- **`features/settings/presentation/settingsScreen.kt` hardcodes all of its labels** and
-  renders `"Configuracion General"` three times across two nesting levels (`:60`, `:75`,
-  `:82`), even though the translations already ship in three locales. Its only
-  interactive element is a `.clickable {}` with an empty body at `:72`.
-- **The home sort menu is a no-op.** `HomeContentMenu.kt` renders a working
-  per-tab sort list, but `VibeTopBar` never passes `onSortSelected`, so picking a field
-  changes local state and nothing else.
-- **The playlists empty state is unreachable**, because `playlists.kt:54` is `List(10)`
-  and so the `isEmpty()` branch at `:78` can never run.
-- **`core/ui/composables/VibeMenu.kt` has 10 unused imports** (lines 3, 6, 7, 8, 9, 10,
-  13, 15, 18, 21), including two different `Icon` imports on 13 and 15 that only compile
-  because neither is used.
-- **`res/values/colors.xml` holds 7 unused template colors** from the project wizard.
-  `R.color` is referenced from zero places.
-- **`keepRules/rules.keep` is entirely commented out**, and R8 is currently disabled
-  for release builds.
-- **The manifest declares an `audio/*` `VIEW` intent filter that nothing handles** —
-  there is no `getIntent()` read, no `onNewIntent` and no service, so the app claims an
-  entry point it does not implement.
-
-
 ## What the web version does
 
 For reference, this is the feature set being ported. The right-hand column is the
@@ -157,11 +108,10 @@ honest current state on this branch.
 
 ### With Android Studio
 
-1. Clone the repository and check out this branch:
+1. Clone the repository (`main` is the default branch):
    ```bash
    git clone https://github.com/fiedri/vibe-player.git
    cd vibe-player
-   git checkout feat/migrate-to-native
    ```
 2. Open the folder in Android Studio. Let it sync — Gradle will fetch the JDK 25
    daemon and the Android SDK platform it needs.

@@ -1,5 +1,5 @@
-> **Base branch:** this branch (`feat/migrate-to-native`). The web version lives on
-> `master` and `dev` and is kept only as a reference — don't open PRs there.
+> **Base branch:** this branch (`main`). The web version lives on
+> `legacy` and is kept only as a reference — don't open PRs there.
 
 ## Description
 

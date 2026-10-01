@@ -1,7 +1,7 @@
 # ROADMAP
 
-Native rewrite of Vibe in Kotlin + Jetpack Compose. Tracked on the
-`feat/migrate-to-native` branch. The web version's roadmap continues to apply to
+Native rewrite of Vibe in Kotlin + Jetpack Compose. Tracked on
+`main` (the default branch). The web version's roadmap continues to apply to
 anything not listed here.
 
 ## Release gate — 1.0.0 is not shippable yet
@@ -52,7 +52,7 @@ what makes this gate easy to talk yourself out of.
 - [x] Library screen layouts: songs, albums, artists, playlists
 - [x] Album, artist and playlist detail screens, sharing a reusable `DetailsScreen`
 - [x] Search screen with per-section filtering and a debounced query
-- [x] Settings screen (a stub — see Bugs below)
+- [x] Settings screen (a stub)
 - [x] Player UI: mini and expanded, with a custom-drawn seek bar that handles real
       tap and drag gestures
 - [x] Context menus: song options bottom sheet, player dropdown, home overflow menu
@@ -60,47 +60,6 @@ what makes this gate easy to talk yourself out of.
 - [x] Translations: `values/`, `values-es/` **and `values-pl/`**, ported from the web
       app's `messages/{en,es}.json` plus a community Polish catalog
 - [x] Launcher icon, default album/artist artwork
-
-## Bugs to fix
-
-Small and self-contained. Good first contributions. Paths are relative to the
-repository root.
-
-- [ ] **Play/pause icon inverted in the mini player** —
-      `features/player/presentation/Player.kt:274` picks `PlayArrow` while playing,
-      while `:481` in the expanded player correctly picks `Pause`
-- [ ] **The theme ignores light mode** — `core/ui/theme/Theme.kt:133` hardcodes
-      `val colors = VibeDarkColors` with the correct line commented out on `:132`, so
-      `VibeLightColors` is unreachable, while `MaterialTheme.colorScheme` at `:141`
-      respects `darkTheme` and renders mismatched
-- [ ] **The overflow button is announced as "Search" by TalkBack** —
-      `core/ui/composables/VibeToBar.kt:84` sets `contentDescription = "Buscar"` on the
-      `MoreVert` button, the same string as the search icon on `:76`
-- [ ] **Mini player previous/next callbacks are empty** — parameters are declared in
-      `Player.kt:178-179` and dropped at `:254` and `:281`
-- [ ] **`settingsScreen.kt` hardcodes all of its labels** — `"Settings"` at `:48`,
-      `"Configuracion General"` three times (`:60`, `:75`, `:82`) and
-      `contentDescription = "Volver atras"` at `:44`, all of which already exist
-      translated in three locales as `menus_mainmenu_settings`, `settings_general` and
-      `menus_back`. Its only interactive element is a `.clickable {}` with an empty body
-      at `:72`. This is the easiest single-file slice of the i18n sweep
-- [ ] **The home sort menu is a no-op** — `HomeContentMenu.kt` renders a working
-      per-tab sort list, but `VibeTopBar` never passes `onSortSelected`
-- [ ] **Dead buttons** — both playlist FABs (`playlists.kt:109`, `:121`) and the
-      player's share/favorite buttons (`Player.kt:528`, `:531`) have `onClick = {}`.
-      The top bar's menu, search and overflow are now wired
-- [ ] **The playlists empty state is unreachable** — `playlists.kt:54` is `List(10)`, so
-      the `isEmpty()` branch at `:78` is dead
-- [ ] **10 unused imports in `core/ui/composables/VibeMenu.kt`** (lines 3, 6, 7, 8, 9,
-      10, 13, 15, 18, 21), including two different `Icon` imports on 13 and 15 that only
-      compile because neither is used
-- [ ] **7 unused wizard template colors in `res/values/colors.xml`** — `R.color` is
-      referenced from zero places
-- [ ] **The manifest declares an `audio/*` `VIEW` intent filter that nothing handles** —
-      no `getIntent()` read, no `onNewIntent`, no service. Either implement it or remove
-      it
-- [ ] **`keepRules/rules.keep` is entirely commented out**, and R8 is disabled for
-      release builds
 
 ## Next: make it real
 
@@ -129,7 +88,7 @@ Everything below Phase 0 is placeholder data. This is the whole job right now.
 - [ ] Interrupt handling (calls, audio focus, headset unplug)
 
 ### Phase 3 — Feature parity with the web version
-Use `master` as the behavioral reference. Screen by screen, in this order:
+Use `legacy` as the behavioral reference. Screen by screen, in this order:
 
 - [ ] Real data in the four library screens
 - [ ] Build the search index and wire the existing search screen to it — the screen
@@ -155,7 +114,7 @@ Use `master` as the behavioral reference. Screen by screen, in this order:
       has the correct `one`/`few`/`many`/`other` forms
 - [ ] Wire the remaining 132 translated strings that are defined but unreferenced
 - [ ] Document where `values-pl/strings.xml` came from — its two siblings carry
-      "Auto-generated from messages/{en,es}.json" headers and `messages/` on `master`
+      "Auto-generated from messages/{en,es}.json" headers and `messages/` on `legacy`
       only holds `en` and `es`
 - [ ] Replace the ~35 hardcoded colors and font sizes with theme tokens — the rule
       already exists, the tree just does not follow it
@@ -175,7 +134,7 @@ Use `master` as the behavioral reference. Screen by screen, in this order:
 - [ ] A release workflow for Gradle. There is none in this repo yet — `.github/`
       holds only issue templates and a PR template, no workflows
 - [ ] Decide on the F-Droid / IzzyOnDroid recipe. The web version's `receta.yml` lives
-      on `master` and builds with pnpm, so it needs to be written from scratch here
+      on `legacy` and builds with pnpm, so it needs to be written from scratch here
 - [ ] Reproducible build, which the web version cared about and should not lose
 - [ ] Re-enable R8 and write real keep rules — the signing config is already wired to
       the `MYAPP_RELEASE_*` properties, but `optimization { enable = false }` means

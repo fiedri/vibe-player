@@ -11,7 +11,7 @@ You are welcome to delete any part of this and just ask your question instead.
 
 ### Heads up: this branch is moving fast
 
-`feat/migrate-to-native` is a rewrite of a SvelteKit app into native Android. The
+`main` is a rewrite of a SvelteKit app into native Android. The
 project is going through an active restructuring, so files move and types get
 renamed. If you open a PR and hit an unresolved reference, run
 `./gradlew clean` and re-check the base branch before assuming your change broke
@@ -20,15 +20,13 @@ helpful here, not a wasted contribution.
 
 ### Have you picked something to work on?
 
-The [Known issues section in the README](https://github.com/fiedri/vibe-player/blob/feat/migrate-to-native/README.md#known-issues)
-is the best place to start. It's a list of real, confirmed bugs with `file:line`
-locations. Comment on this issue with the one you want and we will confirm it is
-unclaimed so two people don't do the same work.
+If you already have something in mind, comment on this issue with what it is and
+we will confirm it is unclaimed so two people don't do the same work.
 
 **If you just want to be useful without picking anything specific**, the task below is
 the one we recommend. It is entirely mechanical, and you can see the result on screen by
 switching your device language. Every path is relative to the repository root and every
-line number is from `feat/migrate-to-native`.
+line number is from `main`.
 
 - [ ] **Move the hardcoded strings into `strings.xml`**
 
@@ -88,57 +86,6 @@ line number is from `feat/migrate-to-native`.
 
       `features/home/presentation/HomeContentMenu.kt` shows the established pattern.
 
-      **The plural counts are a real bug, not cosmetics.** `detail.kt:121` builds its
-      text by concatenation:
-
-      ```kotlin
-      text = (if (resources.songs.size == 1) "1 cancion" else "${resources.songs.size} canciones").uppercase()
-      ```
-
-      That is grammatically wrong in Polish, where 3 songs is "3 utwory" and 5 is
-      "5 utworów" — the string depends on the number, not just the noun. The app already
-      ships a `<plurals name="songs">` with the correct `one` / `few` / `many` / `other`
-      forms for all three locales, and it is currently referenced from **zero** places.
-      Use `pluralStringResource` instead:
-
-      ```kotlin
-      import androidx.compose.ui.res.pluralStringResource
-
-      Text(
-          pluralStringResource(R.plurals.songs, resources.songs.size).uppercase(),
-          // ...
-      )
-      ```
-
-      `detail.kt:135` has the same problem with `R.plurals.albums`. Fixing either one is
-      a good, self-contained first PR on its own.
-
-**Two smaller tasks, if you prefer something even quicker.** Each is about ten minutes:
-
-- [ ] **Fix the overflow button's content description** in
-      `app/src/main/java/dev/fiedri/vibe/core/ui/composables/VibeToBar.kt`.
-      Line 84 is the `MoreVert` button, and it sets
-      `contentDescription = "Buscar"` — the exact same string as the search icon on
-      line 76. TalkBack therefore announces the overflow menu as "Search". There is no
-      existing key for this one, so you will add it to all three locale files.
-
-- [ ] **Delete the 7 unused template colors in `app/src/main/res/values/colors.xml`.**
-      `purple_200`, `purple_500`, `purple_700`, `teal_200`, `teal_700`, `black` and
-      `white` are left over from the Android Studio project wizard. Nothing in the
-      app references them — search the Kotlin sources for `R.color` and you will get
-      zero hits. The real palette lives in
-      `app/src/main/java/dev/fiedri/vibe/core/ui/theme/Color.kt`.
-
-**If you want something with a bit more meat**, the play/pause icon in the mini
-player is inverted — it shows `PlayArrow` while playing, while the expanded player
-correctly shows `Pause`. The two sites are in the same file:
-
-- mini player: `app/src/main/java/dev/fiedri/vibe/features/player/presentation/Player.kt:274`
-- expanded player: `app/src/main/java/dev/fiedri/vibe/features/player/presentation/Player.kt:481`
-
-One of them has the condition backwards. The fix is a one-line change, but it is a
-good first look at how the two player layouts are meant to behave.
-
 ### Do you want a task picked for you?
 
 Tell me what you're comfortable with and I'll find you one that fits:
@@ -164,7 +111,7 @@ interests you, say so and we'll pair on it.
 
 - Android Studio version:
 - Operating system:
-- Have you cloned the repo and checked out `feat/migrate-to-native`?
+- Have you cloned the repo and checked out `main`?
 
 **If you hit a build error, paste it here.** The most common one by far is a
 missing `local.properties` — Android Studio creates it for you, but if you built
@@ -194,5 +141,5 @@ If you see stale `app/build/` output and something that looks like a type which
 no longer exists, run `./gradlew clean` first. The directory is gitignored but it
 survives on disk across branch switches, and it can be very confusing.
 
-Please open the PR against the `feat/migrate-to-native` branch, not `master`.
+Please open the PR against the `main` branch, not `legacy`.
 -->

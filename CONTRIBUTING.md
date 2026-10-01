@@ -3,10 +3,10 @@
 First off, thank you for considering contributing!
 
 > **Read this first.** Vibe is being rewritten from a Svelte/Capacitor web app into
-> a native Android app written in Kotlin with Jetpack Compose. That rewrite lives in
-> the **`feat/migrate-to-native`** branch, and **that is the branch every pull request
-> should target.** The `master` and `dev` branches hold the old web version and are
-> kept as a reference for what the app is supposed to do — they are not accepting new
+> a native Android app written in Kotlin with Jetpack Compose. That rewrite lives on
+> **`main`** (the default branch), and **that is the branch every pull request
+> should target.** The `legacy` branch holds the old web version and is
+> kept as a reference for what the app is supposed to do — it is not accepting new
 > features.
 >
 > If you want to help, you are in the right place. Most of the app is not written yet.
@@ -62,9 +62,8 @@ self-contained first PR on its own.
 Two smaller tasks if you want something even quicker: **delete the 7 unused template
 colors** in `app/src/main/res/values/colors.xml` (search the Kotlin sources for
 `R.color` and you get zero hits), or **fix the overflow button's content description**
-in `core/ui/composables/VibeToBar.kt:84`, which announces itself to TalkBack as "Search"
-because it reuses the search icon's string. All of these are listed in the
-[Known issues](README.md#known-issues) with `file:line` locations.
+in `features/home/presentation/HomeTopBar.kt:86`, which announces itself to TalkBack
+as "Search" because it reuses the search icon's string.
 
 If you would rather be pointed at something, or you want to say what you want to
 learn, open an issue using the **First-time contributor** template. It has a
@@ -88,11 +87,11 @@ Feature request templates instead.
 
 ## Where to send your pull request
 
-- **Base branch:** `feat/migrate-to-native`, not `master` and not `dev`.
-- **Branch naming:** branch off `feat/migrate-to-native` before you start:
+- **Base branch:** `main`, not `legacy`.
+- **Branch naming:** branch off `main` before you start:
   ```bash
   git fetch origin
-  git checkout feat/migrate-to-native
+  git checkout main
   git pull
   git checkout -b feat/my-feature   # or fix/, chore/, docs/
   ```
@@ -146,8 +145,8 @@ must land in the same commit, or not one `@Entity` will compile.
 
 So the highest-value contributions right now are: wiring the audio engine, reading the
 device library, and replacing placeholder data with real state. See the
-[ROADMAP](ROADMAP.md) for the full picture, and the
-[Known issues](README.md#known-issues) for self-contained bug fixes.
+[ROADMAP](ROADMAP.md) for the full picture. For a small first PR, open an issue
+with the **First-time contributor** template and we'll find you something that fits.
 
 ## Local development setup
 
@@ -168,7 +167,6 @@ gone.
 ```bash
 git clone https://github.com/fiedri/vibe-player.git
 cd vibe-player
-git checkout feat/migrate-to-native
 ```
 
 `local.properties` is machine-local and not committed. It only needs your SDK path:
@@ -272,13 +270,13 @@ app/src/main/java/dev/fiedri/vibe/
 ## Porting a screen from the web version
 
 This is the most common contribution, and the web version is a complete working
-reference. It lives on the `master` branch of this same repository. Note the route
+reference. It lives on the `legacy` branch of this same repository. Note the route
 groups — they are parenthesised, so **quote the path** or the shell will choke:
 
 ```bash
-# in a second clone or worktree of master
-git show 'master:src/routes/(app)/albums/+page.svelte'
-git show 'master:src/routes/(standalone)/album/[name]/+page.svelte'
+# in a second clone or worktree of legacy
+git show 'legacy:src/routes/(app)/albums/+page.svelte'
+git show 'legacy:src/routes/(standalone)/album/[name]/+page.svelte'
 ```
 
 The main screens live under `src/routes/(app)/`, and the detail, search and settings

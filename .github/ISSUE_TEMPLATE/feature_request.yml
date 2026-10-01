@@ -69,5 +69,5 @@ body:
           required: true
         - label: I have described why this feature is valuable.
           required: true
-        - label: I understand the app is being rewritten in native Android, and this request targets the `feat/migrate-to-native` branch.
+        - label: I understand the app is being rewritten in native Android, and this request targets `main`.
           required: false

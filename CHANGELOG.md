@@ -5,9 +5,9 @@ All notable changes and new features of **Vibe** will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/lang/es/).
 
 > **Note on versions.** The native rewrite is versioned from `1.0.0` onward and lives
-> on the `feat/migrate-to-native` branch. Everything under
+> on `main` (the default branch). Everything under
 > [Web version history](#web-version-history-svelte--capacitor) describes the previous
-> Svelte + Capacitor app, preserved on the `master` and `dev` branches. There is no
+> Svelte + Capacitor app, preserved on the `legacy` branch. There is no
 > compatibility guarantee between the two; the history is kept in one file so the full
 > product story stays readable.
 

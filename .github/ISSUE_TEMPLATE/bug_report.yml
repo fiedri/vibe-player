@@ -104,5 +104,5 @@ body:
           required: true
         - label: I can reproduce the bug consistently.
           required: true
-        - label: I am reporting this against the native rewrite (`feat/migrate-to-native`), not the old web version.
+        - label: I am reporting this against the native rewrite (`main`), not the old web version.
           required: false
