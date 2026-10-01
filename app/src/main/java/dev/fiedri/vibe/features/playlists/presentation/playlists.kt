@@ -34,9 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import dev.fiedri.vibe.R
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
 
 data class PlaylistCardData(
@@ -166,7 +168,11 @@ private fun FavoritesRow(
             )
         }
         Text(
-            text = "${favorites.songsCount} canciones",
+            text = pluralStringResource(
+                R.plurals.songs,
+                favorites.songsCount,
+                favorites.songsCount
+            ),
             color = VibeTheme.colors.mutedForeground,
             style = VibeTheme.typography.caption,
             maxLines = 1,
@@ -213,7 +219,11 @@ private fun PlaylistRow(
         }
 
         Text(
-            text = "${playlist.songsCount} canciones",
+            text = pluralStringResource(
+                R.plurals.songs,
+                playlist.songsCount,
+                playlist.songsCount
+            ),
             color = VibeTheme.colors.mutedForeground,
             style = VibeTheme.typography.caption,
             maxLines = 1,

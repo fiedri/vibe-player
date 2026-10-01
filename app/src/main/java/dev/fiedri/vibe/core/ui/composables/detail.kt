@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -119,7 +120,11 @@ fun DetailsScreen(
                     )
                     if (type !== EntityType.ARTISTS) {
                         Text(
-                            text = (if (resources.songs.size == 1) "1 cancion" else "${resources.songs.size} canciones").uppercase(),
+                            text = pluralStringResource(
+                                R.plurals.songs,
+                                resources.songs.size,
+                                resources.songs.size
+                            ).uppercase(),
                             color = VibeTheme.colors.mutedForeground,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
@@ -133,7 +138,11 @@ fun DetailsScreen(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
             ) {
                 Text(
-                    text = "${resources.albums.size} albumes".uppercase(),
+                    text = pluralStringResource(
+                        R.plurals.albums,
+                        resources.albums.size,
+                        resources.albums.size
+                    ).uppercase(),
                     color = VibeTheme.colors.foreground,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,

@@ -7,11 +7,11 @@
     <!-- Plurals -->
     <plurals name="songs">
         <item quantity="one">1 canción</item>
-        <item quantity="other">{count} canciones</item>
+        <item quantity="other">%d canciones</item>
     </plurals>
     <plurals name="albums">
         <item quantity="one">Album</item>
-        <item quantity="other">{count} Albumes</item>
+        <item quantity="other">%d Albumes</item>
     </plurals>
 
     <!-- Strings -->

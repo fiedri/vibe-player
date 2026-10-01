@@ -4,15 +4,15 @@
     <!-- Plurals -->
     <plurals name="songs">
         <item quantity="one">1 utwór</item>
-        <item quantity="few">{count} utwory</item>
-        <item quantity="many">{count} utworów</item>
-        <item quantity="other">{count} utworu</item>
+        <item quantity="few">%d utwory</item>
+        <item quantity="many">%d utworów</item>
+        <item quantity="other">%d utworu</item>
     </plurals>
     <plurals name="albums">
         <item quantity="one">1 album</item>
-        <item quantity="few">{count} albumy</item>
-        <item quantity="many">{count} albumów</item>
-        <item quantity="other">{count} albumu</item>
+        <item quantity="few">%d albumy</item>
+        <item quantity="many">%d albumów</item>
+        <item quantity="other">%d albumu</item>
     </plurals>
 
     <!-- Strings -->
