@@ -1,4 +1,4 @@
-package dev.fiedri.vibe.core.ui.composables
+package dev.fiedri.vibe.features.home.presentation
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -29,9 +29,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import dev.fiedri.vibe.R
+import dev.fiedri.vibe.core.ui.composables.borderBotton
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
-import dev.fiedri.vibe.features.home.presentation.HomeMenu
 
 
 @Composable
@@ -41,7 +42,8 @@ fun VibeTopBar(
     onTabSelected: (String) -> Unit,
     onMenuClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
-    onOverflowClick: () -> Unit = {}
+    onOverflowClick: () -> Unit = {},
+    viewModel: HomeScreenViewModel = hiltViewModel()
 ){
     val borderColor = VibeTheme.colors.muted
     val primaryColor = VibeTheme.colors.primary
@@ -87,7 +89,8 @@ fun VibeTopBar(
                     HomeMenu(
                         activeTab = activeTab,
                         expanded = overflowExpanded,
-                        onDismissRequest = { overflowExpanded = false }
+                        onDismissRequest = { overflowExpanded = false },
+                        onRefreshLibrary = {viewModel.refreshLibrary()}
                     )
                 }
             }

@@ -17,7 +17,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import dev.fiedri.vibe.core.ui.composables.VibeTopBar
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
 import dev.fiedri.vibe.core.ui.LocalNavigator
 import dev.fiedri.vibe.core.ui.PlaylistDetail

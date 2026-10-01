@@ -24,6 +24,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.fiedri.vibe.R
+import dev.fiedri.vibe.core.ui.composables.VibeMenu
+import dev.fiedri.vibe.core.ui.composables.VibeMenuItem
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
 
 enum class SortField(@StringRes val labelRes: Int) {
@@ -88,11 +90,11 @@ fun HomeMenu(
         label = "chevronRotation"
     )
 
-    _root_ide_package_.dev.fiedri.vibe.core.ui.composables.VibeMenu(
+    VibeMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest
     ) {
-        _root_ide_package_.dev.fiedri.vibe.core.ui.composables.VibeMenuItem(
+        VibeMenuItem(
             text = stringResource(R.string.menus_home_overflow_menu_refresh_library),
             onClick = {
                 onRefreshLibrary()
@@ -107,7 +109,7 @@ fun HomeMenu(
             }
         )
         if (sortable) {
-            _root_ide_package_.dev.fiedri.vibe.core.ui.composables.VibeMenuItem(
+            VibeMenuItem(
                 text = stringResource(R.string.menus_home_overflow_menu_order_by),
                 onClick = { sortExpanded = !sortExpanded },
                 trailingIcon = {
@@ -123,7 +125,7 @@ fun HomeMenu(
         }
         if (sortable && sortExpanded) {
             fields.forEach { field ->
-                _root_ide_package_.dev.fiedri.vibe.core.ui.composables.VibeMenuItem(
+                VibeMenuItem(
                     text = stringResource(field.labelRes),
                     onClick = {
                         selectedField = field
@@ -139,7 +141,7 @@ fun HomeMenu(
                     .height(1.dp)
                     .background(VibeTheme.colors.border)
             )
-            _root_ide_package_.dev.fiedri.vibe.core.ui.composables.VibeMenuItem(
+            VibeMenuItem(
                 text = stringResource(R.string.menus_home_overflow_menu_order_by_options_asc),
                 onClick = {
                     ascending = true
@@ -148,7 +150,7 @@ fun HomeMenu(
                 },
                 trailingIcon = { SortRadioGlyph(selected = ascending) }
             )
-            _root_ide_package_.dev.fiedri.vibe.core.ui.composables.VibeMenuItem(
+            VibeMenuItem(
                 text = stringResource(R.string.menus_home_overflow_menu_order_by_options_desc),
                 onClick = {
                     ascending = false

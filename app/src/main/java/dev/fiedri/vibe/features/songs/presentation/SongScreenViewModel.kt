@@ -8,6 +8,7 @@ import dev.fiedri.vibe.core.data.models.SongModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,6 +29,7 @@ class SongScreenViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SongsUiState>(SongsUiState.Loading)
     val uiState: StateFlow<SongsUiState> = _uiState.asStateFlow()
     init {
+        observeSongs()
         fetchSongs()
     }
     fun fetchSongs(forceRefresh: Boolean = false){
@@ -39,6 +41,19 @@ class SongScreenViewModel @Inject constructor(
                 _uiState.value = SongsUiState.Error(
                     message = e.localizedMessage ?: "Error al cargar canciones"
                 )
+            }
+        }
+    }
+    fun observeSongs(){
+        _uiState.value = SongsUiState.Loading
+        viewModelScope.launch {
+            songsRepository.songs.collect{
+                songsList ->
+                    if(songsList.isNotEmpty()){
+                        val currentPlaying = (_uiState.value as? SongsUiState.Success)?.currentPlayingId
+                        _uiState.value = SongsUiState.Success(songs = songsList, currentPlayingId = currentPlaying)
+                    }
+
             }
         }
     }
