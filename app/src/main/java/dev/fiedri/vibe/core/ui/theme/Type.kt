@@ -86,4 +86,18 @@ object VibeTypography {
         fontSize = 12.sp,
         lineHeight = 16.sp
     )
+
+    val songTitle = TextStyle(
+        fontFamily = InterVariableFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 18.sp
+    )
+
+    val songArtist = TextStyle(
+        fontFamily = InterVariableFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp
+    )
 }
