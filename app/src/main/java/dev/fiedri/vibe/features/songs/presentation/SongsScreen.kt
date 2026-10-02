@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -44,7 +44,10 @@ fun SongsScreen(
             SongsList(
                 songs = state.songs,
                 currentPlayingId = state.currentPlayingId,
-                onSongClick = {}
+                onSongClick = { songs, index ->
+                    viewModel.onSongClicked(songs, index)
+                }
+
             )
         }
 
@@ -101,13 +104,12 @@ private fun SongsErrorState(message: String, onRetry: () -> Unit) {
 
 
 @Composable
-fun SongsList(songs: List<SongModel>, currentPlayingId: Long? = null, onSongClick: ()-> Unit = {}){
+fun SongsList(songs: List<SongModel>, currentPlayingId: Long? = null, onSongClick: (List<SongModel>, Int) -> Unit = { _, _ -> }){
     var optionsFor by remember { mutableStateOf<SongCardUiState?>(null) }
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        items(items = songs, key = { song -> song.id }){
-                song ->
+        itemsIndexed(items = songs, key = { _, song -> song.id }) { index, song ->
             val isCurrent = currentPlayingId != null && song.id == currentPlayingId
             val songUiState = SongCardUiState(
                 song = song,
@@ -116,7 +118,10 @@ fun SongsList(songs: List<SongModel>, currentPlayingId: Long? = null, onSongClic
             )
             SongCard(
                 uiState = songUiState,
-                onClick = {onSongClick()}, onLongClick = {}, onOptionsClick = { optionsFor = songUiState })
+                onClick = { onSongClick(songs, index) },
+                onLongClick = {},
+                onOptionsClick = { optionsFor = songUiState }
+            )
         }
     }
     optionsFor?.let { song ->

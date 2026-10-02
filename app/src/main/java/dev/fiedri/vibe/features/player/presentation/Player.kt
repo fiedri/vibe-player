@@ -63,16 +63,12 @@ import dev.fiedri.vibe.R
 import android.graphics.BlurMaskFilter
 import android.graphics.Paint
 import android.graphics.RectF
+import android.net.Uri
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.fiedri.vibe.core.ui.composables.VibeImage
 import kotlin.math.roundToLong
 
-data class Song(
-    val title: String,
-    val artist: String,
-    val album: String,
-    val uri: String,
-    val albumArtUri: String?,
-    val durationMs: Long
-)
 
 enum class PlayerState {
     REPEAT_ONE,
@@ -91,16 +87,11 @@ private val MiniPlayerHeight = 92.dp
 
 @Composable
 fun Player(
-    uiState: PlayerUiState,
     modifier: Modifier = Modifier,
-    onTogglePlay: () -> Unit,
-    onNext: () -> Unit,
-    onPrevious: () -> Unit,
-    onSeek: (Long) -> Unit,
-    onToggleShuffle: () -> Unit,
     onCycleRepeat: () -> Unit,
-    onToggleExpand: () -> Unit
+    viewModel: PlayerViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     BoxWithConstraints(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomCenter
@@ -132,11 +123,13 @@ fun Player(
                     isPlaying = uiState.isPlaying,
                     currentTimeMs = uiState.currentTimeMs,
                     durationMs = uiState.durationMs,
-                    onTogglePlay = onTogglePlay,
-                    onPrevious = onPrevious,
-                    onNext = onNext,
-                    onSeek = onSeek,
-                    onExpand = onToggleExpand
+                    onTogglePlay = {viewModel.togglePlay()},
+                    onPrevious = {viewModel.previous()},
+                    onNext = {viewModel.next()},
+                    onSeek = {
+                        ms -> viewModel.seekTo(ms)
+                    },
+                    onExpand = {viewModel.toggleExpansion()}
                 )
             }
 
@@ -155,13 +148,15 @@ fun Player(
                     numberOfSongs = uiState.numberOfSongs,
                     isShuffle = uiState.isShuffle,
                     repeatMode = uiState.repeatMode,
-                    onTogglePlay = onTogglePlay,
-                    onNext = onNext,
-                    onPrevious = onPrevious,
-                    onSeek = onSeek,
-                    onToggleShuffle = onToggleShuffle,
-                    onCycleRepeat = onCycleRepeat,
-                    onCollapse = onToggleExpand
+                    onTogglePlay = {viewModel.togglePlay()},
+                    onNext = {viewModel.next()},
+                    onPrevious ={viewModel.previous()},
+                    onSeek = {
+                            ms -> viewModel.seekTo(ms)
+                    },
+                    onToggleShuffle = {viewModel.toggleShuffle()},
+                    onCycleRepeat = {viewModel.alterRepeatMode()},
+                    onCollapse = {viewModel.toggleExpansion()}
                 )
             }
         }
@@ -170,7 +165,7 @@ fun Player(
 
 @Composable
 fun MiniPlayer(
-    currentSong: Song?,
+    currentSong: SongPlayingState?,
     isPlaying: Boolean,
     currentTimeMs: Long,
     durationMs: Long,
@@ -179,11 +174,12 @@ fun MiniPlayer(
     onNext: () -> Unit,
     onSeek: (Long) -> Unit,
     onExpand: () -> Unit
-
-){
+) {
     Column(
-        modifier = Modifier.fillMaxWidth()
-
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable { onExpand() },
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
         SongSeekbar(
             currentPosition = currentTimeMs,
@@ -199,25 +195,24 @@ fun MiniPlayer(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onExpand() }
-                .padding(top= 0.dp, start = 12.dp, end = 12.dp, bottom = 12.dp),
+                .weight(1f) // Ocupa todo el espacio vertical restante
+                .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
-            if(currentSong != null){
+            if (currentSong != null) {
                 Box(
                     modifier = Modifier
-                        .size(60.dp)
+                        .size(58.dp)
                         .background(VibeTheme.colors.muted.copy(alpha = 0.3f))
-                        .border(1.dp, VibeTheme.colors.muted)
+                        .border(1.dp, VibeTheme.colors.muted),
+                    contentAlignment = Alignment.Center // Asegura centrado de la portada
                 ) {
-                    Image(
-                        // si tiene imagen no  se usa el default_cover
-                        painter = painterResource(id = R.drawable.default_cover),
+                    VibeImage(
+                        resource = currentSong.artwork ?: R.drawable.default_cover,
                         contentDescription = "Cover",
                         modifier = Modifier.fillMaxSize()
-
                     )
                 }
 
@@ -231,54 +226,53 @@ fun MiniPlayer(
                 Text(
                     text = currentSong?.title ?: "No Song",
                     color = VibeTheme.colors.foreground,
-                    fontSize = 14.sp, style = VibeTheme.typography.caption,
+                    fontSize = 14.sp,
+                    style = VibeTheme.typography.caption,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     modifier = Modifier.basicMarquee(velocity = 20.dp)
                 )
-                if(currentSong != null){
+                if (currentSong != null) {
                     Text(
-                        text = currentSong.artist,
+                        text = currentSong.artist?: "<Unknow>",
                         color = VibeTheme.colors.muted,
-                        fontSize = 12.sp, style = VibeTheme.typography.caption,
+                        fontSize = 12.sp,
+                        style = VibeTheme.typography.caption,
                         maxLines = 1
                     )
                 }
             }
 
-            // 3. Controles de reproducción (Anterior, Play/Pause, Siguiente)
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
-                IconButton(onClick = { }, shape= RectangleShape) {
+                IconButton(onClick = onPrevious, shape = RectangleShape) {
                     Icon(
                         imageVector = Icons.Outlined.SkipPrevious,
                         contentDescription = "Skip to previous",
-                        tint = VibeTheme.colors.foreground,
-
-                        )
+                        tint = VibeTheme.colors.foreground
+                    )
                 }
 
                 Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .border(1.dp, VibeTheme.colors.foreground, shape = RectangleShape) // Borde cuadrado
-                        .clickable {
-                            onTogglePlay()
-                        },
+                        .border(1.dp, VibeTheme.colors.foreground, shape = RectangleShape)
+                        .clickable { onTogglePlay() },
                     contentAlignment = Alignment.Center
                 ) {
-
                     Icon(
-                        imageVector = if (isPlaying) Icons.Filled.PlayArrow else Icons.Filled.Pause,
+
+                        imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                         contentDescription = "Play/Pause",
                         tint = VibeTheme.colors.foreground,
                         modifier = Modifier.size(20.dp)
                     )
                 }
 
-                IconButton(onClick = { }, shape= RectangleShape) {
+                IconButton(onClick = onNext, shape = RectangleShape) { // Asignado onNext
                     Icon(
                         imageVector = Icons.Outlined.SkipNext,
                         contentDescription = "Skip to next",
@@ -292,7 +286,7 @@ fun MiniPlayer(
 
 @Composable
 private fun ExpandedPlayer(
-    currentSong: Song?,
+    currentSong: SongPlayingState?,
     isPlaying: Boolean,
     currentTimeMs: Long,
     durationMs: Long,
@@ -358,12 +352,13 @@ private fun ExpandedPlayer(
                     }
                     .clickable(onClick = onTogglePlay)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.default_cover),
+                VibeImage(
+                    resource = currentSong?.artwork ?: R.drawable.default_cover,
                     contentDescription = "Cover",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
                     colorFilter = coverFilter
+
                 )
             }
 
@@ -568,7 +563,7 @@ fun SongSeekbar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(if (showThumb) 32.dp else 20.dp)
+            .height(if (showThumb) 32.dp else 4.dp)
             .pointerInput(duration, isSongLoaded) {
                 detectTapGestures { offset ->
                     if (!isSongLoaded) return@detectTapGestures

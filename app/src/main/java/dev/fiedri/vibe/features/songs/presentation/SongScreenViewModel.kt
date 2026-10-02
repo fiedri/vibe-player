@@ -5,10 +5,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.fiedri.vibe.core.data.SongsRepository
 import dev.fiedri.vibe.core.data.models.SongModel
+import dev.fiedri.vibe.features.player.data.PlayerController
+import dev.fiedri.vibe.features.player.data.QueueContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +25,8 @@ sealed interface SongsUiState {
 
 @HiltViewModel
 class SongScreenViewModel @Inject constructor(
-    private val songsRepository: SongsRepository
+    private val songsRepository: SongsRepository,
+    private val playerController: PlayerController
 ): ViewModel(){
     private val _uiState = MutableStateFlow<SongsUiState>(SongsUiState.Loading)
     val uiState: StateFlow<SongsUiState> = _uiState.asStateFlow()
@@ -57,10 +59,17 @@ class SongScreenViewModel @Inject constructor(
             }
         }
     }
-    fun playSong(songId: Long) {
+    fun onSongClicked(songs: List<SongModel>, index: Int, context: QueueContext = QueueContext.AllSongs) {
         val currentState = _uiState.value
         if (currentState is SongsUiState.Success) {
-            _uiState.value = currentState.copy(currentPlayingId = songId)
+            _uiState.value = currentState.copy(currentPlayingId = songs.getOrNull(index)?.id)
+        }
+        viewModelScope.launch {
+            playerController.playSong(
+                songs = songs,
+                initialIndex = index,
+                queueContext = context
+            )
         }
     }
 }

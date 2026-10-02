@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.media3.session)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.rules)
     testImplementation(libs.junit)
@@ -96,4 +97,9 @@ dependencies {
     androidTestImplementation("androidx.test:core:1.7.0")
     androidTestImplementation("androidx.test:runner:1.5.2")
 
+    // media3
+    implementation(libs.androidx.media3.exoplayer)
+
+    // coil
+    implementation(libs.coil.compose)
 }

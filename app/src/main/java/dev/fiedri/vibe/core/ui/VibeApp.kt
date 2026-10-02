@@ -25,7 +25,6 @@ import dev.fiedri.vibe.features.permissions.presentation.rememberPermissionContr
 import dev.fiedri.vibe.features.player.presentation.Player
 import dev.fiedri.vibe.features.player.presentation.PlayerState
 import dev.fiedri.vibe.features.player.presentation.PlayerUiState
-import dev.fiedri.vibe.features.player.presentation.Song
 
 @Composable
 fun VibeApp(){
@@ -66,16 +65,6 @@ fun VibeApp(){
     }
     var isPlaying by remember { mutableStateOf(false) }
     var isExpanded by remember { mutableStateOf(false) }
-    val fakeSong = remember {
-        Song(
-            title = "Sobreviviendo a la migración",
-            artist = "Big Pickle",
-            album = "Vibe Sessions",
-            uri = "content://fake",
-            albumArtUri = null,
-            durationMs = 3_000_000
-        )
-    }
     BackHandler(enabled = isExpanded) {
         if(isExpanded){
             isExpanded = false
@@ -106,25 +95,8 @@ fun VibeApp(){
             )
         }
         Player(
-            uiState = PlayerUiState(
-                currentSong = fakeSong,
-                isPlaying = isPlaying,
-                currentTimeMs = 45_000,
-                durationMs = fakeSong.durationMs,
-                currentSongIndex = 0,
-                numberOfSongs = 1,
-                isShuffle = false,
-                repeatMode = PlayerState.REPEAT_OFF,
-                isExpanded = isExpanded,
-            ),
             modifier = Modifier.align(Alignment.BottomCenter),
-            onTogglePlay = { isPlaying = !isPlaying },
-            onNext = {},
-            onPrevious = {},
-            onSeek = {},
-            onToggleShuffle = {},
-            onCycleRepeat = {},
-            onToggleExpand = { isExpanded = !isExpanded },
+            onCycleRepeat = {}
         )
     }
 

@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.fiedri.vibe.R
+import dev.fiedri.vibe.core.data.models.SongModel
 import dev.fiedri.vibe.core.ui.composables.VibeMenu
 import dev.fiedri.vibe.core.ui.composables.VibeMenuItem
 
@@ -16,7 +17,7 @@ import dev.fiedri.vibe.core.ui.composables.VibeMenuItem
 fun PlayerMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
-    song: Song,
+    song: SongPlayingState,
     modifier: Modifier = Modifier,
     onInfo: () -> Unit = {},
     onAddToPlaylists: () -> Unit = {},

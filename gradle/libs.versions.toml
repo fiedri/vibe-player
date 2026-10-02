@@ -1,11 +1,13 @@
 [versions]
 agp = "9.4.1"
+coilCompose = "2.7.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 activityCompose = "1.13.0"
 kotlin = "2.2.10"
 composeBom = "2026.02.01"
 kotlinxCoroutinesAndroid = "1.11.0"
+media3Exoplayer = "1.11.1"
 uiText = "1.12.1"
 foundationLayout = "1.12.1"
 nav3Core = "1.2.0"
@@ -21,9 +23,12 @@ roomKtx = "2.8.5"
 coreKtx = "1.7.0"
 junitKtx = "1.3.0"
 rules = "1.7.0"
+media3Session = "1.11.1"
 
 
 [libraries]
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -52,6 +57,7 @@ androidx-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = 
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3Session" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
