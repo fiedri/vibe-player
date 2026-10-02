@@ -74,7 +74,7 @@ fun SongCard(
         Icon(
             imageVector = if (isPlayingThis) Icons.Default.Pause else Icons.Default.PlayArrow,
             contentDescription = if (isPlayingThis) "Pausar" else "Reproducir",
-            tint = if (isPlayingThis) VibeTheme.colors.primary else VibeTheme.colors.foreground,
+            tint = VibeTheme.colors.foreground,
             modifier = Modifier.size(20.dp)
         )
 

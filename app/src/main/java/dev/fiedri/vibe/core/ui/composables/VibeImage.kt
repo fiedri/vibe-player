@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.fiedri.vibe.R
 
 
 @Composable
@@ -29,13 +30,16 @@ fun VibeImage(
         .data(resource)
         .crossfade(true)
         .build()
+    // MediaStore artwork URIs are non-null even when no art exists, so the
+    // caller ?: fallback never fires: a failed load must fall back here.
+    val fallback = painterResource(R.drawable.default_cover)
     AsyncImage(
         model = imageRequest,
         contentDescription = contentDescription,
         modifier = modifier,
         contentScale = contentScale ?: ContentScale.Crop,
-        placeholder = placeholder,
-        error = error,
+        placeholder = placeholder ?: fallback,
+        error = error ?: fallback,
         colorFilter = colorFilter
         )
 }

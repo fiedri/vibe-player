@@ -27,6 +27,16 @@ sealed interface QueueContext {
     data class Artist(val artistId: Long) : QueueContext
     data object AllSongs : QueueContext
 }
+/**
+ * Minimal shared playback state, published by the [PlayerController] singleton.
+ * Deliberately tiny: list screens need song id + play/pause only. The 250ms
+ * position clock and the rest stay private to PlayerViewModel so lists never
+ * recompose on every tick.
+ */
+data class NowPlaying(
+    val songId: String? = null,
+    val isPlaying: Boolean = false
+)
 @Singleton
 class PlayerController @Inject constructor(
     @ApplicationContext private val context: Context
@@ -36,7 +46,30 @@ class PlayerController @Inject constructor(
         private set
     var currentQueueContext: QueueContext? = null
 
+    private val _nowPlaying = MutableStateFlow(NowPlaying())
+    val nowPlaying: StateFlow<NowPlaying> = _nowPlaying.asStateFlow()
+
+    private val internalListener = object : Player.Listener {
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            _nowPlaying.update { it.copy(isPlaying = isPlaying) }
+        }
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            _nowPlaying.update { it.copy(songId = mediaItem?.mediaId) }
+        }
+    }
+
     fun create(onConnected: (MediaController) -> Unit = {}) {
+        if (controllerFuture != null) {
+            controllerFuture?.let { future ->
+                if (!future.isDone) return
+                try {
+                    future.get()?.let(onConnected)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            return
+        }
         val sessionToken = SessionToken(
             context,
             ComponentName(context, PlaybackService::class.java)
@@ -46,6 +79,7 @@ class PlayerController @Inject constructor(
             try {
                 mediaController = controllerFuture?.get()
                 mediaController?.let { controller ->
+                    controller.addListener(internalListener)
                     onConnected(controller)
                 }
             } catch (e: Exception) {

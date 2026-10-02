@@ -350,7 +350,6 @@ private fun ExpandedPlayer(
                             )
                         }
                     }
-                    .clickable(onClick = onTogglePlay)
             ) {
                 VibeImage(
                     resource = currentSong?.artwork ?: R.drawable.default_cover,

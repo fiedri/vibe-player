@@ -66,7 +66,7 @@ class PlayerViewModel @Inject constructor(
 
                     systemStartTimeMs = System.currentTimeMillis()
                     basePositionMs = mediaController.currentPosition.coerceAtLeast(0L)
-
+                    startPositionClock()
                     _uiState.update {
                         it.copy(
                             currentSong = playingSong,
@@ -175,7 +175,7 @@ class PlayerViewModel @Inject constructor(
                 } else {
                     _uiState.update { it.copy(currentTimeMs = calculatedPosition) }
                 }
-                delay(250L)
+                delay(500L)
             }
         }
     }

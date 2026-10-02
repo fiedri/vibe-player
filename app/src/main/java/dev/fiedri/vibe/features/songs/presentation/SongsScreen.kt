@@ -34,6 +34,7 @@ fun SongsScreen(
     viewModel: SongScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val nowPlaying by viewModel.nowPlaying.collectAsStateWithLifecycle()
 
     when (val state = uiState) {
         is SongsUiState.Loading -> {
@@ -43,7 +44,8 @@ fun SongsScreen(
         is SongsUiState.Success -> {
             SongsList(
                 songs = state.songs,
-                currentPlayingId = state.currentPlayingId,
+                currentSongId = nowPlaying.songId,
+                isPlaying = nowPlaying.isPlaying,
                 onSongClick = { songs, index ->
                     viewModel.onSongClicked(songs, index)
                 }
@@ -104,17 +106,17 @@ private fun SongsErrorState(message: String, onRetry: () -> Unit) {
 
 
 @Composable
-fun SongsList(songs: List<SongModel>, currentPlayingId: Long? = null, onSongClick: (List<SongModel>, Int) -> Unit = { _, _ -> }){
+fun SongsList(songs: List<SongModel>, currentSongId: String? = null, isPlaying: Boolean = false, onSongClick: (List<SongModel>, Int) -> Unit = { _, _ -> }){
     var optionsFor by remember { mutableStateOf<SongCardUiState?>(null) }
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
         itemsIndexed(items = songs, key = { _, song -> song.id }) { index, song ->
-            val isCurrent = currentPlayingId != null && song.id == currentPlayingId
+            val isCurrent = currentSongId != null && song.id.toString() == currentSongId
             val songUiState = SongCardUiState(
                 song = song,
                 isSelected = isCurrent,
-                isPlayingThis = isCurrent
+                isPlayingThis = isCurrent && isPlaying
             )
             SongCard(
                 uiState = songUiState,
