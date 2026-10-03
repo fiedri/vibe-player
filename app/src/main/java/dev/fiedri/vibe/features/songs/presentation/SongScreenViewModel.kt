@@ -39,7 +39,7 @@ class SongScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = SongsUiState.Loading
             try {
-                _uiState.value = SongsUiState.Success(songs = songsRepository.getSongs(forceRefresh))
+                songsRepository.getSongs(forceRefresh)
             }catch (e: Exception){
                 _uiState.value = SongsUiState.Error(
                     message = e.localizedMessage ?: "Error al cargar canciones"
@@ -47,15 +47,14 @@ class SongScreenViewModel @Inject constructor(
             }
         }
     }
-    fun observeSongs(){
-        _uiState.value = SongsUiState.Loading
+    private fun observeSongs(){
         viewModelScope.launch {
-            songsRepository.songs.collect{
-                songsList ->
-                    if(songsList.isNotEmpty()){
-                        _uiState.value = SongsUiState.Success(songs = songsList)
-                    }
-
+            songsRepository.songs.collect { songsList ->
+                _uiState.value = if (songsList == null) {
+                    SongsUiState.Loading
+                } else {
+                    SongsUiState.Success(songs = songsList)
+                }
             }
         }
     }

@@ -8,9 +8,14 @@ import androidx.navigation3.ui.NavDisplay
 import dev.fiedri.vibe.features.home.presentation.HomeLayout
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
-import dev.fiedri.vibe.features.albums.presentation.AlbumDetailsScreen
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import dev.fiedri.vibe.features.albums.presentation.detail.AlbumDetailViewModel
+import dev.fiedri.vibe.features.albums.presentation.detail.AlbumDetailsScreen
 import dev.fiedri.vibe.features.artists.presentation.ArtistDetailsScreen
 import dev.fiedri.vibe.features.playlists.presentation.PlaylistDetailsScreen
 import dev.fiedri.vibe.features.search.presentation.SearchScreen
@@ -42,6 +47,10 @@ fun VibeNavGraph(
             onBack = {
                 if (backStack.size > 1) backStack.removeLastOrNull()
             },
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
             entryProvider = entryProvider {
 
 
@@ -53,7 +62,10 @@ fun VibeNavGraph(
                     )
                 }
                 entry<AlbumDetail> { key ->
-                    AlbumDetailsScreen(key.id)
+                    val viewModel = hiltViewModel<AlbumDetailViewModel, AlbumDetailViewModel.Factory>(
+                        creationCallback = { factory -> factory.create(key) }
+                    )
+                    AlbumDetailsScreen(viewModel)
                 }
                 entry<ArtistDetail> { key ->
                     ArtistDetailsScreen(key.name)

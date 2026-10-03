@@ -24,6 +24,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.fiedri.vibe.R
 import dev.fiedri.vibe.core.data.models.SongModel
+import dev.fiedri.vibe.core.ui.LoadingState
 import dev.fiedri.vibe.core.ui.composables.SongCard
 import dev.fiedri.vibe.core.ui.composables.SongOptionsSheet
 import dev.fiedri.vibe.core.ui.composables.models.SongCardUiState
@@ -38,7 +39,7 @@ fun SongsScreen(
 
     when (val state = uiState) {
         is SongsUiState.Loading -> {
-            SongsLoadingState()
+            LoadingState()
         }
 
         is SongsUiState.Success -> {
@@ -62,15 +63,7 @@ fun SongsScreen(
     }
 }
 
-@Composable
-private fun SongsLoadingState() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(color = VibeTheme.colors.primary)
-    }
-}
+
 
 @Composable
 private fun SongsErrorState(message: String, onRetry: () -> Unit) {

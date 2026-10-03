@@ -10,7 +10,7 @@ import dev.fiedri.vibe.core.ui.LocalNavigator
 
 @Composable
 fun ArtistsScreen() {
-    val navigator = LocalNavigator.current
+    /*val navigator = LocalNavigator.current
     val artists: List<CardData> = remember {
         List(50) { index ->
             CardData(
@@ -22,5 +22,5 @@ fun ArtistsScreen() {
         }
     }
     CardGrid(cards = artists,
-        onItemClick = { card -> navigator?.navigate(ArtistDetail(card.name)) })
+        onItemClick = { card -> navigator?.navigate(ArtistDetail(card.name)) })*/
 }

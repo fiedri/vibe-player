@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data object Home: NavKey
 
 @Serializable
-data class AlbumDetail(val id: Int) : NavKey
+data class AlbumDetail(val id: Long) : NavKey
 @Serializable
 data class ArtistDetail(val name: String): NavKey
 @Serializable

@@ -2,14 +2,12 @@ package dev.fiedri.vibe.core.data
 
 import android.content.ContentUris
 import android.content.Context
-import android.net.Uri
 import android.provider.MediaStore
 
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 import dev.fiedri.vibe.core.data.models.SongModel
@@ -40,14 +38,14 @@ class AudioStoreDataSource @Inject constructor(@ApplicationContext private val c
             val selectionArgs = arrayOf("30000")
             val sortOrder = "${MediaStore.Audio.Media.DATE_MODIFIED} DESC"
 
-            try {
-                context.contentResolver.query(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    projection,
-                    selection,
-                    selectionArgs,
-                    sortOrder
-                )?.use { cursor ->
+try {
+            context.contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder
+            )?.use { cursor ->
 
                     val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
                     val titleCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
@@ -107,25 +105,13 @@ class AudioStoreDataSource @Inject constructor(@ApplicationContext private val c
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                throw e
             }
 
             songs
         }
     }
 
-    private fun getAlbumArtUri(albumId: Long): Uri {
-        return ContentUris.withAppendedId(
-            "content://media/external/audio/albumart".toUri(),
-            albumId
-        )
-        /*
-        Glide.with(context)
-        .load(artworkUri)
-        .placeholder(R.drawable.ic_default_cover) // Imagen por defecto si no tiene carátula
-        .into(imageView)
-         */
-    }
 
 }
 

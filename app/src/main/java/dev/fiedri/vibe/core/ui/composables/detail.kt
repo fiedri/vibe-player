@@ -1,7 +1,6 @@
 package dev.fiedri.vibe.core.ui.composables
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,12 +33,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.fiedri.vibe.R
+import dev.fiedri.vibe.core.data.models.SongModel
 import dev.fiedri.vibe.core.ui.composables.models.CardData
 import dev.fiedri.vibe.core.ui.composables.models.SongCardUiState
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
@@ -52,11 +52,11 @@ enum class EntityType(val kicker: String, val emptyStateText: String) {
 
 data class DetailHeader(
     val name: String,
-    val image: Int = R.drawable.default_cover
+    val image: Any? = R.drawable.default_cover
 )
 
 data class DetailResources(
-    val songs: List<SongCardUiState>,
+    val songs: List<SongModel>,
     val albums: List<CardData> = emptyList()
 )
 @Composable
@@ -73,8 +73,8 @@ fun DetailsScreen(
     LazyColumn(modifier = modifier.fillMaxSize().background(VibeTheme.colors.background)) {
         item {
             Box(modifier = Modifier.fillMaxWidth().height(280.dp)) {
-                Image(
-                    painter = painterResource(id = header.image),
+                VibeImage(
+                    resource = header.image,
                     contentDescription = "Cover",
                     modifier = Modifier.fillMaxWidth(),
                     contentScale = ContentScale.Crop
@@ -116,7 +116,9 @@ fun DetailsScreen(
                         color = VibeTheme.colors.foreground,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Black,
-                        style = VibeTheme.typography.titleMedium
+                        style = VibeTheme.typography.titleMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                     if (type !== EntityType.ARTISTS) {
                         Text(
@@ -232,8 +234,9 @@ fun DetailsScreen(
                 }
             }
         } else {
-            items(items = resources.songs, key = { song -> song.song.id }) { song ->
-                SongCard(song, onClick = { onSongClick(song) })
+            items(items = resources.songs, key = { song -> song.id }) { song ->
+                val songCard: SongCardUiState = SongCardUiState(song= song)
+                SongCard(songCard, onClick = { onSongClick(songCard) })
             }
         }
     }
