@@ -1,16 +1,8 @@
 package dev.fiedri.vibe.features.artists.presentation
 
-import dev.fiedri.vibe.R
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import dev.fiedri.vibe.core.ui.composables.models.CardData
-import dev.fiedri.vibe.core.ui.composables.DetailHeader
-import dev.fiedri.vibe.core.ui.composables.DetailResources
-import dev.fiedri.vibe.core.ui.composables.DetailsScreen
-import dev.fiedri.vibe.core.ui.composables.EntityType
 
 import dev.fiedri.vibe.core.ui.LocalNavigator
-import dev.fiedri.vibe.core.ui.composables.models.SongCardUiState
 
 @Composable
 fun ArtistDetailsScreen(name: String) {

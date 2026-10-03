@@ -1,4 +1,4 @@
-package dev.fiedri.vibe.core.ui.composables
+package dev.fiedri.vibe.features.details.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
@@ -27,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -38,11 +40,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.fiedri.vibe.R
 import dev.fiedri.vibe.core.data.models.SongModel
+import dev.fiedri.vibe.core.ui.composables.SongCard
+import dev.fiedri.vibe.core.ui.composables.ThumbnailCard
+import dev.fiedri.vibe.core.ui.composables.VibeImage
 import dev.fiedri.vibe.core.ui.composables.models.CardData
 import dev.fiedri.vibe.core.ui.composables.models.SongCardUiState
 import dev.fiedri.vibe.core.ui.theme.VibeTheme
+import dev.fiedri.vibe.features.player.data.QueueContext
 
 enum class EntityType(val kicker: String, val emptyStateText: String) {
     ALBUM("Album", "Este album no tiene canciones."),
@@ -51,7 +59,8 @@ enum class EntityType(val kicker: String, val emptyStateText: String) {
 }
 
 data class DetailHeader(
-    val name: String,
+    val id: Long? = null,
+    val name: String? = null,
     val image: Any? = R.drawable.default_cover
 )
 
@@ -66,10 +75,11 @@ fun DetailsScreen(
     resources: DetailResources,
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
-    onPlay: () -> Unit = {},
     onShuffle: () -> Unit = {},
-    onSongClick: (SongCardUiState) -> Unit = {}
+    viewModel: detailViewModel = hiltViewModel(),
+    context: QueueContext
 ) {
+    val nowPlaying by viewModel.nowPlaying.collectAsStateWithLifecycle()
     LazyColumn(modifier = modifier.fillMaxSize().background(VibeTheme.colors.background)) {
         item {
             Box(modifier = Modifier.fillMaxWidth().height(280.dp)) {
@@ -112,7 +122,7 @@ fun DetailsScreen(
                         fontSize = 16.sp
                     )
                     Text(
-                        text = header.name.uppercase(),
+                        text = header.name?.uppercase() ?: "<Unknown>",
                         color = VibeTheme.colors.foreground,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Black,
@@ -174,7 +184,14 @@ fun DetailsScreen(
             ) {
                 Button(
                     shape = RectangleShape,
-                    onClick = onPlay,
+                    onClick = {
+
+                    viewModel.playSong(
+                        resources.songs,
+                        0,
+                        context
+                    )
+                    },
                     modifier = Modifier.weight(1f).height(48.dp),
                     contentPadding = PaddingValues(horizontal = 8.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -194,7 +211,10 @@ fun DetailsScreen(
                     )
                 }
                 Button(
-                    onClick = onShuffle,
+                    onClick = {
+                        viewModel.shuffle(resources.songs, queueContext = context)
+
+                    },
                     shape = RectangleShape,
                     modifier = Modifier.weight(1f).height(48.dp),
                     contentPadding = PaddingValues(horizontal = 8.dp),
@@ -234,9 +254,14 @@ fun DetailsScreen(
                 }
             }
         } else {
-            items(items = resources.songs, key = { song -> song.id }) { song ->
-                val songCard: SongCardUiState = SongCardUiState(song= song)
-                SongCard(songCard, onClick = { onSongClick(songCard) })
+            itemsIndexed(items = resources.songs, key = { index, song -> song.id }) { index, song ->
+                val isCurrent = nowPlaying.songId != null && song.id.toString() == nowPlaying.songId
+                val songCard: SongCardUiState = SongCardUiState(song= song, isSelected = isCurrent, isPlayingThis = isCurrent && nowPlaying.isPlaying)
+                SongCard(songCard, onClick = {
+                    viewModel.playSong(
+                        resources.songs, index, context
+                    )
+                })
             }
         }
     }

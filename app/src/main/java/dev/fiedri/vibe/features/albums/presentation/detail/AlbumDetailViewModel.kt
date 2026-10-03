@@ -10,6 +10,8 @@ import dev.fiedri.vibe.R
 import dev.fiedri.vibe.core.data.models.SongModel
 import dev.fiedri.vibe.core.ui.AlbumDetail
 import dev.fiedri.vibe.features.albums.data.AlbumRepository
+import dev.fiedri.vibe.features.player.data.PlayerController
+import dev.fiedri.vibe.features.player.data.QueueContext
 import dev.fiedri.vibe.features.songs.data.SongsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +27,7 @@ sealed interface AlbumDetailUiState {
 class AlbumDetailViewModel @AssistedInject constructor(
     @Assisted val navKey: AlbumDetail,
     private val songRepository: SongsRepository,
-    private val albumRepository: AlbumRepository
+    private val albumRepository: AlbumRepository,
 ) : ViewModel() {
     val albumId: Long = navKey.id
 

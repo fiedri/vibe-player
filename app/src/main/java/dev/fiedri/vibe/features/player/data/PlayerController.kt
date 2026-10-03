@@ -2,7 +2,6 @@ package dev.fiedri.vibe.features.player.data
 
 import android.content.ComponentName
 import android.content.Context
-import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -22,7 +21,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 sealed interface QueueContext {
-    data class Album(val albumId: Long) : QueueContext
+    data class Album(val albumId: Long?) : QueueContext
     data class Playlist(val playlistId: String) : QueueContext
     data class Artist(val artistId: Long) : QueueContext
     data object AllSongs : QueueContext
@@ -92,30 +91,26 @@ class PlayerController @Inject constructor(
         songs: List<SongModel>,
         initialIndex: Int = 0,
         queueContext: QueueContext
-    ) = withContext(Dispatchers.Default) {
-        val controller = mediaController ?: return@withContext
-        if (queueContext == currentQueueContext) {
-            withContext(Dispatchers.Main) {
-                if (controller.currentMediaItemIndex != initialIndex) {
-                    controller.seekToDefaultPosition(initialIndex)
-                }
-                if (!controller.isPlaying) controller.play()
-            }
-            return@withContext
-        }
-
-        currentQueueContext = queueContext
+    ) {
         val mediaItems = withContext(Dispatchers.Default) {
             songs.map { it.toMediaItem() }
         }
 
-
         withContext(Dispatchers.Main) {
+            val controller = mediaController ?: return@withContext
+            if (queueContext == currentQueueContext) {
+                if (controller.currentMediaItemIndex != initialIndex) {
+                    controller.seekTo(initialIndex, 0L)
+                }
+
+                return@withContext
+            }
+
+            currentQueueContext = queueContext
             controller.setMediaItems(mediaItems, initialIndex, 0L)
             controller.prepare()
             controller.play()
         }
-
     }
     suspend fun playNext(){
         withContext(Dispatchers.Main){
