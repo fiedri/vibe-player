@@ -37,7 +37,8 @@ class SongScreenViewModel @Inject constructor(
     }
     fun fetchSongs(forceRefresh: Boolean = false){
         viewModelScope.launch {
-            _uiState.value = SongsUiState.Loading
+            if (songsRepository.songs.value == null || forceRefresh)
+                _uiState.value = SongsUiState.Loading
             try {
                 songsRepository.getSongs(forceRefresh)
             }catch (e: Exception){
